@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Chart</title>
+  <link rel="stylesheet" href="chart-styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="chart-container">
+    <div class="chart-header">
+      <h3>Sales <span class="tooltip">?</span></h3>
+      <div class="filters">
+        <select>
+          <option>Online store</option>
+          <option>Retail store</option>
+        </select>
+        <input type="date" value="2024-12-07">
+      </div>
+    </div>
+
+    <div class="chart-content">
+      <canvas id="salesChart"></canvas>
+      <div class="chart-details">
+        <div class="detail">
+          <h4>Revenue</h4>
+          <p class="value">$97,458.20</p>
+          <p class="growth positive">+ $2,401.02 (3.7%)</p>
+        </div>
+        <div class="detail">
+          <h4>Orders</h4>
+          <p class="value">67,893</p>
+          <p class="growth negative">- 3,301 (1.2%)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM'],
+        datasets: [
+          {
+            label: 'Revenue',
+            data: [200, 250, 300, 400, 150, 250, 350, 100, 200, 300, 250],
+            backgroundColor: '#cbd5e1',
+          },
+          {
+            label: 'Orders',
+            data: [150, 300, 350, 400, 200, 300, 400, 150, 250, 350, 300],
+            backgroundColor: '#2563eb',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+        },
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  </script>
+</body>
+</html>

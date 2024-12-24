@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Categories Management</title>
+  <link rel="stylesheet" href="/css/admin/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1><span class="brand">Zip</span>Kart</h1>
+    </div>
+    <nav class="menu">
+      <ul>
+        <li class="menu-item"><a href="/zipkart/admin/dashboard">Dashboard</a></li>
+        <li class="menu-item"><a href="/zipkart/admin/users/view-users">Users</a></li>
+        <li class="menu-item active"><a href="/zipkart/admin/categories/view-category">Categories</a></li>
+        <li class="menu-item "><a href="/zipkart/admin/products/view-products">Products</a></li>
+        <li class="menu-item"><a href="#">Orders</a></li>
+        <li class="menu-item"><a href="#">Settings</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title">Categories Management</div>
+      <a href="`/zipkart/admin/categories/edit-category/${categoryId}`><button class="logout">Logout</button></a>
+    </header>
+
+    <!-- Add Category Button -->
+    <div class="category-actions">
+      <a href="/zipkart/admin/categories/add-category"><button id="addCategoryBtn" style="background-color: #4f46e5;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">Add Category</button></a>
+    </div>
+
+    <!-- Categories Table -->
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Si.No</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="categoriesTable">
+          <% if (categories.length > 0) { %>
+            <% categories.forEach((category, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= category.name %></td>
+                <td><%= category.description || "No description provided" %></td>
+                <td><%= category.isListed ? "Active" : "Inactive" %></td>
+                <td>
+                  <!-- Inside each row -->
+<a href="/zipkart/admin/categories/edit-category/<%= category._id %>"><button class="btn-edit" >Edit</button>
+</a>                  <% if (category.isListed) { %>
+                    <button class="btn-unlist" onclick="toggleStatus('<%= category._id %>', 'Inactive')">Unlist</button>
+                  <% } else { %>
+                    <button class="btn-list" onclick="toggleStatus('<%= category._id %>', 'Active')">List</button>
+                  <% } %>
+                  <button class="btn-delete" onclick="deleteCategory('<%= category._id %>')"><i class="fas fa-trash"></i> </button>
+
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="5">No categories found</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </section>
+    
+  </main>
+
+  <!-- JavaScript -->
+   <script>
+    //Add category
+//     document.getElementById("addCategoryBtn").addEventListener("click", async () => {
+//   const name = prompt("Enter Category Name:");
+//   const description = prompt("Enter Category Description:");
+
+//   if (name) {
+//     try {
+//       const response = await axios.post("/zipkart/admin/categories/add-category", { name, description });
+//       alert(response.data.message);
+//       location.reload(); // Reload the page to fetch the updated categories
+//     } catch (error) {
+//       alert("Error adding category: " + error.response.data.error);
+//     }
+//   } else {
+//     alert("Category name is required!");
+//   }
+// });
+
+// //edit Category
+// async function editCategory(categoryId) {
+//   const name = prompt("Edit Category Name:");
+//   const description = prompt("Edit Category Description:");
+
+//   if (name && description) {
+//     try {
+//       const response = await axios.put(`/zipkart/admin/categories/edit-category/${categoryId}`, { name, description });
+//       alert(response.data.message);
+//       location.reload(); // Reload the page to reflect changes
+//     } catch (error) {
+//       alert("Error editing category: " + error.response.data.error);
+//     }
+//   } else {
+//     alert("Name and description are required!");
+//   }
+// }
+
+// //edit category status 
+// async function toggleStatus(categoryId, newStatus) {
+//   const isListed = newStatus === "Active";
+  
+//   try {
+//     const response = await axios.patch(`/zipkart/admin/categories/edit-category/${categoryId}/status`, { isListed });
+//     alert(response.data.message);
+//     location.reload(); // Reload the page to reflect changes
+//   } catch (error) {
+//     alert("Error updating status: " + error.response.data.error);
+//   }
+// }
+
+
+//Delete Category
+// Delete Category
+async function deleteCategory(categoryId) {
+  // Show SweetAlert2 confirmation
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // Send DELETE request to the server
+      const response = await axios.delete(`/zipkart/admin/categories/delete-category/${categoryId}`);
+      // Show success alert
+      await Swal.fire('Deleted!', response.data.message, 'success');
+      location.reload(); // Reload the page to reflect the changes
+    } catch (error) {
+      // Show error alert
+      Swal.fire('Error!', 'There was an issue deleting the category.', 'error');
+    }
+  } else {
+    // Show cancelled alert
+    Swal.fire('Cancelled', 'The category was not deleted.', 'info');
+  }
+}
+
+   </script>
+  <!-- <script>
+    // Function to toggle status (Active/Inactive)
+    function toggleStatus(categoryId, newStatus) {
+      const row = document.querySelector(`#categoriesTable tr:nth-child(${categoryId})`);
+      const statusCell = row.querySelector('td:nth-child(4)');
+      const actionButton = row.querySelector('td:nth-child(5) button:last-child');
+
+      if (newStatus === 'Active') {
+        statusCell.textContent = 'Active';
+        actionButton.textContent = 'Unlist';
+        actionButton.className = 'btn-unlist';
+        actionButton.onclick = () => toggleStatus(categoryId, 'Inactive');
+      } else {
+        statusCell.textContent = 'Inactive';
+        actionButton.textContent = 'List';
+        actionButton.className = 'btn-list';
+        actionButton.onclick = () => toggleStatus(categoryId, 'Active');
+      }
+    }
+
+    // Function to edit category
+    function editCategory(categoryId) {
+      const categoryName = prompt("Edit Category Name:");
+      const categoryDescription = prompt("Edit Category Description:");
+
+      if (categoryName && categoryDescription) {
+        const row = document.querySelector(`#categoriesTable tr:nth-child(${categoryId})`);
+        row.querySelector('td:nth-child(2)').textContent = categoryName;
+        row.querySelector('td:nth-child(3)').textContent = categoryDescription;
+      }
+    }
+  </script> -->
+</body>
+</html>

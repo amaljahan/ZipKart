@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F0F0F0;
+}
+
+header {
+    background-color: #007bff;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ... other header styles ... */
+
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.account-details {
+    display: flex;
+    justify-content: space-between;
+}
+
+.profile-section {
+    width: 30%;
+    height: 300px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+}
+
+.profile-info {
+    margin-top: 20px;
+}
+
+.profile-info h2 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.account-actions {
+    width: 60%;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.account-actions ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.account-actions li {
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.account-actions li.active {
+    background-color: #f0f0f0;
+}
+
+.account-actions li a {
+    text-decoration: none;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.account-actions li.active a {
+    color: #ff6600;
+}
+
+.account-actions li a i {
+    margin-right: 10px;
+    color: #666;
+}

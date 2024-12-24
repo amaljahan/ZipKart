@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Zipkart Login</title>
+
+    <link rel="stylesheet" href="/css/signup&login.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="row w-100 m-0">
+          <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+            <div class="card col-lg-4 mx-auto">
+              <div class="card-body px-5 py-5">
+                <h3 class="card-title text-left mb-3">Login</h3>
+                <% if(message){  %>
+                  <p style="color: red;"><%=message %></p>
+                  <% } %>
+                  <% if (errorsToShowInLogin && errorsToShowInLogin.length > 0) { %>
+                    <ul>
+                      <% errorsToShowInLogin.forEach((error) => { %>
+                        <li style="color: red;"><%= error %></li>
+                      <% }) %>
+                    </ul>
+                  <% } %>
+
+                <form id="loginForm" action="login" method="post">
+                      <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" class="form-control p_input" name="email" id="email">
+                        <small id="emailError" style="color: red;"></small>
+                      </div>
+                      <div class="form-group">
+                        <label>Password </label>
+                        <input type="password" class="form-control p_input" name="password" id="password">
+                        <small id="passwordError" style="color: red;"></small>
+                      </div>
+                      <div class="form-group d-flex align-items-center justify-content-between">
+                        <a href="#" class="forgot-pass">Forgot password</a>
+                      </div>
+                      <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-block enter-btn">Login</button>
+                      </div>
+                      <div style="width: 100%;position: relative;" class="d-flex">
+                        <a href="auth/google/login"><button type="button" class="btn btn-google col" style="width: 100%;position: absolute;">
+                          <i class="mdi mdi-google-plus"></i> Google  </button></a>
+                      </div>
+                      <p class="sign-up">Don't have an Account?<a href="/zipkart/user/signup"> Signup</a></p>
+                </form>
+                
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+        </div>
+        <!-- row ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', function (event) {
+        let valid = true;
+    
+        // Get form fields and error containers
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+    
+        // Clear previous errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
+    
+        // Email validation
+        if (email === '') {
+          emailError.textContent = 'Email is required.';
+          valid = false;
+        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+          emailError.textContent = 'Enter a valid email.';
+          valid = false;
+        }
+    
+        // Password validation
+        if (password === '') {
+          passwordError.textContent = 'Password is required.';
+          valid = false;
+        } else if (password.length < 8) {
+          passwordError.textContent = 'Password must be at least 8 characters.';
+          valid = false;
+        }
+    
+        // If not valid, prevent form submission
+        if (!valid) {
+          event.preventDefault();
+        }
+      });
+    </script>
+    
+  </body>
+</html>

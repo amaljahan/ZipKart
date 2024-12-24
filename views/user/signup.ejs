@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Zipkart signup</title>
+   
+    <link rel="stylesheet" href="/css/signup&login.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+    <style>
+      .hidden {
+        display: none;
+      }
+
+    </style>
+
+  </head>
+  <body>
+    <div class="container-scroller">
+      <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="row w-100 m-0">
+          <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+            <div class="card col-lg-4 mx-auto">
+              <div class="card-body px-5 py-5">
+                <h3 class="card-title text-left mb-3">Register</h3>
+               <% if(message){  %>
+                <p style="color: red;"><%=message %></p>
+                <% } %>
+                <% if (errorsToShowInSignup && errorsToShowInSignup.length > 0) { %>
+                  <ul>
+                    <% errorsToShowInSignup.forEach((error) => { %>
+                      <li style="color: red;"><%= error %></li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+                <form action="signup" method="post">
+                    
+                          <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" class="form-control p_input" name="firstName">
+                          </div>
+                          <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control p_input" name="lastName">
+                          </div>
+                          <div class="form-group">
+                            <label>Email</label>
+                            <input id="email" type="email" class="form-control p_input" name="email">
+                            <!-- Get OTP Button -->
+                            <button id="getOtpBtn" type="button" onclick="generateOTP()" class="btn btn-facebook col mr-2" style="background-color: green;">
+                              Get OTP
+                            </button>
+                            <!-- Resend OTP Button (Initially Hidden) -->
+                            <button id="resendOtpBtn" type="button" onclick="resendOTP()" class="btn btn-facebook col mr-2 hidden" style="background-color: orange;">
+                              Resend OTP
+                            </button>
+                            <div id="otp-timer" class="hidden" style="color: red; font-size: 14px; margin-top: 10px;">Wait for <span id="timer">60</span> seconds</div>
+                          </div>
+                          <div class="form-group">
+                            <input type="text" placeholder="Type OTP here" maxlength="4" class="form-control p_input" name="otp">
+                          </div>
+                          <div class="form-group">
+                            <label>Password</label>
+                            <div class="input-group">
+                              <input type="password" id="password" class="form-control p_input" name="password" oninput="validatePasswords()">
+                              <div class="input-group-append">
+                                <span class="input-group-text" id="showPasswordToggle" style="cursor: pointer;">
+                                  <i id="showPasswordIcon" class="fa fa-eye" aria-hidden="true"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control p_input" name="confirmPassword" oninput="validatePasswords()">
+                            <small id="passwordMatchMessage" style="color: red; display: none;"></small>
+                          </div>
+                          <div class="text-center">
+                            <button type="submit" id="submitBtn" class="btn btn-primary btn-block enter-btn" disabled>Sign Up</button>
+                          </div>
+
+                          <div style="width: 100%;position: relative;" class="d-flex">
+                            <a href="auth/google/signup"><button type="button" class="btn btn-google col" style="width: 100%;position: absolute;">
+                              <i class="mdi mdi-google-plus"></i> Google  </button></a>
+                            
+                          </div>
+                          <p class="sign-up">Already have an Account?<a href="/zipkart/user/login"> Login</a></p>
+
+                          
+                  
+                </form>
+                
+
+
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+        </div>
+        <!-- row ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="../../assets/js/off-canvas.js"></script>
+    <script src="../../assets/js/hoverable-collapse.js"></script>
+    <script src="../../assets/js/misc.js"></script>
+    <script src="../../assets/js/settings.js"></script>
+    <script src="../../assets/js/todolist.js"></script>
+    <!-- endinject -->
+
+
+<script>
+// Enhanced OTP and Form Validation Script
+
+let timerInterval;
+let otpGenerated = false;
+
+// Validate Email Format
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Generate OTP Function
+function generateOTP() {
+  const email = document.getElementById('email').value;
+
+  if (!email) {
+    Swal.fire('Error', 'Please enter your email!', 'error');
+    return;
+  }
+  if (!isValidEmail(email)) {
+    Swal.fire('Error', 'Please enter a valid email address!', 'error');
+    return;
+  }
+  if (otpGenerated) {
+    Swal.fire('Error', 'OTP already sent! Use "Resend OTP".', 'error');
+    return;
+  }
+
+  axios.post('generate-otp', { email })
+    .then((response) => {
+      if (response.data.message === "user already exist") {
+        Swal.fire('Info', 'User already exists. Try a different email.', 'info');
+      } else {
+        Swal.fire('Success', 'OTP sent to your email!', 'success');
+        startOtpTimer();
+        otpGenerated = true;
+      }
+    })
+    .catch(() => {
+      Swal.fire('Error', 'Failed to send OTP. Try again.', 'error');
+    });
+}
+
+// Resend OTP Function
+function resendOTP() {
+  const email = document.getElementById('email').value;
+
+  if (!email) {
+    Swal.fire('Error', 'Please enter your email!', 'error');
+    return;
+  }
+  if (!isValidEmail(email)) {
+    Swal.fire('Error', 'Please enter a valid email address!', 'error')
+    return;
+  }
+
+  axios.post('generate-otp', { email })
+    .then(() => {
+      Swal.fire('Success', 'OTP resent to your email!', 'success');
+      startOtpTimer();
+    })
+    .catch(() => {
+      Swal.fire('Error', 'Failed to resend OTP. Try again.', 'error');
+    });
+}
+
+// Start OTP Timer
+function startOtpTimer() {
+  const getOtpBtn = document.getElementById('getOtpBtn');
+  const resendOtpBtn = document.getElementById('resendOtpBtn');
+  const otpTimer = document.getElementById('otp-timer');
+  const timerDisplay = document.getElementById('timer');
+
+  resendOtpBtn.classList.add('hidden');
+  otpTimer.classList.remove('hidden');
+
+  let timeLeft = 60;
+  timerDisplay.textContent = timeLeft;
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      otpTimer.classList.add('hidden');
+      resendOtpBtn.classList.remove('hidden');
+      getOtpBtn.classList.add('hidden');
+    }
+  }, 1000);
+}
+
+// Validate Password Strength
+function validatePasswordStrength(password) {
+  const passwordStrengthRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordStrengthRegex.test(password);
+}
+
+// Validate Passwords Match
+function validatePasswords() {
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const message = document.getElementById('passwordMatchMessage');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if (!validatePasswordStrength(password)) {
+    message.textContent = 'Password must be at least 8 characters long, including a number and a special character!';
+    message.style.color = 'red';
+    message.style.display = 'block';
+    submitBtn.disabled = true;
+    return;
+  }
+
+  if (password === confirmPassword) {
+    message.textContent = 'Passwords match!';
+    message.style.color = 'green';
+    message.style.display = 'block';
+    submitBtn.disabled = false;
+  } else if (confirmPassword) {
+    message.textContent = 'Passwords do not match!';
+    message.style.color = 'red';
+    message.style.display = 'block';
+    submitBtn.disabled = true;
+  } else {
+    message.style.display = 'none';
+    submitBtn.disabled = true;
+  }
+}
+
+// Toggle Password Visibility
+document.getElementById('showPasswordToggle').addEventListener('click', function () {
+  const passwordField = document.getElementById('password');
+  const confirmPasswordField = document.getElementById('confirmPassword');
+  const showPasswordIcon = document.getElementById('showPasswordIcon');
+
+  if (passwordField.type === 'password') {
+    passwordField.type = 'text';
+    confirmPasswordField.type = 'text';
+    showPasswordIcon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    passwordField.type = 'password';
+    confirmPasswordField.type = 'password';
+    showPasswordIcon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+});
+
+
+  </script>
+ </body>
+</html>`

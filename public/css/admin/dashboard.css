@@ -1,0 +1,782 @@
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    position: fixed; /* Make sidebar fixed */
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh; /* Full height */
+    background-color: #1a202c;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+  }
+
+  .sidebar .logo h1 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .sidebar .brand {
+    color: #5a91e8;
+  }
+
+  .sidebar .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar .menu-item {
+    margin-bottom: 15px;
+  }
+
+  .sidebar .menu-item a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 15px;
+    border-radius: 5px;
+  }
+
+  .sidebar .menu-item a:hover,
+  .sidebar .menu-item.active a {
+    background-color: #2d3748;
+  }
+
+  /* Main Content */
+  .main-content {
+    margin-left: 250px; /* Offset for the fixed sidebar */
+    padding: 20px;
+    width: calc(100% - 250px); /* Ensure the main content doesn't overflow */
+    box-sizing: border-box;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .filters select,
+  .filters input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    margin-left: 10px;
+  }
+
+  .metrics {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .metric {
+    flex: 1;
+    margin: 0 10px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .metric h4 {
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 10px;
+  }
+
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .metric .growth {
+    font-size: 0.9rem;
+  }
+
+  .growth.positive {
+    color: #10b981;
+  }
+
+  .growth.negative {
+    color: #ef4444;
+  }
+
+  .chart-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .cards {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    text-align: center;
+  }
+
+  .charts-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .chart {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+  }
+
+  .statistics {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stat-box {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+
+    .main-content {
+      margin-left: 0;
+    }
+
+    .metrics {
+      flex-direction: column;
+    }
+
+    .metric {
+      margin-bottom: 20px;
+    }
+  }
+/* Header styling */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f2937; /* Dark gray background */
+  color: #ffffff; /* White text */
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header .search-bar input {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header .user-profile {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.header .logout {
+  background-color: #dc2626; /* Red background */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.header .logout:hover {
+  background-color: #b91c1c; /* Darker red on hover */
+}
+
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      background-color: #f9fafb;
+      color: #333;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed; /* Make sidebar fixed */
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh; /* Full height */
+      background-color: #1a202c;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .sidebar .logo h1 {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+
+    .sidebar .brand {
+      color: #5a91e8;
+    }
+
+    .sidebar .menu ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar .menu-item {
+      margin-bottom: 15px;
+    }
+
+    .sidebar .menu-item a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      padding: 10px 15px;
+      border-radius: 5px;
+    }
+
+    .sidebar .menu-item a:hover,
+    .sidebar .menu-item.active a {
+      background-color: #2d3748;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1f2937;
+      color: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .header .title {
+      font-size: 24px;
+    }
+
+    .header .logout {
+      background-color: #dc2626;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout:hover {
+      background-color: #b91c1c;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 250px; /* Space for sidebar */
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .search-bar input {
+      padding: 8px 10px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    /* Users Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table thead {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    table button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      font-size: 14px;
+    }
+
+    .btn-block {
+      background-color: #dc2626;
+    }
+
+    .btn-unblock {
+      background-color: #10b981;
+    }
+
+    .btn-block:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-unblock:hover {
+      background-color: #059669;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 10px;
+        background-color: #1a202c;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .search-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .search-bar input {
+        width: 100%;
+      }
+    }
+/* =======================Category================================================= */
+
+
+/* Search Bar Styles */
+.search-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.search-bar input[type="text"] {
+  padding: 10px 15px;
+  font-size: 16px;
+  width: 300px;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.search-bar input[type="text"]:focus {
+  border-color: #007BFF;
+  background-color: #fff;
+  outline: none;
+}
+
+.search-bar button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Add Category Button - Positioned to the Right Corner */
+
+
+.addCategoryBtn:hover {
+  background-color: #218838;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.addCategoryBtn:focus {
+  outline: none;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Users Table Styles - Added spacing for the buttons */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table thead {
+  background-color: #2563eb;
+  color: white;
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+  background-color: #f1f5f9;
+}
+
+table button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+}
+
+.btn-block {
+  background-color: #dc2626;
+}
+
+.btn-unblock {
+  background-color: #10b981;
+}
+
+.btn-block:hover {
+  background-color: #b91c1c;
+}
+
+.btn-unblock:hover {
+  background-color: #059669;
+}
+
+/* General Button Styles */
+/* button {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+} */
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+/* Button Styles */
+button {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+.addCategoryBtn {
+ 
+  background-color: #28a745;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Search Button */
+.search-bar input[type="text"] {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  width: 80%;
+  max-width: 300px;
+}
+
+.search-bar button {
+  background-color: #007BFF;
+  color: white;
+  border: 1px solid #007BFF;
+  margin-left: 10px;
+  padding: 8px 15px;
+  border-radius: 5px;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Add Category Button */
+.category-form form button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+
+.category-form form button:hover {
+  background-color: #218838;
+}
+
+/* Edit and Delete Buttons in Categories Table */
+
+/* Edit Button - Restore Style */
+.btn-edit {
+  background-color: #3c9806; /* Bright yellow for edit */
+  color: white;
+  padding: 8px 15px; /* Proper padding for buttons */
+  border: none;
+  border-radius: 5px;
+  font-size: 14px; /* Consistent font size */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+
+/* .btn-edit {
+  background-color: #ffc107;
+  color: white;
+} */
+
+.btn-edit:hover {
+  background-color: #1b4105; 
+}
+
+/* Unlist and List Buttons */
+.btn-unlist {
+  background-color: #f59e0b; 
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-unlist:hover {
+  background-color: #d97706; 
+}
+
+
+.btn-list {
+  background-color: #34d399; 
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-list:hover {
+  background-color: #059669; 
+}
+
+/* Disabled/Inactive Button Styles */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Active Row Highlight */
+tr.active-row {
+  background-color: #e8f7e5;
+}
+
+/* Button Sizes */
+.btn-block, .btn-unblock {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-block {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-block:hover {
+  background-color: #0056b3;
+}
+
+.btn-unblock {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-unblock:hover {
+  background-color: #218838;
+}
+
+/* Style for Delete Button */
+.btn-delete {
+  background-color: #e74c3c; /* Red color */
+  color: white;
+  border: none;
+  padding: 10px 12px; /* Adjust padding */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 16px; /* Size for the icon */
+}
+
+.btn-delete i {
+  font-size: 18px; /* Slightly larger icon */
+}
+
+.btn-delete:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+.btn-delete:focus {
+  outline: none; /* Remove focus outline */
+}
+
+/* Add this to your dashboard.css or inline */
+
+
+/* Styling for the image container */
+.image-container {
+  position: relative; /* This allows absolute positioning of the buttons */
+  display: inline-block;
+}
+
+/* Styling for the product image */
+.product-image {
+  width: 100%; /* Ensures the image fits the container */
+  height: auto;
+  display: block;
+}
+
+/* Styling for the arrow buttons */
+.btn-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%); /* Center the button vertically */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  color: white; /* White color for the icon */
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10; /* Ensure the buttons are above the image */
+}
+
+/* Left Arrow button */
+.left-arrow {
+  left: 10px; /* Position the left arrow on the left side */
+}
+
+/* Right Arrow button */
+.right-arrow {
+  right: 10px; /* Position the right arrow on the right side */
+}
+
+/* Hover effect for buttons */
+.btn-arrow:hover {
+  background-color: rgba(0, 0, 0, 0.7); /* Darker background on hover */
+}

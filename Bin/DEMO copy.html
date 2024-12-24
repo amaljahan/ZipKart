@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../Bin/views/admin/css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1><span class="brand">Zip</span>Kart</h1>
+    </div>
+    <nav class="menu">
+      <ul>
+        <li class="menu-item active"><a href="#">Dashboard</a></li>
+        <li class="menu-item"><a href="#">Orders</a></li>
+        <li class="menu-item"><a href="#">Customers</a></li>
+        <li class="menu-item"><a href="#">Products</a></li>
+        <li class="menu-item"><a href="#">Reports</a></li>
+        <li class="menu-item"><a href="#">Settings</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <h1>Sales Report</h1>
+      <div class="filters">
+        <select>
+          <option>Online Store</option>
+          <option>Retail Store</option>
+        </select>
+        <input type="date" value="2024-12-07">
+      </div>
+    </header>
+
+    <!-- Key Metrics -->
+    <section class="metrics">
+      <div class="metric">
+        <h4>Total Revenue</h4>
+        <p class="value">$97,458.20</p>
+        <p class="growth positive">+3.7%</p>
+      </div>
+      <div class="metric">
+        <h4>Total Orders</h4>
+        <p class="value">67,893</p>
+        <p class="growth negative">-1.2%</p>
+      </div>
+      <div class="metric">
+        <h4>New Customers</h4>
+        <p class="value">1,245</p>
+        <p class="growth positive">+5.4%</p>
+      </div>
+    </section>
+
+    <!-- Sales Chart -->
+    <section class="chart-section">
+      <canvas id="salesChart"></canvas>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+      </div>
+
+      <!-- Metrics Cards -->
+      <div class="cards">
+        <div class="card metric-card">
+          <h3>$120,245</h3>
+          <p>Total Sales</p>
+        </div>
+        <div class="card metric-card">
+          <h3>$95,652</h3>
+          <p>Revenue</p>
+        </div>
+        <div class="card metric-card">
+          <h3>67,893</h3>
+          <p>Orders</p>
+        </div>
+        <div class="card metric-card">
+          <h3>42,328</h3>
+          <p>Visitors</p>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <div class="chart">
+          <h3>Sales Overview</h3>
+          <div class="chart-placeholder">[Bar Chart Placeholder]</div>
+        </div>
+        <div class="chart">
+          <h3>Visitors by Location</h3>
+          <div class="chart-placeholder">[Map Placeholder]</div>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="statistics">
+        <div class="stat-box">
+          <h3>Total Sales</h3>
+          <div class="chart-placeholder">[Line Chart]</div>
+        </div>
+        <div class="stat-box">
+          <h3>Visitors</h3>
+          <div class="chart-placeholder">[Visitors Chart]</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chart Script -->
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: 'Revenue',
+            data: [12000, 15000, 14000, 18000, 17000, 20000, 22000, 19000, 25000, 24000, 21000, 23000],
+            backgroundColor: '#2563eb',
+          },
+          {
+            label: 'Orders',
+            data: [300, 400, 350, 450, 400, 500, 550, 480, 600, 580, 520, 560],
+            backgroundColor: '#cbd5e1',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+        },
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  </script>
+</body>
+</html>
+
+<!-- General Styles -->
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    position: fixed; /* Make sidebar fixed */
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh; /* Full height */
+    background-color: #1a202c;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+  }
+
+  .sidebar .logo h1 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .sidebar .brand {
+    color: #5a91e8;
+  }
+
+  .sidebar .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sidebar .menu-item {
+    margin-bottom: 15px;
+  }
+
+  .sidebar .menu-item a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 15px;
+    border-radius: 5px;
+  }
+
+  .sidebar .menu-item a:hover,
+  .sidebar .menu-item.active a {
+    background-color: #2d3748;
+  }
+
+  /* Main Content */
+  .main-content {
+    margin-left: 250px; /* Offset for the fixed sidebar */
+    padding: 20px;
+    width: calc(100% - 250px); /* Ensure the main content doesn't overflow */
+    box-sizing: border-box;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .filters select,
+  .filters input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    margin-left: 10px;
+  }
+
+  .metrics {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .metric {
+    flex: 1;
+    margin: 0 10px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .metric h4 {
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 10px;
+  }
+
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .metric .growth {
+    font-size: 0.9rem;
+  }
+
+  .growth.positive {
+    color: #10b981;
+  }
+
+  .growth.negative {
+    color: #ef4444;
+  }
+
+  .chart-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .cards {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    text-align: center;
+  }
+
+  .charts-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .chart {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+  }
+
+  .statistics {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stat-box {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+
+    .main-content {
+      margin-left: 0;
+    }
+
+    .metrics {
+      flex-direction: column;
+    }
+
+    .metric {
+      margin-bottom: 20px;
+    }
+  }
+</style>
+DEMO copy.html

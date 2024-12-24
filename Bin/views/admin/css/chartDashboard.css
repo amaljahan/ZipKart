@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9fafb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .chart-container {
+    width: 80%;
+    max-width: 800px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .chart-header h3 {
+    font-size: 1.2rem;
+    color: #111827;
+  }
+  
+  .tooltip {
+    font-size: 0.8rem;
+    background-color: #d1d5db;
+    color: #4b5563;
+    padding: 2px 6px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .filters select,
+  .filters input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    margin-left: 10px;
+  }
+  
+  .chart-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  canvas {
+    flex: 1 1 60%;
+    max-width: 60%;
+  }
+  
+  .chart-details {
+    flex: 1 1 35%;
+    padding: 10px;
+  }
+  
+  .detail {
+    margin-bottom: 20px;
+  }
+  
+  .detail h4 {
+    font-size: 1rem;
+    color: #111827;
+    margin-bottom: 5px;
+  }
+  
+  .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .growth {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  
+  .growth.positive {
+    color: #10b981;
+  }
+  
+  .growth.negative {
+    color: #ef4444;
+  }
+  

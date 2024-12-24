@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Add Product</h2>
+        <form action="/zipkart/admin/products/add-products" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="name" class="form-label">Product Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name of the product"  oninput="validateName(this)"  required>
+                <small id="nameError" style="color: red; display: none;">Invalid name. Only alphabets are allowed.</small>
+            </div>
+        
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="" disabled selected>Select a category name</option>
+                    <% categories.forEach(function(category) { %>
+                        <option value="<%= category._id %>"><%= category.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="price" class="form-label">Price (₹)</label>
+                <input type="number" class="form-control" id="price" name="price" placeholder="00" required>
+                <span id="priceError" style="color: red; display: none;">Please enter a valid price (positive number only).</span>
+
+            </div>
+        
+            <div class="mb-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="stock" name="stock" placeholder="00" required>
+                <span id="stockError" style="color: red; display: none;">Please enter a valid number.</span>
+
+            </div>
+        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" minlength="5" placeholder="Minimum 5 words needed" name="description" rows="3" required></textarea>
+                <span id="descriptionError" style="color: red; display: none;">Please enter a valid data more than 5 words.</span>
+
+            </div>
+        
+        </select>
+
+
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <select class="form-control" id="unit" name="unit" required>
+                  <option value="" disabled selected>Select a unit</option>
+                  <option value="kg"> Kilogram(kg)</option>
+                  <option value="g"> Gram(g)</option>
+                  <option value="mg"> Milligram(mg)</option>
+                  <option value="t"> Ton(t)</option>
+                </select>
+              </div>
+        
+            <div class="mb-3">
+                <label for="images" class="form-label">Images (Minimum 3)</label>
+                <div id="imageFields">
+                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                </div>
+                <button type="button" id="addImageBtn" class="btn btn-info mt-3">Add Another Image</button>
+            </div>
+        
+            <button type="submit" class="btn btn-primary">Add Product</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='/zipkart/admin/products/view-products'">Cancel</button>
+        </form>
+        
+    </div>
+
+    <!-- Modal for Image Cropping -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="cropImage" style="max-width: 100%; display: block;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModalButton" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="cropImageButton" class="btn btn-primary">Crop Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add JS and Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            let imageCount = 3; // Start with 3 images
+            let cropper; // Cropper instance
+            let currentInput; // Current file input being cropped
+
+            // Add new image input field
+            $('#addImageBtn').click(function () {
+                const newImageField = `
+                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                `;
+                $('#imageFields').append(newImageField);
+                imageCount++;
+            });
+
+            // Open crop modal
+            window.openCropModal = function (input) {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#cropImage').attr('src', e.target.result);
+                        $('#cropModal').modal('show');
+                        currentInput = input;
+                        if (cropper) cropper.destroy(); // Destroy previous cropper instance
+                        const image = document.getElementById('cropImage');
+                        cropper = new Cropper(image, {
+                            aspectRatio: 1, // Adjust as per requirements
+                            viewMode: 2,
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            // Crop image and set to input
+            $('#cropImageButton').click(function () {
+                const canvas = cropper.getCroppedCanvas();
+                canvas.toBlob(function (blob) {
+                    const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    currentInput.files = dataTransfer.files;
+                    $('#cropModal').modal('hide');
+                });
+            });
+        });
+    </script>
+
+    <script>
+
+        function validateName(input) {
+            // Remove leading and trailing spaces
+            input.value = input.value.trimStart();
+
+            // Regex for validation: Only alphabets and spaces are allowed
+            const regex = /^[A-Za-z\s]*$/;
+
+            // Validate input value
+            if (!regex.test(input.value)) {
+                // Remove invalid characters
+                input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+            }
+
+            // Remove extra spaces between words
+            input.value = input.value.replace(/\s+/g, ' ');
+
+            // Check if the input is only spaces or empty
+            const nameError = document.getElementById('nameError');
+            if (input.value.trim() === '') {
+                nameError.style.display = 'inline';
+            } else {
+                nameError.style.display = 'none';
+            }
+        }
+
+        //validation for price
+        document.getElementById('price').addEventListener('input', function() {
+            const priceInput = document.getElementById('price');
+            const priceError = document.getElementById('priceError');
+            const priceValue = priceInput.value.trim(); // Remove spaces
+
+            // Check if the price is empty, contains spaces, or is a negative number
+            if (priceValue === "" || parseFloat(priceValue) <= 0) {
+                priceError.style.display = "inline"; // Show error message
+                priceInput.style.borderColor = "red"; // Optional: change border color for error
+            } else {
+                priceError.style.display = "none"; // Hide error message
+                priceInput.style.borderColor = ""; // Reset border color
+            }
+        });
+
+         //validation for stock
+        document.getElementById('stock').addEventListener('input', function() {
+            const priceInput = document.getElementById('stock');
+            const priceError = document.getElementById('stockError');
+            const priceValue = priceInput.value.trim(); // Remove spaces
+
+            // Check if the price is empty, contains spaces, or is a negative number
+            if (priceValue === "" || parseFloat(priceValue) < 0) {
+                priceError.style.display = "inline"; // Show error message
+                priceInput.style.borderColor = "red"; // Optional: change border color for error
+            } else {
+                priceError.style.display = "none"; // Hide error message
+                priceInput.style.borderColor = ""; // Reset border color
+            }
+        });
+
+         //validation for Unit
+        document.getElementById('unit').addEventListener('unit', function() {
+            const priceInput = document.getElementById('unit');
+            const priceError = document.getElementById('unitError');
+            const priceValue = priceInput.value.trim(); // Remove spaces
+
+            // Check if the price is empty, contains spaces, or is a negative number
+            if (priceValue === "" || parseFloat(priceValue) < 0) {
+                priceError.style.display = "inline"; // Show error message
+                priceInput.style.borderColor = "red"; // Optional: change border color for error
+            } else {
+                priceError.style.display = "none"; // Hide error message
+                priceInput.style.borderColor = ""; // Reset border color
+            }
+        });
+        //validation for description
+        document.getElementById('description').addEventListener('input', function() {
+            const descriptionInput = document.getElementById('description');
+            const descriptionError = document.getElementById('descriptionError');
+            let descriptionValue = descriptionInput.value.trim(); // Trim leading/trailing spaces
+
+            // Remove extra spaces between words (i.e., replace multiple spaces with a single space)
+            descriptionValue = descriptionValue.replace(/\s+/g, ' ');
+
+            // Split the trimmed description text by spaces and count the words
+            const wordCount = descriptionValue.split(' ').length;
+
+            // Check if the word count is less than 5
+            if (wordCount < 5) {
+                descriptionError.style.display = "inline"; // Show error message
+                descriptionInput.style.borderColor = "red"; // Change border color to red
+            } else {
+                descriptionError.style.display = "none"; // Hide error message
+                descriptionInput.style.borderColor = ""; // Reset border color
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

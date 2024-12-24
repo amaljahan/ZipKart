@@ -1,0 +1,73 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F0F0F0;
+}
+
+.wallet-card {
+    background-color: #ff6600;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    text-align: center;
+}
+
+.wallet-card .wallet-header {
+    margin-bottom: 20px;
+}
+
+.wallet-card .wallet-balance {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.wallet-card .wallet-validity {
+    font-size: 14px;
+}
+
+.wallet-card .add-money {
+    margin-top: 20px;
+}
+
+.wallet-card .add-money input {
+    padding: 10px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+}
+
+.wallet-card .add-money button {
+    background-color: #fff;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.transaction-history {
+    margin-top: 20px;
+}
+
+.transaction-history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-history th, .transaction-history td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+.transaction-history th {
+    background-color: #f0f0f0;
+}
+
+.total-balance {
+    text-align: right;
+    font-weight: bold;
+    margin-top: 10px;
+}

@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Zipkart Login</title>
+
+    <link rel="stylesheet" href="/css/signup&login.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
+  </head>
+  <body>
+    <div class="container-scroller">
+      <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="row w-100 m-0">
+          <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
+            <div class="card col-lg-4 mx-auto">
+              <div class="card-body px-5 py-5">
+                <h3 class="card-title text-left mb-3">Login</h3>
+                <% if(message){  %>
+                  <p style="color: red;"><%=message %></p>
+                  <% } %>
+                  <% if (errorsToShowInLogin && errorsToShowInLogin.length > 0) { %>
+                    <ul>
+                      <% errorsToShowInLogin.forEach((error) => { %>
+                        <li style="color: red;"><%= error %></li>
+                      <% }) %>
+                    </ul>
+                  <% } %>
+
+                <form action="login" method="post">
+                      <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" class="form-control p_input" name="email">
+                      </div>
+                      <div class="form-group">
+                        <label>Password </label>
+                        <input type="password" class="form-control p_input" name="password">
+                      </div>
+                      <div class="form-group d-flex align-items-center justify-content-between">
+                        
+                        <a href="#" class="forgot-pass">Forgot password</a>
+                      </div>
+                      <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-block enter-btn">Login</button>
+                      </div>
+                      <div style="width: 100%;position: relative;" class="d-flex">
+                        <a href="auth/google/login"><button type="button" class="btn btn-google col" style="width: 100%;position: absolute;">
+                          <i class="mdi mdi-google-plus"></i> Google  </button></a>
+                        
+                      </div>
+                      <p class="sign-up">Don't have an Account?<a href="/zipkart/user/signup"> Signup</a></p>
+                </form>
+                
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+        </div>
+        <!-- row ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+   
+    
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
