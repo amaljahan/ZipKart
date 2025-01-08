@@ -1,20 +1,17 @@
 const User = require('../../model/user_model')
 
 const isUser = async(req,res,next)=>{
-    if(req.session.isBlocked){
-        return res.redirect('/zipkart/user/logout')
-    }
-    else if(req.session.user){
+   if(req.session.user){
         return next();
     }else{
         
-     return res.redirect('/zipkart/user/login')
+     return res.redirect('/zipkart/user/home')
     }
     // next()
 }   
 
 
-const isGuest = async (req,res,next)=>{
+const isGuest = async (req,res,next)=>{//for non login users
     console.log("Session Data:", req.session);
     if(req.session.user){
         return res.redirect('/zipkart/user/home')
@@ -36,8 +33,12 @@ const isBlocked = async (req, res, next) => {
             if (err) {
               return next(err);
             }
+            const message="Your account has been blocked. Please contact support."
             // Redirect the user to the login page or any other page you want
             return res.redirect('/zipkart/user/login');
+            // return res.status(403).json({message:"Your account has been blocked. Please contact support."})
+           
+            
           });
         } else {
           // If the user is not blocked, proceed to the next middleware or route
@@ -52,10 +53,13 @@ const isBlocked = async (req, res, next) => {
     }
   };
   
-  module.exports = { isBlocked };
+
+
   
+
 module.exports = {
     isUser,
     isGuest,
-    isBlocked
+    isBlocked,
+    // isUserAlreadySignup
 }  

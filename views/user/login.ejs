@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Zipkart Login</title>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
     <link rel="stylesheet" href="/css/signup&login.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="../../assets/images/favicon.png" />
@@ -21,15 +27,9 @@
                 <% if(message){  %>
                   <p style="color: red;"><%=message %></p>
                   <% } %>
-                  <% if (errorsToShowInLogin && errorsToShowInLogin.length > 0) { %>
-                    <ul>
-                      <% errorsToShowInLogin.forEach((error) => { %>
-                        <li style="color: red;"><%= error %></li>
-                      <% }) %>
-                    </ul>
-                  <% } %>
+                 
 
-                <form id="loginForm" action="login" method="post">
+                <form id="loginForm">
                       <div class="form-group">
                         <label>Email</label>
                         <input type="text" class="form-control p_input" name="email" id="email">
@@ -44,7 +44,7 @@
                         <a href="#" class="forgot-pass">Forgot password</a>
                       </div>
                       <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-block enter-btn">Login</button>
+                        <button type="button" onclick="submitFun()" class="btn btn-primary btn-block enter-btn">Login</button>
                       </div>
                       <div style="width: 100%;position: relative;" class="d-flex">
                         <a href="auth/google/login"><button type="button" class="btn btn-google col" style="width: 100%;position: absolute;">
@@ -52,6 +52,86 @@
                       </div>
                       <p class="sign-up">Don't have an Account?<a href="/zipkart/user/signup"> Signup</a></p>
                 </form>
+
+
+                <script>
+                  
+async function submitFun(){
+
+const email = document.getElementById('email').value.trim();
+const password = document.getElementById('password').value.trim();
+console.log("tesdsdf");
+
+      if (email === '' || password === '') {
+              
+              return Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'All fields are required!'
+        });
+      }
+        const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+          if (!email.match(emailPattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid email address.'
+            });
+              
+          }
+
+           // Password Length Validation
+          //  if (password.length <=0) {
+              // e.preventDefault();
+              
+            
+          //     return;
+          // }
+
+           // Make the Axios POST request
+        const userData = {
+                      email,
+                      password,
+                  };
+
+axios.post('login', userData)
+    .then(response => {
+        // Show success message
+        console.log("response ",response.data.redirectUrl);
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Login successfully,Redirecting to home page',
+        }).then(() => {
+            // Redirect to the URL if provided
+            
+                window.location.href = response.data.redirectUrl;
+          
+        });
+    })
+    .catch(error => {
+        // Handle errors
+        if (error.response && error.response.data && error.response.data.message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.response.data.message,
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'An unexpected error occurred.',
+            });
+        }
+    });
+
+
+
+}
+
+                </script>
                 
               </div>
             </div>
@@ -101,6 +181,24 @@
         }
       });
     </script>
+
+
+<script>//showing error if a google user blocked 
+
+  // Parse query parameters
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get('error'); // Retrieve the 'error' parameter
+
+  // If an error exists, show it with SweetAlert
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: error,
+      confirmButtonText: 'OK'
+    });
+  }
+</script>
     
   </body>
 </html>

@@ -23,15 +23,33 @@ const storage = multer.diskStorage({
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));    },
   });
-  
-  // Initialize multer with storage settings
-  const upload = multer({ storage: storage });
-// ==============================================================================================
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+// Multer file filter to validate image type
+const fileFilter = (req, file, cb) => {
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true); // Accept the file
+    } else {
+      cb(new Error('Invalid file type. Please upload a JPEG, PNG, or WEBP image.'));
+    }
+  };
+
+  // Initialize multer with storage settings & File size validation 
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // Max file size 5MB
+    },
+  });// ==============================================================================================
 
 
  
 //add product 
 router.post('/add-products', upload.array('images', 10), add_Product);  // Allow multiple images (10 in this case)
+//edit product
+router.post("/edit-product/:id", upload.array('images', 10),edit_product)
 
 //view product
 router.get("/view-products",view_products)
@@ -42,8 +60,6 @@ router.get("/view-add-product",get_add_product)
 //render edit product page
 router.get("/view-edit-product/:id",get_edit_product)
 
-//edit product
-router.post("/edit-product/:id", upload.array('images', 10),edit_product)
 
 //edit product status as isListed / Listed
 router.patch("/edit-product/:id/status", edit_product_status)

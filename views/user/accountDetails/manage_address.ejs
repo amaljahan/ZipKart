@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Addresses</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+   <link rel="stylesheet" href="/css/accountDetails.css">
+   <link rel="stylesheet" href="/public/css/accountDetails.css">
+    <link href="/css/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/css/accountDetails.css">
+
+        <!-- Template Stylesheet -->
+        <link href="/css/css/style.css" rel="stylesheet">
+<style>
+     @media (min-width: 992px) {
+    .hero-header,
+    .page-header {
+        margin-top: 0px !important;
+    }
+   
+    
+}
+    .container{
+        width: 75%;
+        margin-right: 0px;
+    }
+    .bg-primary {
+    background-color:  #2874f0 !important;
+}
+</style>
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+              <a href="/zipkart/user/home" class="navbar-brand"><h1 class="text-primary display-6">ZipKart</h1></a>
+            
+            <div class="user-actions">
+                <a href="#"><%=session.user %></a>
+                
+            </div>
+            
+             
+        </div>
+    </header>
+
+    <main >
+      <div class="account-actions" style="margin-top: 55px;">
+        <ul class="acnt-actions">
+                <li><a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>"><i class="fas fa-cog"></i> Manage Account</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
+                <li><a href="#"><i class="fas fa-key"></i> Change Password</a></li>
+                <li class="active"><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
+                <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li> 
+            </ul> 
+        </div>
+        <div class="container">
+            <!-- Single Page Header start -->
+            <div class="container-fluid page-header py-5">
+                <h1 class="text-center text-white display-6">Manage Addresses</h1>
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a href="/zipkart/user/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>">Account Detail</a></li>
+                    <li class="breadcrumb-item active text-white">Manage Addresses</li>
+                </ol>
+            </div>
+    <!-- Single Page Header End -->
+            <br>
+            <div class="text-center">
+                <a href="/zipkart/user/accountDetails/manage-addresses/add-new-address"><button class="btn btn-warning">Add Address</button></a>
+                
+            </div><br>
+
+            <% addresses.forEach(address => { %>
+                <div class="card mb-3">
+                  <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="card-title mb-1"><%= address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) %></h5>
+                      <p class="card-text text-muted mb-0">
+                        <%= address.firstName %> <%= address.lastName %>, 
+                        <%= address.address %>, 
+                        <%= address.locality %>, 
+                        <%= address.cityDistrictTown %>, 
+                        <%= address.state %>, 
+                        Pincode: <%= address.pincode %>, 
+                        Landmark: <%= address.landmark || 'N/A' %>
+                      </p>
+                      <p class="card-text text-muted mb-0">Phone: <%= address.phoneNumber %> | Alternate: <%= address.alternatePhone || 'N/A' %></p>
+                    </div>
+                    <div>
+                      <a href="/zipkart/user/accountDetails/manage-addresses/edit-address/<%= address._id %>">
+                        <button class="btn btn-outline-primary me-2">Edit</button>
+                      </a>
+                        <button class="btn btn-outline-danger" onclick="deleteAddress('<%= address._id %>')" type="button">Delete</button>
+                      
+                      
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+              
+
+            
+
+            
+        </div>
+    </main>
+
+   <script>
+    // Delete product with SweetAlert
+    async function deleteAddress(addressId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`/zipkart/user/accountDetails/manage-addresses/delete-address/${addressId}`);
+          await Swal.fire('Deleted!', response.data.message, 'success');
+          location.reload(); // Reload the page to reflect changes
+        } catch (error) {
+          Swal.fire('Error!', 'There was an issue deleting the Address.', 'error');
+        }
+      }
+    }
+   </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

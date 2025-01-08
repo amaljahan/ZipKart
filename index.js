@@ -11,7 +11,20 @@ require('./config/google-passport_auth')
 
 
 connectDB()
-const port = process.env.PORT||3433;
+const port = process.env.PORT||3333;
+
+
+// ========================================================
+app.get("/testerRoute",(req,res)=>{
+  try{
+    session.userId = "6769241448191f120903c196"
+    res.render('user/accountDetails/manage_address',{session}) 
+  }catch(err){ 
+    console.log("Error: ",err); 
+    res.status(500).json({message:"server error"})
+  }
+})
+// ========================================================
 
 app.use(express.urlencoded({extended:true}))                     
 app.use(express.json())
@@ -32,10 +45,10 @@ app.use(passport.session());
 
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store'); 
-  next();
+  next(); 
 });
 
-
+ 
 app.set('views',path.join(__dirname,'views'))
 app.set('view engine','ejs')
 
@@ -51,14 +64,12 @@ app.use((req,res)=>{
   res.render('errors/_404')
 })
 
-app.use((err, req, res, next) => {
-  console.error(err);  t
-  res.status(500).json({
-    message: 'Unexpected server error. Please try again later.'
-  });
+app.use((err, req, res, next) => {  
+  console.log("Errror :",err);
+  res.render('errors/_500',{err}) 
 });
 
-app.listen(port,()=>{ 
+app.listen(port,()=>{  
     console.log(`server running on http://localhost:${port}/zipkart/user/home
-        `)
+        `) 
 })

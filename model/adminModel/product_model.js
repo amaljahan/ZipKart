@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Category = require("./categoryModel");
 
 const productSchema= new mongoose.Schema({
     name: {
@@ -12,10 +11,18 @@ const productSchema= new mongoose.Schema({
         ref:"Category", // This should be a string with the model name
         required: true
     },
+    popularity: { 
+        type: Number, 
+        default: 0 
+    },
     price: {
         type: Number,
         required: true,
         min: [0, 'Price cannot be less than 0']
+    },
+    featured: { 
+        type: Boolean, 
+        default: false 
     },
     unit: {
         type: String,
@@ -25,7 +32,7 @@ const productSchema= new mongoose.Schema({
     description: {
         type: String,
         required:true,
-        minlength:30
+        minlength:10 
     },
     stock: {
         type: Number,
@@ -45,5 +52,6 @@ const productSchema= new mongoose.Schema({
     },
 
 }, { timestamps: true });
+
 
 module.exports = mongoose.model('Products',productSchema)

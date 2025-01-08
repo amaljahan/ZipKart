@@ -14,9 +14,9 @@ router.post('/add-category',add_category)
 
 //edit category
 router.get('/edit-category/:id',get_edit_category)
-router.put('/edit-category/:id',edit_category)
+router.post('/edit-category/:id',edit_category)
 
-//edit category status
+//edit category status 
 router.patch('/edit-category/:id/status',edit_category_status)
 
 //Delete category

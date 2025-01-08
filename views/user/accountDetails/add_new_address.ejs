@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Address</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <!-- <link rel="stylesheet" href="asd copy.css"> -->
+    <link rel="stylesheet" href="/public/css/user/">
+    <link rel="stylesheet" href="/css/user/address.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="/zipkart/user/home"><img src="zipkart_logo.png" alt="Zipkart Logo"></a>
+        </div>
+      
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Add New Address</h1>
+
+        <form id="edit-address-form">
+            <button type="button" class="use-current-location"><i class="fas fa-map-marker-alt"></i> Use My Current Location</button>
+
+            <div class="form-group">
+                <label for="name">First Name</label>
+                <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
+                <input type="text" id="userId" name="userId" value="<%=session.userId %>" hidden>
+            </div>
+            <div class="form-group">
+                <label for="name">Last Name</label>
+                <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phonenumber">10-digit Mobile Number</label>
+                <input type="tel" id="phonenumber" name="phonenumber" placeholder="Enter your mobile number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pincode">Pincode</label>
+                <input type="text" id="pincode" name="pincode" placeholder="Enter your pincode" required>
+            </div>
+
+            <div class="form-group">
+                <label for="locality">Locality</label>
+                <input type="text" id="locality" name="locality" placeholder="Enter your locality" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address (Area and Street)</label>
+                <input type="text" id="address" name="address" placeholder="Enter your address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="citydistricttown">City/District/Town</label>
+                <input type="text" id="citydistricttown" name="citydistricttown" placeholder="Enter your city/district/town" required>
+            </div>
+
+            <div class="form-group">
+                <label for="state">State</label>
+                <select id="state" name="state" required>
+                    <option value="">--Select State--</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Chhattisgarh">Chhattisgarh</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                    <option value="Jharkhand">Jharkhand</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Manipur">Manipur</option>
+                    <option value="Meghalaya">Meghalaya</option>
+                    <option value="Mizoram">Mizoram</option>
+                    <option value="Nagaland">Nagaland</option>
+                    <option value="Odisha">Odisha</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Sikkim">Sikkim</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Telangana">Telangana</option>
+                    <option value="Tripura">Tripura</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                    <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                    <option value="Chandigarh">Chandigarh</option>
+                    <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Lakshadweep">Lakshadweep</option>
+                    <option value="Puducherry">Puducherry</option>                
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="landmark">Landmark (Optional)</label>
+                <input type="text" id="landmark" name="landmark" placeholder="Enter landmark (optional)">
+            </div>
+
+            <div class="form-group">
+                <label for="alternatephone">Alternate Phone (Optional)</label>
+                <input type="tel" id="alternatephone" name="alternatephone" placeholder="Enter alternate phone">
+            </div>
+
+            <div class="form-group address-type">
+                <label>Address Type</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="home" name="addresstype" value="home">
+                        Home (All day delivery)
+                    </label>
+                    <label>
+                        <input type="radio" id="work" name="addresstype" value="work">
+                        Work (Delivery between 10 AM - 5 PM)
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save and Deliver Here</button>
+                <a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%=session.userId%>"><button type="button" class="cancel-btn"><i class="fas fa-times"></i> Cancel</button></a>
+            </div>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Zipkart. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('edit-address-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const data = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                phoneNumber: document.getElementById('phonenumber').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                locality: document.getElementById('locality').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                cityDistrictTown: document.getElementById('citydistricttown').value.trim(),
+                state: document.getElementById('state').value,
+                landmark: document.getElementById('landmark').value.trim(),
+                alternatePhone: document.getElementById('alternatephone').value.trim(),
+                addressType: document.querySelector('input[name="addresstype"]:checked')?.value,
+                userId: document.getElementById('userId').value
+            };
+console.log(data);
+
+            try {
+                const response = await axios.post('add-new-address', data);
+                console.log(response);
+
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.data.message || 'Address saved successfully!',
+                    }).then(() => {
+                        window.location.href = '/zipkart/user/accountDetails/manage-addresses/all-addresses/<%=session.userId%>';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.data.message || 'Failed to save new address.',
+                    });
+                }
+            } catch (error) { 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'An unexpected error occurred.',
+                });
+            }
+        });
+    </script>
+</body>
+</html>

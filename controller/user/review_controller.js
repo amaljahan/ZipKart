@@ -34,7 +34,7 @@ const review_rating = async(req,res)=>{
         });
  
         await newreview.save();
-        return res.status(201).send({ success:true, message: "Review submitted successfully.", review });
+        return res.status(201).json({ success:true, message: "Review submitted successfully.", review });
 
     }
     catch(err){

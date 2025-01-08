@@ -1,36 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    post_signup, 
+const {  
     generate_otp, 
-    verify_otp, 
     get_signup, 
     get_login, 
     post_login,
-    logout, 
+    logout,
+    get_otp_page,
+    resend_otp,
+    verify_otp_and_register, 
 } = require('../../controller/user/login_and_signup_Controller');
-const { isGuest } = require('../../middleware/user/userAuthMiddleware');
-
-
-
-//register user 
-router.get("/signup",isGuest,get_signup)
-router.post("/signup",post_signup)
-
-
-//Login user
-router.get("/login",isGuest,get_login)
-router.post("/login",post_login)
-
-//generate otp
-router.post("/generate-otp",generate_otp) 
-
-//verify otp
-router.post("/verify-otp",verify_otp)
+const { isGuest, isBlocked } = require('../../middleware/user/userAuthMiddleware');
 
 
 
 
+router.get("/signup",isGuest,get_signup) //register user 
+router.get("/login",isGuest,get_login) //Login user
+router.post("/login",post_login) //Login user
+router.get("/otp",get_otp_page) //get otp page
+router.post("/resend-otp",resend_otp) //resend Otp
+router.post("/generate-otp",generate_otp) //generate otp
+router.post("/verify-otp-register",verify_otp_and_register) //verify otp
+router.get("/logout",logout) //logout
 
 
+
+ 
 module.exports = router;  

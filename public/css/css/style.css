@@ -12,7 +12,17 @@
      visibility: visible;
      opacity: 1;
  }
- .logout {
+ .logout  {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 7px;
+    font-size: 14px;
+}
+ .submitBut  {
     background-color: #dc2626;
     color: white;
     border: none;

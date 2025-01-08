@@ -7,7 +7,9 @@
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+        <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +22,8 @@
         <!-- Libraries Stylesheet -->
         <link href="/css/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
         <link href="/css/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-        
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 
 
         <!-- Customized Bootstrap Stylesheet -->
@@ -28,7 +31,8 @@
 
         <!-- Template Stylesheet -->
         <link href="/css/css/style.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+
 
 
         <style>
@@ -131,14 +135,17 @@
                             <!-- =================== -->
 
                             <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>
-                            <a href="#" class="position-relative me-4 my-auto">
+                            <% if (session.user) { %>
+                            <a href="/zipkart/user/<%= session.userId %>/cart" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a>
-                            <a href="#" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
-                            </a>
-                            <span><%= session.user %></span>
+
+                                <a href="/zipkart/user/user-profile/accountDetails/<%= session.userId %>" class="my-auto">
+                                    <i class="fas fa-user fa-2x"></i>
+                                </a>
+                                <span><%= session.user %></span>
+                                <% } %>   
                         </div>
                     </div>
                 </nav>
@@ -169,11 +176,11 @@
 
         <!-- Single Page Header start -->
         <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Shop Detail</h1>
+            <h1 class="text-center text-white display-6">Product Detail</h1>
             <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                <li class="breadcrumb-item active text-white">Shop Detail</li>
+                <li class="breadcrumb-item"><a href="/zipkart/user/home">Home</a></li>
+                <li class="breadcrumb-item"><a href="/zipkart/user/products-categorised-view">Shop</a></li>
+                <li class="breadcrumb-item active text-white">Product Detail</li>
             </ol>
         </div>
         <!-- Single Page Header End -->
@@ -191,9 +198,9 @@
                                         <i class="fas fa-arrow-left"></i>
                                     </button>
                                 
-                                        <img id="productImage<%= product._id %>" 
+                                        <img   id="productImage<%= product._id %>" 
                                              src="<%= product.images[0].showcaseUrl %>" 
-                                             class="img-fluid rounded zoomable-image" 
+                                             class="img-fluid rounded zoom-trigger" 
                                              alt="Image" 
                                              data-images='<%= JSON.stringify(product.images) %>'>
                                     
@@ -213,7 +220,7 @@
                                 cursor: grab;
                             }
                             
-                            .zoomable-image {
+                            .zoom-trigger {
                                 position: absolute;
                                 top: 0;
                                 left: 0;
@@ -256,7 +263,7 @@
                         
                
 
-<script>document.addEventListener("DOMContentLoaded", () => {
+<!-- <script>document.addEventListener("DOMContentLoaded", () => {
     const zoomableImage = document.querySelector(".zoomable-image");
     const container = zoomableImage.parentElement;
     let scale = 1; // Initial scale
@@ -335,14 +342,42 @@
         updateTransform();
     });
 });
-</script>
+</script> -->
                             
+<script>
+            // JavaScript for image zoom
+            document.querySelectorAll('.zoom-trigger').forEach(function (img) {
+            img.addEventListener('mouseover', function () {
+                imageZoom(this); // Pass 'this' (current image) to imageZoom function
+            });
+        });
+    
+        function imageZoom(img) {
+            img.addEventListener('mousemove', function (e) {
+                var rect = img.getBoundingClientRect();
+                var x = e.clientX - rect.left; // X position within the image
+                var y = e.clientY - rect.top; // Y position within the image
+    
+                var percentX = (x / img.offsetWidth) * 50;
+                var percentY = (y / img.offsetHeight) * 50;
+    
+                img.style.transformOrigin = percentX + '% ' + percentY + '%';
+                img.style.transform = 'scale(2)';
+            });
+    
+            img.addEventListener('mouseleave', function () {
+                img.style.transform = 'scale(1)';
+            });
+        }
+
+</script>
                             
 
                             <!-- -------------------------start-------------------------------------------------------------- -->
                             <div class="col-lg-6">
                                 <h4 class="fw-bold mb-3"><%= product.name %></h4> <!-- Product Name -->
                                 <p class="mb-3">Category: <%= product.category.name %></p> <!-- Category Name -->
+                                <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
                                 <h5 class="fw-bold mb-3"><%= product.price %> ₹</h5> <!-- Product Price in Rupees -->
                                 <% if (product.stock === 0) { %>
                                     <p style="color: red;">Out of Stock</p>
@@ -359,26 +394,76 @@
                                 </div>
                             
                                 <p class="mb-4"><%= product.description %></p> <!-- Product Description -->
-                                <p class="mb-4"><%= product.additionalInfo %></p> <!-- Additional Info -->
                             
-                                <div class="input-group quantity mb-5" style="width: 100px;">
+                                <div class="input-group quantity mb-5" style="width: 100px;" data-product-id="<%= product._id %>">
                                     <div class="input-group-btn">
                                         <button class="btn btn-sm btn-minus rounded-circle bg-light border">
                                             <i class="fa fa-minus"></i>
                                         </button>
                                     </div>
-                                    <input type="text" class="form-control form-control-sm text-center border-0" value="1">
+                                    <input type="text" class="form-control form-control-sm text-center border-0 quantity-input" value="1">
                                     <div class="input-group-btn">
                                         <button class="btn btn-sm btn-plus rounded-circle bg-light border">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
                                 </div>
-                            <!-- ----------------------------------------------end--------------------------------------------------- -->
-
-                                <a href="#" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary">
+                                <a href="javascript:void(0);" 
+                                   class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary add-to-cart-btn" 
+                                   data-user-id="<%= session.userId %>">
                                     <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
                                 </a>
+
+
+
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        // Handle quantity change
+                                        document.querySelectorAll(".quantity").forEach(quantityContainer => {
+                                            const minusButton = quantityContainer.querySelector(".btn-minus");
+                                            const plusButton = quantityContainer.querySelector(".btn-plus");
+                                            const quantityInput = quantityContainer.querySelector(".quantity-input");
+                                            const productId = quantityContainer.getAttribute("data-product-id");
+                                
+                                            console.log(quantityInput.value);
+                                            
+
+                                            
+                                
+                                            // Handle Add to Cart
+                                            const addToCartBtn = document.querySelector(".add-to-cart-btn");
+                                            addToCartBtn.addEventListener("click", async () => {
+                                                const userId = addToCartBtn.getAttribute("data-user-id");
+                                                const count = parseInt(quantityInput.value, 10) || 1;
+                                               
+                                               if(!userId){
+                                                return alert("You must be logged in to perform this action.");
+
+                                               }
+                                                console.log(quantityInput.value);
+
+                                               
+                                                try {
+                                                    const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
+                                                    if (response.status === 200) {
+                                                       await alert("Cart updated successfully!")
+                                                         window.location.reload()
+                                                        
+                                                    } else {
+                                                        throw new Error("Failed to update cart.");
+                                                    }
+                                                } catch (error) {
+                                                    console.error("Error updating cart:", error);
+                                                    alert("Something went wrong. Please try again.");
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+
+
+
+
                             </div>
                             <div class="col-lg-12">
                                 <!-- <br><br> -->
@@ -600,106 +685,12 @@
                                             <i class="fa fa-star"></i>
                                         </div>
                                         <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
+                                            <h5 class="fw-bold me-2">2.99  ₹</h5>
+                                            <h5 class="text-danger text-decoration-line-through">4.11 </h5>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded" style="width: 100px; height: 100px;">
-                                        <img src="img/featur-2.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded" style="width: 100px; height: 100px;">
-                                        <img src="img/featur-3.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-4.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-5.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                        <img src="img/vegetable-item-6.jpg" class="img-fluid rounded" alt="">
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-2">Big Banana</h6>
-                                        <div class="d-flex mb-2">
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star text-secondary"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                        <div class="d-flex mb-2">
-                                            <h5 class="fw-bold me-2">2.99 $</h5>
-                                            <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                                 <div class="d-flex justify-content-center my-4">
                                     <a href="#" class="btn border border-secondary px-4 py-3 rounded-pill text-primary w-100">Vew More</a>
                                 </div>
@@ -729,9 +720,17 @@
                             <div class="p-4 pb-0 rounded-bottom">
                                 <h4><%= product.name %></h4>
                                 <p><%= product.description %></p>
+
+                                <% if (product.stock === 0) { %>
+                                    <p style="color: red;">Out of Stock</p>
+                                <% } else if (product.stock < 50) { %>
+                                    <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
+                                <% } %>
+                                <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
+                                
                                 <div class="d-flex justify-content-between flex-lg-wrap">
                                     <p class="text-dark fs-5 fw-bold">₹<%= product.price.toFixed(2) %> / <%= product.unit %></p>
-                                    <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+                                    <a href="/zipkart/user/<%= session.userId %>/cart" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
                                 </div>
                             </div>
                         </div>
@@ -759,7 +758,7 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="position-relative mx-auto">
-                                <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Your Email">
+                                <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="text" placeholder="Your Email">
                                 <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Subscribe Now</button>
                             </div>
                         </div>
@@ -983,57 +982,50 @@ window.addEventListener('DOMContentLoaded', (event) => {
         const review = reviewText.value.trim();
 
         if (!rating) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Incomplete!',
-                text: 'Please select a star rating.',
-            });
+            alert('Please select a star rating.')
+          
             return;
         }
 
         if (!review) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Incomplete!',
-                text: 'Please write a review.',
-            });
+            alert('Please write a review.')
+            
             return;
         }
 
 
         // Submit the form via fetch
         fetch(reviewForm.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productId: reviewForm.querySelector('input[name="productId"]').value,
-                review,
-                rating,
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thank You!',
-                        text: 'Your review has been submitted.',
-                    });
-                    reviewForm.reset();
-                    resetStars(); // Reset stars
-                } else {
-                    throw new Error(data.message || 'Failed to submit the review.');
-                }
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'Something went wrong. Please try again later.',
-                });
-            });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        productId: reviewForm.querySelector('input[name="productId"]').value,
+        review,
+        rating,
+    }),
+    })
+    .then((response) => {
+        console.log(response); // Log response to check if it's valid JSON
+        return response.json();
+    })
+    .then((data) => {
+        if (data.success) {
+            alert("Your review has been submitted.")
+            
+            
+            reviewForm.reset();
+            resetStars(); // Reset stars
+        } else {
+            throw new Error(data.message || 'Failed to submit the review.');
+        }
+    })
+    .catch((error) => {
+        alert( error.message || 'Something went wrong. Please try again later.')
+       
+    });
+
     });
 });
 

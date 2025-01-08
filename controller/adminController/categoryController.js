@@ -3,7 +3,7 @@ const Category = require('../../model/adminModel/categoryModel')
 //get category
 const view_category = async(req,res)=>{
     try{
-        const categories = await Category.find()
+        const categories = await Category.find().sort({ createdAt: -1 });
         res.render('admin/category',{categories})
     }
     catch(err){
@@ -17,7 +17,10 @@ const add_category = async (req, res) => {
     console.log("at add",req.body);
     
     try {
-      const { name, description } = req.body;
+      let { name, description } = req.body;
+      name = name.toUpperCase();
+      console.log("Name :",name);
+
       const category = new Category({ name, description });
       await category.save();
       res.status(201).json({ message: "Category added successfully", category });
@@ -41,7 +44,7 @@ const get_add_category = async (req, res) => {
 
   //Get Edit Category
 const get_edit_category = async (req, res) => {
-    console.log("at edit");
+    // console.log("at edit");
     const categoryId = req.params.id
     const category = await Category.findById(categoryId)
     try {
@@ -55,11 +58,16 @@ const get_edit_category = async (req, res) => {
 
   //Edit Category
 const edit_category = async (req, res) => {
-    console.log("at edit");
+    // console.log("at editfgf");
 
     try {
-        const { name, description } = req.body;
+        let { name, description } = req.body;
+        name = name.toUpperCase();
+        console.log("Name :",name);
+        
+
         const category = await Category.findByIdAndUpdate(
+      // if(category.name)
         req.params.id,
         { name, description },
         { new: true }
@@ -77,7 +85,7 @@ const edit_category = async (req, res) => {
 
 //Toggle or Edit the Category Status
 const edit_category_status = async (req, res) => {
-    console.log("at status");
+    // console.log("at status");
 
     try {
       const { isListed } = req.body;

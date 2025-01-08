@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Address</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="asd copy.css">
+    <!-- <link rel="stylesheet" href="/public/css/user/address.css"> -->
+    <link rel="stylesheet" href="/css/user/address.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="/zipkart/user/home"><img src="zipkart_logo.png" alt="Zipkart Logo"></a>
+        </div>
+      
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Edit Address</h1>
+
+        <form id="edit-address-form">
+            <button type="button" class="use-current-location">
+                <i class="fas fa-map-marker-alt"></i> Use My Current Location
+            </button>
+        
+            <div class="form-group">
+                <label for="name">First Name</label>
+                <input type="text" id="firstName" name="firstName" 
+                       value="<%= address.firstName %>" 
+                       placeholder="Enter your first name" required>
+                <input type="text" id="userId" name="userId" 
+                       value="<%= session.userId %>" hidden>
+            </div>
+        
+            <div class="form-group">
+                <label for="name">Last Name</label>
+                <input type="text" id="lastName" name="lastName" 
+                       value="<%= address.lastName %>" 
+                       placeholder="Enter your last name" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="phonenumber">10-digit Mobile Number</label>
+                <input type="tel" id="phonenumber" name="phonenumber" 
+                       value="<%= address.phoneNumber %>" 
+                       placeholder="Enter your mobile number" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="pincode">Pincode</label>
+                <input type="text" id="pincode" name="pincode" 
+                       value="<%= address.pincode %>" 
+                       placeholder="Enter your pincode" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="locality">Locality</label>
+                <input type="text" id="locality" name="locality" 
+                       value="<%= address.locality %>" 
+                       placeholder="Enter your locality" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="address">Address (Area and Street)</label>
+                <input type="text" id="address" name="address" 
+                       value="<%= address.address %>" 
+                       placeholder="Enter your address" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="citydistricttown">City/District/Town</label>
+                <input type="text" id="citydistricttown" name="citydistricttown" 
+                       value="<%= address.cityDistrictTown %>" 
+                       placeholder="Enter your city/district/town" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="state">State</label>
+                <select id="state" name="state" required>
+                    <option value="">--Select State--</option>
+                    <option value="Andhra Pradesh" <%= address.state === "Andhra Pradesh" ? "selected" : "" %>>Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh" <%= address.state === "Arunachal Pradesh" ? "selected" : "" %>>Arunachal Pradesh</option>
+                    <option value="Assam" <%= address.state === "Assam" ? "selected" : "" %>>Assam</option>
+                    <option value="Bihar" <%= address.state === "Bihar" ? "selected" : "" %>>Bihar</option>
+                    <option value="Chhattisgarh" <%= address.state === "Chhattisgarh" ? "selected" : "" %>>Chhattisgarh</option>
+                    <option value="Goa" <%= address.state === "Goa" ? "selected" : "" %>>Goa</option>
+                    <option value="Gujarat" <%= address.state === "Gujarat" ? "selected" : "" %>>Gujarat</option>
+                    <option value="Haryana" <%= address.state === "Haryana" ? "selected" : "" %>>Haryana</option>
+                    <option value="Himachal Pradesh" <%= address.state === "Himachal Pradesh" ? "selected" : "" %>>Himachal Pradesh</option>
+                    <option value="Jammu and Kashmir" <%= address.state === "Jammu and Kashmir" ? "selected" : "" %>>Jammu and Kashmir</option>
+                    <option value="Jharkhand" <%= address.state === "Jharkhand" ? "selected" : "" %>>Jharkhand</option>
+                    <option value="Karnataka" <%= address.state === "Karnataka" ? "selected" : "" %>>Karnataka</option>
+                    <option value="Kerala" <%= address.state === "Kerala" ? "selected" : "" %>>Kerala</option>
+                    <option value="Madhya Pradesh" <%= address.state === "Madhya Pradesh" ? "selected" : "" %>>Madhya Pradesh</option>
+                    <option value="Maharashtra" <%= address.state === "Maharashtra" ? "selected" : "" %>>Maharashtra</option>
+                    <option value="Manipur" <%= address.state === "Manipur" ? "selected" : "" %>>Manipur</option>
+                    <option value="Meghalaya" <%= address.state === "Meghalaya" ? "selected" : "" %>>Meghalaya</option>
+                    <option value="Mizoram" <%= address.state === "Mizoram" ? "selected" : "" %>>Mizoram</option>
+                    <option value="Nagaland" <%= address.state === "Nagaland" ? "selected" : "" %>>Nagaland</option>
+                    <option value="Odisha" <%= address.state === "Odisha" ? "selected" : "" %>>Odisha</option>
+                    <option value="Punjab" <%= address.state === "Punjab" ? "selected" : "" %>>Punjab</option>
+                    <option value="Rajasthan" <%= address.state === "Rajasthan" ? "selected" : "" %>>Rajasthan</option>
+                    <option value="Sikkim" <%= address.state === "Sikkim" ? "selected" : "" %>>Sikkim</option>
+                    <option value="Tamil Nadu" <%= address.state === "Tamil Nadu" ? "selected" : "" %>>Tamil Nadu</option>
+                    <option value="Telangana" <%= address.state === "Telangana" ? "selected" : "" %>>Telangana</option>
+                    <option value="Tripura" <%= address.state === "Tripura" ? "selected" : "" %>>Tripura</option>
+                    <option value="Uttar Pradesh" <%= address.state === "Uttar Pradesh" ? "selected" : "" %>>Uttar Pradesh</option>
+                    <option value="Uttarakhand" <%= address.state === "Uttarakhand" ? "selected" : "" %>>Uttarakhand</option>
+                    <option value="West Bengal" <%= address.state === "West Bengal" ? "selected" : "" %>>West Bengal</option>
+                    <option value="Andaman and Nicobar Islands" <%= address.state === "Andaman and Nicobar Islands" ? "selected" : "" %>>Andaman and Nicobar Islands</option>
+                    <option value="Chandigarh" <%= address.state === "Chandigarh" ? "selected" : "" %>>Chandigarh</option>
+                    <option value="Dadra and Nagar Haveli and Daman and Diu" <%= address.state === "Dadra and Nagar Haveli and Daman and Diu" ? "selected" : "" %>>Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="Delhi" <%= address.state === "Delhi" ? "selected" : "" %>>Delhi</option>
+                    <option value="Lakshadweep" <%= address.state === "Lakshadweep" ? "selected" : "" %>>Lakshadweep</option>
+                    <option value="Puducherry" <%= address.state === "Puducherry" ? "selected" : "" %>>Puducherry</option>
+                </select>
+            </div>
+            
+        
+            <div class="form-group">
+                <label for="landmark">Landmark (Optional)</label>
+                <input type="text" id="landmark" name="landmark" 
+                       value="<%= address.landmark %>" 
+                       placeholder="Enter landmark (optional)">
+            </div>
+        
+            <div class="form-group">
+                <label for="alternatephone">Alternate Phone (Optional)</label>
+                <input type="tel" id="alternatephone" name="alternatephone" 
+                       value="<%= address.alternatePhone %>" 
+                       placeholder="Enter alternate phone">
+            </div>
+        
+            <div class="form-group address-type">
+                <label>Address Type</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" id="home" name="addresstype" value="home" 
+                               <%= address.addressType === "home" ? "checked" : "" %>>
+                        Home (All day delivery)
+                    </label>
+                    <label>
+                        <input type="radio" id="work" name="addresstype" value="work" 
+                               <%= address.addressType === "work" ? "checked" : "" %>>
+                        Work (Delivery between 10 AM - 5 PM)
+                    </label>
+                </div>
+            </div>
+        
+            <div class="form-buttons">
+                <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save and Deliver Here</button>
+                <a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>">
+                    <button type="button" class="cancel-btn"><i class="fas fa-times"></i> Cancel</button>
+                </a>
+            </div>
+        </form>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Zipkart. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('edit-address-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const data = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                phoneNumber: document.getElementById('phonenumber').value.trim(),
+                pincode: document.getElementById('pincode').value.trim(),
+                locality: document.getElementById('locality').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                cityDistrictTown: document.getElementById('citydistricttown').value.trim(),
+                state: document.getElementById('state').value,
+                landmark: document.getElementById('landmark').value.trim(),
+                alternatePhone: document.getElementById('alternatephone').value.trim(),
+                addressType: document.querySelector('input[name="addresstype"]:checked')?.value,
+                userId: document.getElementById('userId').value
+            };
+
+            try {
+                const response = await axios.patch('<%=address.id%>', data);
+
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.data.message || 'Address saved successfully!',
+                    }).then(() => {
+                        window.location.href = '/zipkart/user/accountDetails/manage-addresses/all-addresses/<%=session.userId%>';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.data.message || 'Failed to save address.',
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'An unexpected error occurred.',
+                });
+            }
+        });
+    </script>
+</body>
+</html>

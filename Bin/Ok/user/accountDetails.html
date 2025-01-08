@@ -4,8 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Details</title>
-    <link rel="stylesheet" href="asd.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-zR2Th8I/Qisw7C9+yArm49Lq74N15ADl4Q1reQ7BlRaCsL0LW4ZcA+M+zO+hHP8+39BZ+yOOB0YMDP9tIXnG7/y6o4qKfK+s/0x41j0S/NuW0lQVBqZg==" crossorigin="anonymous"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 150px;
+        }
+
+        .search-bar {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+            margin: 0 20px;
+        }
+
+        .search-bar input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .user-actions a {
+            margin: 0 10px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+        }
+
+        .profile-section {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .profile-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+
+        .profile-info h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .account-actions {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .account-actions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .account-actions li {
+            margin: 10px 0;
+        }
+
+        .account-actions li a {
+            display: block;
+            padding: 10px 20px;
+            background-color: #f7f7f7;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .account-actions li a i {
+            margin-right: 10px;
+        }
+
+        .account-actions li.active a {
+            background-color: #ff7043;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .account-actions li a:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -24,38 +146,31 @@
     </header>
 
     <main>
-        <div class="account-details">
-            <h1>Account Details</h1>
-            <div class="profile-section">
-                <div class="profile-image">
-                    <img src="profile_image.jpg" alt="Profile Image">
-                </div>
-                <div class="profile-info">
-                    <h2>Profile Details</h2>
-                    <p><strong>Name:</strong> Amal Jahan</p>
-                    <p><strong>Email:</strong> amaljahan3@gmail.com</p>
-                    <p><strong>Mobile:</strong> 1234567890</p>
-                    <p><strong>Address:</strong> KINFRA, KAKKANCHERI, CALICUT</p>
-                </div>
+        <div class="profile-section">
+            <div class="profile-image">
+                <img src="profile_image.jpg" alt="Profile Image">
             </div>
-            <div class="account-actions">
-                <ul>
-                    <li class="active"><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
-                    <li><a href="#"><i class="fas fa-box"></i> My Orders</a></li>
-                    <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
-                    <li><a href="#"><i class="fas fa-key"></i> Change Password</a></li>
-                    <li><a href="#"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
-                    <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
-                    <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
-                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                </ul>
+            <div class="profile-info">
+                <h2>Profile Details</h2>
+                <p><strong>Name:</strong> Amal Jahan</p>
+                <p><strong>Email:</strong> amaljahan3@gmail.com</p>
+                <p><strong>Mobile:</strong> 1234567890</p>
+                <p><strong>Address:</strong> KINFRA, KAKKANCHERI, CALICUT</p>
             </div>
         </div>
+
+        <div class="account-actions">
+            <ul>
+                <li class="active"><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
+                <li><a href="#"><i class="fas fa-key"></i> Change Password</a></li>
+                <li><a href="#"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
+                <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
     </main>
-
-    <footer>
-        </footer>
-
-    <script src="script.js"></script>
 </body>
 </html>

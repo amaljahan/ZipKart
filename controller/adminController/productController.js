@@ -11,20 +11,8 @@ const convertToWebPath = (filePath) => filePath.replace(/\\/g, '/');
 //get products 
 const view_products = async (req, res) => {
     try {
-      // Usage of  populate to get the category data alongside product data
-      const products = await Product.find().populate('category', 'name'); // Populate only the 'name' field of the category
-      // console.log("products: ",products);
-      
-      // Normalize image URLs(because windown providing the backslash instead of forward slash ( universal style))
-      // products.forEach(product => {
-      //   if (product.images && product.images.length > 0) {
-      //     product.images = product.images.map(image => ({
-      //       thumbnailUrl: image.thumbnailUrl.replace(/\\/g, "/"), // Normalize path for thumbnail
-      //       showcaseUrl: image.showcaseUrl.replace(/\\/g, "/"), // Normalize path for showcase
-      //       altText: image.altText, // Retain altText as is
-      //     }));
-      //   }
-      // });      
+      const products = await Product.find().populate('category', 'name').sort({ createdAt: -1 }); // Populate only the 'name' field of the category
+          
       res.render("admin/products", { products });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch products" });
@@ -39,8 +27,8 @@ const view_products = async (req, res) => {
 //get add product 
 const get_add_product =  async (req, res) => {
     try {
-        const categories = await Category.find();  // Fetch all categories from the database
-        res.render('admin/add_product', { categories });  // Pass categories to the EJS template
+        const categories = await Category.find();  
+        res.render('admin/add_product', { categories });  
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching categories');
@@ -50,10 +38,13 @@ const get_add_product =  async (req, res) => {
 //get edit product 
 const get_edit_product =  async (req, res) => {
   const productId = req.params.id
-  const product = await Product.findById(productId).populate('category','name');
-  const categories = await Category.find();  // Fetch all categories from the database
-    try {
-        res.render('admin/edit_product', { product,categories });  // Pass categories to the EJS template
+  try {
+      const [product, categories] = await Promise.all([
+        Product.findById(productId).populate('category', 'name'),
+        Category.find()
+      ]);
+
+        res.render('admin/edit_product', { product,categories });  
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching categories');
@@ -63,19 +54,15 @@ const get_edit_product =  async (req, res) => {
 
 
 // -----------------------------------------  edit product  --------------------------------------------------------------
-const edit_product = async (req, res) => {
-  try {
-    // console.log(typeof "name" ==="string");
-    console.log("test in edit product");
+const edit_product = async (req, res) => { 
+  try { 
     
-    const productId = req.params.id; // Extract product ID from the request parameters
-    const { name, category, price, stock, description, unit, existingImages } = req.body;
-    
-    console.log("existingImages :",existingImages);
-    // const product = await Product.findById(productId);
+    const productId = req.params.id; 
+    let { name, category, price, stock, description, unit, existingImages } = req.body;
+    name = name.toUpperCase();
+    const totalImageLength = req.files.length + existingImages.length
 
-    // Fetch the product from the database
-    const product = await Product.findById(productId)
+    const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -89,7 +76,6 @@ const edit_product = async (req, res) => {
     product.unit = unit;
 
 
-     // Initialize imageUrls with existing images (if any)
      let imageUrls = [];
 
      // Check if existingImages is defined and is an array
@@ -101,13 +87,27 @@ const edit_product = async (req, res) => {
        }));
      }
 
+     if (totalImageLength < 3) {
+      return res.status(400).json({
+        message: 'At least 3 valid image files are required.',
+      });
+    }
+
     // Handle newly uploaded files
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         // Define paths for resized images
-        const thumbnailPath = path.join("public","css","admin","uploads",`thumb-${Date.now()}${path.extname(file.originalname)}`
+        const thumbnailPath = path.join("public",
+                                        "css",
+                                        "admin",
+                                        "uploads",
+                                        `thumb-${Date.now()}${path.extname(file.originalname)}`
         );
-        const showcasePath = path.join("public","css","admin","uploads",`showcase-${Date.now()}${path.extname(file.originalname)}`
+        const showcasePath = path.join("public",
+                                        "css",
+                                        "admin",
+                                        "uploads",
+                                        `showcase-${Date.now()}${path.extname(file.originalname)}`
         );
         
         // Create thumbnail for admin
@@ -139,14 +139,8 @@ const edit_product = async (req, res) => {
       }
     }
 
-    // Ensure that there are at least 3 images (either new or existing)
-    if (imageUrls.length < 3) {
-      return res.status(400).json({ message: "At least 3 images are required" });
-    }
-
     product.images = imageUrls;
 
-    // Save updated product
     await product.save();
 
     res.redirect("/zipkart/admin/products/view-products");
@@ -164,7 +158,9 @@ const add_Product = async (req, res) => {
   console.log("workeddddddd");
 
   try {
-    const { name, category, price, stock, description, unit } = req.body;
+    let { name, category, price, stock, description, unit } = req.body;
+    name = name.toUpperCase();
+
     const imageUrls = [];  // This will hold the URLs of resized images
 
     // Loop through the uploaded images
@@ -172,20 +168,32 @@ const add_Product = async (req, res) => {
       for (const file of req.files) {
         // const timestamp = Date.now();
         // Define the file paths for the resized images
-        const thumbnailPath = path.join('public', 'css', 'admin', 'uploads', `thumb-images-${Date.now()}${path.extname(file.originalname)}`);
-        const showcasePath = path.join('public', 'css', 'admin', 'uploads', `showcase-images-${Date.now()}${path.extname(file.originalname)}`);
+        const thumbnailPath = path.join('public',
+                                        'css', 
+                                        'admin', 
+                                        'uploads', 
+                                        `thumb-images-${Date.now()}${path.extname(file.originalname)}`);
+        const showcasePath = path.join('public', 
+                                        'css', 
+                                        'admin', 
+                                        'uploads', 
+                                        `showcase-images-${Date.now()}${path.extname(file.originalname)}`);
 
-        // Resize for Admin Side (Thumbnail)
+
+          //validating file typess
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+          if (!allowedTypes.includes(file.mimetype)) {
+            return res.status(400).json({ message: `Invalid file type: ${file.originalname}` });
+          }
+
         await sharp(file.path)
-          .resize(150, 150)  // Resize to 150x150 for admin side
+          .resize(150, 150)  
           .toFile(thumbnailPath);  // Save thumbnail
 
         // Resize for Product Side (Showcase)
         await sharp(file.path)
           .resize(500, 500)  // Resize to 500x500 for product side
           .toFile(showcasePath);  // Save showcase image
-
-
 
         const thumbnailUrl = convertToWebPath(path.join('/css/admin/uploads', path.basename(thumbnailPath)));
         const showcaseUrl = convertToWebPath(path.join('/css/admin/uploads', path.basename(showcasePath)));
@@ -234,7 +242,6 @@ const add_Product = async (req, res) => {
     try {
       const productId  = req.params.id;
       const { isListed } = req.body;
-      console.log('edit product status',req.params,'edit product status',productId);
   
       const product = await Product.findByIdAndUpdate(
         productId,
@@ -255,7 +262,6 @@ const add_Product = async (req, res) => {
 
   //-------------------------------------------Delete product---------------------------------------------------------
   const delete_product = async (req, res) => {
-    console.log("at delete product");
     
     try {
       const productId  = req.params.id;

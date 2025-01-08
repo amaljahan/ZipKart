@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-zR2Th8I/Qisw7C9+yArm49Lq74N15ADl4Q1reQ7BlRaCsL0LW4ZcA+M+zO+hHP8+39BZ+yOOB0YMDP9tIXnG7/y6o4qKfK+s/0x41j0S/NuW0lQVBqZg==" crossorigin="anonymous"/>
+   <link rel="stylesheet" href="/css/accountDetails.css">
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+   
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="/css/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link href="/css/css/style.css" rel="stylesheet">
+        <style>
+            @media (min-width: 992px) {
+    .hero-header,
+    .page-header {
+        margin-top: 0px !important;
+    }
+   
+    
+}
+        </style>
+</head>
+<body>
+    <header>
+            <a href="/zipkart/user/home" class="navbar-brand"><h1 class="text-primary display-6">ZipKart</h1></a>
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+            
+        </div>
+        
+        
+       
+    </header>
+    <main>
+        
+        <div class="account-actions" style="margin-top: 65px;">
+            <ul class="acnt-actions">
+                <li class="active"><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
+                <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
+                <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
+                <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="profile-section">
+            <!-- Single Page Header start -->
+                <div class="container-fluid page-header py-5">
+                    <h1 class="text-center text-white display-6">Account Detail</h1>
+                    <ol class="breadcrumb justify-content-center mb-0">
+                        <li class="breadcrumb-item"><a href="/zipkart/user/home">Home</a></li>
+                        <li class="breadcrumb-item active text-white">Account Detail</li>
+                    </ol>
+                </div>
+        <!-- Single Page Header End -->
+            <div class="profile-info">
+                <h2>Profile Details</h2>
+                <a href="/zipkart/user/home"><img src="<%=user.thumbnail %>" alt="Zipkart Logo"></a>
+                <p><strong>Name:</strong><%=user.firstName %> <%=user.lastName %></p>
+                <p><strong>Email:</strong> <%=user.email %></p>
+                <% if(user.number){%>
+                    <p><strong>Mobile:</strong> 1234567890</p>
+                <%}%>
+                <!-- <p><strong>Address:</strong> KINFRA, KAKKANCHERI, CALICUT</p> -->
+                 <a href="/zipkart/user/accountDetails/edit-user-profile/<%= session.userId%>"><button><i class="fas fa-edit"></i>
+                 </button></a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

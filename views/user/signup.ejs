@@ -35,43 +35,26 @@
                <% if(message){  %>
                 <p style="color: red;"><%=message %></p>
                 <% } %>
-                <% if (errorsToShowInSignup && errorsToShowInSignup.length > 0) { %>
-                  <ul>
-                    <% errorsToShowInSignup.forEach((error) => { %>
-                      <li style="color: red;"><%= error %></li>
-                    <% }) %>
-                  </ul>
-                <% } %>
-                <form action="signup" method="post">
+                
+                <form id="signupForm" >
                     
                           <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" class="form-control p_input" name="firstName">
+                            <input type="text" class="form-control p_input" id="firstName" name="firstName">
                           </div>
                           <div class="form-group">
                             <label>Last Name</label>
-                            <input type="text" class="form-control p_input" name="lastName">
+                            <input type="text" class="form-control p_input" id="lastName" name="lastName">
                           </div>
                           <div class="form-group">
                             <label>Email</label>
                             <input id="email" type="email" class="form-control p_input" name="email">
-                            <!-- Get OTP Button -->
-                            <button id="getOtpBtn" type="button" onclick="generateOTP()" class="btn btn-facebook col mr-2" style="background-color: green;">
-                              Get OTP
-                            </button>
-                            <!-- Resend OTP Button (Initially Hidden) -->
-                            <button id="resendOtpBtn" type="button" onclick="resendOTP()" class="btn btn-facebook col mr-2 hidden" style="background-color: orange;">
-                              Resend OTP
-                            </button>
-                            <div id="otp-timer" class="hidden" style="color: red; font-size: 14px; margin-top: 10px;">Wait for <span id="timer">60</span> seconds</div>
                           </div>
-                          <div class="form-group">
-                            <input type="text" placeholder="Type OTP here" maxlength="4" class="form-control p_input" name="otp">
-                          </div>
+                          
                           <div class="form-group">
                             <label>Password</label>
                             <div class="input-group">
-                              <input type="password" id="password" class="form-control p_input" name="password" oninput="validatePasswords()">
+                              <input type="password" id="password"  placeholder="Password"  class="form-control p_input" name="password" oninput="validatePasswords()">
                               <div class="input-group-append">
                                 <span class="input-group-text" id="showPasswordToggle" style="cursor: pointer;">
                                   <i id="showPasswordIcon" class="fa fa-eye" aria-hidden="true"></i>
@@ -85,7 +68,7 @@
                             <small id="passwordMatchMessage" style="color: red; display: none;"></small>
                           </div>
                           <div class="text-center">
-                            <button type="submit" id="submitBtn" class="btn btn-primary btn-block enter-btn" disabled>Sign Up</button>
+                            <button onclick="submitFun()" type="button" id="submitBtn" class="btn btn-primary btn-block enter-btn" disabled>Sign Up</button>
                           </div>
 
                           <div style="width: 100%;position: relative;" class="d-flex">
@@ -110,113 +93,112 @@
       </div>
       <!-- page-body-wrapper ends -->
     </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
-    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="../../assets/js/off-canvas.js"></script>
-    <script src="../../assets/js/hoverable-collapse.js"></script>
-    <script src="../../assets/js/misc.js"></script>
-    <script src="../../assets/js/settings.js"></script>
-    <script src="../../assets/js/todolist.js"></script>
-    <!-- endinject -->
+ 
+
+    <script>
+      // Form Validation Script
+async function submitFun(){
+          const firstName = document.getElementById('firstName').value.trim();
+          const lastName = document.getElementById('lastName').value.trim();
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value.trim();
+          
+          if (firstName === '' ||lastName === '' || email === '' || password === '') {
+              
+              return Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'All fields are required!'
+        });
+          }
+
+          //  Validation
+          const firstNmaePattern = /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/;
+          if (!firstName.match(firstNmaePattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid email address.'
+            });
+              
+          }
+          const lastNamePattern = /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/;
+          if (!lastName.match(lastNamePattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid email address.'
+            });
+              
+          }
+          const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+          if (!email.match(emailPattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid email address.'
+            });
+              
+          }
+
+          // Password Length Validation
+          if (password.length < 8) {
+              // e.preventDefault();
+              
+              alert('Password must be at least 6 characters long.');
+              return;
+          }
+
+          const userData = {
+            firstName,
+            lastName,
+            email,
+            password
+          }
+
+          try {
+    // Make the Axios POST request
+    const response = await axios.post('generate-otp', userData);
+
+    // Show success message
+    await Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: 'Redirected to verify OTP',
+    });
+
+    // Replace the current page content with the rendered HTML
+    document.open();
+    document.write(response.data);
+    document.close();
+
+  } catch (error) {
+    // Handle errors
+    if (error.response && error.response.data && error.response.data.message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.response.data.message,
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'An unexpected error occurred.',
+      });
+    }
+  }
 
 
+      };
+  </script>
 <script>
-// Enhanced OTP and Form Validation Script
 
-let timerInterval;
-let otpGenerated = false;
 
 // Validate Email Format
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
-}
-
-// Generate OTP Function
-function generateOTP() {
-  const email = document.getElementById('email').value;
-
-  if (!email) {
-    Swal.fire('Error', 'Please enter your email!', 'error');
-    return;
-  }
-  if (!isValidEmail(email)) {
-    Swal.fire('Error', 'Please enter a valid email address!', 'error');
-    return;
-  }
-  if (otpGenerated) {
-    Swal.fire('Error', 'OTP already sent! Use "Resend OTP".', 'error');
-    return;
-  }
-
-  axios.post('generate-otp', { email })
-    .then((response) => {
-      if (response.data.message === "user already exist") {
-        Swal.fire('Info', 'User already exists. Try a different email.', 'info');
-      } else {
-        Swal.fire('Success', 'OTP sent to your email!', 'success');
-        startOtpTimer();
-        otpGenerated = true;
-      }
-    })
-    .catch(() => {
-      Swal.fire('Error', 'Failed to send OTP. Try again.', 'error');
-    });
-}
-
-// Resend OTP Function
-function resendOTP() {
-  const email = document.getElementById('email').value;
-
-  if (!email) {
-    Swal.fire('Error', 'Please enter your email!', 'error');
-    return;
-  }
-  if (!isValidEmail(email)) {
-    Swal.fire('Error', 'Please enter a valid email address!', 'error')
-    return;
-  }
-
-  axios.post('generate-otp', { email })
-    .then(() => {
-      Swal.fire('Success', 'OTP resent to your email!', 'success');
-      startOtpTimer();
-    })
-    .catch(() => {
-      Swal.fire('Error', 'Failed to resend OTP. Try again.', 'error');
-    });
-}
-
-// Start OTP Timer
-function startOtpTimer() {
-  const getOtpBtn = document.getElementById('getOtpBtn');
-  const resendOtpBtn = document.getElementById('resendOtpBtn');
-  const otpTimer = document.getElementById('otp-timer');
-  const timerDisplay = document.getElementById('timer');
-
-  resendOtpBtn.classList.add('hidden');
-  otpTimer.classList.remove('hidden');
-
-  let timeLeft = 60;
-  timerDisplay.textContent = timeLeft;
-
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      otpTimer.classList.add('hidden');
-      resendOtpBtn.classList.remove('hidden');
-      getOtpBtn.classList.add('hidden');
-    }
-  }, 1000);
 }
 
 // Validate Password Strength
@@ -275,5 +257,24 @@ document.getElementById('showPasswordToggle').addEventListener('click', function
 
 
   </script>
+
+
+<script>//showing error if a google user exist 
+
+  // Parse query parameters
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get('error'); // Retrieve the 'error' parameter
+
+  // If an error exists, show it with SweetAlert
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: error,
+      confirmButtonText: 'OK'
+    });
+  }
+</script>
+
  </body>
 </html>`

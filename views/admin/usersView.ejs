@@ -8,6 +8,11 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="/css/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Template Stylesheet -->
+  <link href="/css/css/style.css" rel="stylesheet">
 
 </head>
 <body>
@@ -33,12 +38,19 @@
     <!-- Header -->
     <header class="header">
       <div class="title">Users Management</div>
-      <button class="logout">Logout</button>
+        <a href="/zipkart/admin/logout"><button class="logout">Logout</button></a>
+      
     </header>
 
     <!-- Search Bar -->
     <div class="search-bar">
-      <input type="text" placeholder="Search users..." id="searchInput">
+      <form action="/zipkart/admin/users/view-users/search-user" method="get">
+           <input type="text" placeholder="Search users..." id="searchInput" name="searchInput">
+            <button type="submit">Search</button>
+    </form>
+    <%if(message){%>
+      <p style="color: red;"><%=message %></p>
+    <%}%>
     </div>
 
     <!-- Users Table -->
@@ -86,6 +98,23 @@
           <% }) %>
         </tbody>
       </table>
+       <!-- //paginiation -->
+       <div class="col-12">
+        <div class="pagination d-flex justify-content-center mt-5">
+          <% if (hasPrevPage) { %>
+            <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="rounded">&laquo;</a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>&limit=<%= limit %>" class="rounded <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+          
+          <% if (hasNextPage) { %>
+            <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="rounded">&raquo;</a>
+          <% } %>
+            <a href="#" class="rounded">&raquo;</a>
+        </div>
+    </div>
     </section>
     
     

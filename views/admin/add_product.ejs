@@ -8,6 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Add Cropper.js CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <!-- Add SweetAlert2 CDN in the <head> of your HTML file -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.7/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.7/dist/sweetalert2.all.min.js"></script>
+
 </head>
 <body>
     <div class="container mt-5">
@@ -67,9 +72,9 @@
             <div class="mb-3">
                 <label for="images" class="form-label">Images (Minimum 3)</label>
                 <div id="imageFields">
-                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
-                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
-                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" placeholder="max file size is 5MB" name="images" accept="image/jpeg, image/jpg, image/png, image/webp" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" placeholder="max file size is 5MB" name="images" accept="image/jpeg, image/jpg, image/png, image/webp" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" placeholder="max file size is 5MB" name="images" accept="image/jpeg, image/jpg, image/png, image/webp" class="form-control mb-2" onchange="openCropModal(this)" required>
                 </div>
                 <button type="button" id="addImageBtn" class="btn btn-info mt-3">Add Another Image</button>
             </div>
@@ -112,7 +117,7 @@
             // Add new image input field
             $('#addImageBtn').click(function () {
                 const newImageField = `
-                    <input type="file" name="images" class="form-control mb-2" onchange="openCropModal(this)" required>
+                    <input type="file" placeholder="max file size is 5MB" name="images" accept="image/jpeg, image/jpg, image/png, image/webp" class="form-control mb-2" onchange="openCropModal(this)" required>
                 `;
                 $('#imageFields').append(newImageField);
                 imageCount++;
@@ -121,7 +126,25 @@
             // Open crop modal
             window.openCropModal = function (input) {
                 const file = input.files[0];
-                if (file) {
+                // Validate the file type before proceeding
+                    const allowedTypes = /image\/jpeg|image\/jpg|image\/png|image\/webp/;//the backslash indicates there is forward slash because forward slash indicates starting and eding of the string.
+                    if (!file) {
+                        Swal.fire({
+                        icon: 'error',
+                        title: 'No file selected',
+                        text: 'Please select an image file.',
+                    });
+                    return;
+                    }
+                    if (!allowedTypes.test(file.type)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid file type',
+                            text: 'Please select an image (JPEG, JPG, PNG, WEBP).',
+                        });
+                        input.value = ''; // Clear the invalid file
+                        return;
+                    }
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         $('#cropImage').attr('src', e.target.result);
@@ -135,7 +158,7 @@
                         });
                     };
                     reader.readAsDataURL(file);
-                }
+                
             };
 
             // Crop image and set to input
@@ -149,7 +172,65 @@
                     $('#cropModal').modal('hide');
                 });
             });
+            function showAlert(title, text, icon) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'OK',
+            });
+        }
+
+        // Name validation
+        document.getElementById('name').addEventListener('input', function () {
+            const input = this;
+            const regex = /^[A-Za-z\s]*$/;
+            if (!regex.test(input.value)) {
+                input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+                showAlert('Invalid Name', 'Only alphabets and spaces are allowed.', 'error');
+            }
+            input.value = input.value.replace(/\s+/g, ' ');
         });
+
+        // Price validation
+        document.getElementById('price').addEventListener('input', function () {
+            const priceInput = this;
+            const priceValue = priceInput.value.trim();
+            if (priceValue === "" || parseFloat(priceValue) <= 0) {
+                showAlert('Invalid Price', 'Price must be a positive number.', 'error');
+                priceInput.style.borderColor = "red";
+            } else {
+                priceInput.style.borderColor = "";
+            }
+        });
+
+        // Stock validation
+        document.getElementById('stock').addEventListener('input', function () {
+            const stockInput = this;
+            const stockValue = stockInput.value.trim();
+            if (stockValue === "" || parseFloat(stockValue) < 0) {
+                showAlert('Invalid Stock', 'Stock cannot be negative.', 'error');
+                stockInput.style.borderColor = "red";
+            } else {
+                stockInput.style.borderColor = "";
+            }
+        });
+
+        // Unit validation
+        document.getElementById('unit').addEventListener('input', function () {
+            const unitInput = this;
+            const unitValue = unitInput.value.trim();
+            if (unitValue === "" || parseFloat(unitValue) < 0) {
+                showAlert('Invalid Unit', 'Unit cannot be empty or negative.', 'error');
+                unitInput.style.borderColor = "red";
+            } else {
+                unitInput.style.borderColor = "";
+            }
+        });
+
+       
+
+    });
     </script>
 
     <script>

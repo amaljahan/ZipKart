@@ -33,9 +33,13 @@ passport.use(
       async (accessToken, refreshToken, profile, done) => {
         try {
           let existingUser = await User.findOne({ email: profile.emails[0].value });
-          console.log("google existing user: ", existingUser);
+          console.log("google existing user=========: ", existingUser);
   
           if (existingUser) {
+            if (existingUser.googleId) {
+              // User already signed up with Google
+              return done(null, false, { message: "User already exists with this email. Please log in." });
+            }
             if (!existingUser.googleId) {
               // Update Google details for the existing user
               existingUser.googleId = profile.id;

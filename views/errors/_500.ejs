@@ -13,6 +13,8 @@
       rel="stylesheet"
       href="../public/assets/vendors/mdi/css/materialdesignicons.min.css"
     />
+    <link rel="stylesheet" href="/error/css/style.css" />
+
     <link
       rel="stylesheet"
       href="../public/assets/vendors/css/vendor.bundle.base.css"
@@ -41,14 +43,17 @@
                 </div>
                 <div class="col-lg-6 error-page-divider text-lg-left pl-lg-4">
                   <h2>SORRY!</h2>
-                  <h3 class="font-weight-light">Internal server error!</h3>
+                  <%if(err){%>
+                    <h3 class="font-weight-light"><%err%>!</h3>
+                    <%}%>
+                    <h3 class="font-weight-light">Internal server error!</h3>
                 </div>
               </div>
               <div class="row mt-5">
                 <div class="col-12 text-center mt-xl-2">
                   <a
                     class="text-white font-weight-medium"
-                    href="../../index.html"
+                    href="/zipkart/user/home"
                     >Back to home</a
                   >
                 </div>

@@ -10,7 +10,9 @@ const googleSignup = passport.authenticate('google-signup', {
 
 // Callback for Google Signup after successful authentication and its redirection
 const googleSignupCallback = (req, res, next) => {
-  console.log("Amal");
+  
+  console.log("at google signup");
+
 
   passport.authenticate('google-signup', { 
     failureRedirect: '/zipkart/user/signup' 
@@ -20,8 +22,13 @@ const googleSignupCallback = (req, res, next) => {
     }
     req.session.isBlocked = user.isBlocked;
 
-    if (!user||req.session.isBlocked) {
-      return res.redirect('/zipkart/user/signup'); // If user doesn't exist, redirect to signup
+    if (!user) {
+      const errorMessage = info && info.message ? info.message : 'User signup failed.';
+      return res.redirect(`/zipkart/user/signup?error=${encodeURIComponent(errorMessage)}`);//encodeURIComponent() = ithu upayogikkunnathu stringin ee formilekk convert cheyyanaanu => /signup?error=User%20already%20exists%21
+    }
+    if(req.session.isBlocked){
+      return res.redirect(`/zipkart/user/signup?error=${encodeURIComponent('Your account has been blocked. Please contact support.')}`);
+
     }
 
     // If the user is authenticated, store user ID in session and redirect
@@ -43,6 +50,8 @@ const googleLogin = passport.authenticate('google-login', {
 
 // Callback for Google Login
 const googleLoginCallback = (req, res, next) => {
+  console.log("google auth login"); 
+  
   passport.authenticate('google-login', { 
     failureRedirect: '/zipkart/user/login' 
   }, (err, user, info) => {
@@ -51,11 +60,15 @@ const googleLoginCallback = (req, res, next) => {
     }
     
     req.session.isBlocked = user.isBlocked;
+    
+    if(req.session.isBlocked){
+      return res.redirect(`/zipkart/user/login?error=${encodeURIComponent('Your account has been blocked. Please contact support.')}`);
 
-    if (!user||req.session.isBlocked) {
-      return res.redirect('/zipkart/user/login'); // Redirect to signup if no user
     }
-
+    if (!user) {
+      const errorMessage = info && info.message ? info.message : 'User Login failed.';
+      return res.redirect(`/zipkart/user/login?error=${encodeURIComponent(errorMessage)}`);//encodeURIComponent() = ithu upayogikkunnathu stringin ee formilekk convert cheyyanaanu => /signup?error=User%20already%20exists%21
+    }
     // If the user is authenticated, store user ID in session and redirect
     console.log("google login : ",user);
     

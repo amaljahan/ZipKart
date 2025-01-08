@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="asd copy.css">
+    <link rel="stylesheet" href="/public/css/user/address.css">
+    <link rel="stylesheet" href="/css/user/address.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="/zipkart/user/home"><img src="zipkart_logo.png" alt="Zipkart Logo"></a>
+        </div>
+      
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Edit Profile</h1>
+
+        <form id="edit-profile-form">
+
+            <div class="form-group">
+                <label for="name">First Name</label>
+                <input type="text" id="firstName" name="firstName" value="<%=user.firstName%>" placeholder="Enter your first name" required>
+                <input type="text" id="userId" name="userId" value="<%=session.userId %>" hidden>
+            </div>
+            <div class="form-group">
+                <label for="name">Last Name</label>
+                <input type="text" id="lastName" name="lastName" value="<%=user.lastName%>" placeholder="Enter your last name" required>
+            </div>
+
+
+            <!-- <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%=user.email%>" placeholder="Enter your email" required>
+            </div>         -->
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save</button>
+                <a href="/zipkart/user/accountDetails/user-profile/<%=session.userId%>"><button type="button" class="cancel-btn"><i class="fas fa-times"></i> Cancel</button></a>
+            </div>
+        </form>
+    </main>
+
+    
+
+    <script>
+        document.getElementById('edit-profile-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const data = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                // email: document.getElementById('email').value.trim(),
+               
+            };
+
+            if (data.firstName === '' ||data.lastName === '' ) {
+              
+              return Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'All fields are required!'
+        });
+          }
+
+          //  Validation
+          const firstNmaePattern = /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/;
+          if (!data.firstName.match(firstNmaePattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid Name.'
+            });
+              
+          }
+          const lastNamePattern = /^[A-Za-z]+(?:[\s-][A-Za-z]+)*$/;
+          if (!data.lastName.match(lastNamePattern)) {
+                return Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Please enter a valid Name.'
+            });
+              
+          }
+        //   const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+        //   if (!data.email.match(emailPattern)) {
+        //         return Swal.fire({
+        //       icon: 'error',
+        //       title: 'Oops...',
+        //       text: 'Please enter a valid email address.'
+        //     });
+              
+        //   }
+
+            try {
+                const response = await axios.patch('/zipkart/user/accountDetails/edit-user-profile/<%=session.userId%>', data);
+                console.log(response);
+                console.log(response.data);
+                
+
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.data.message || 'Address saved successfully!',
+                    }).then(() => {
+                        window.location.href = '/zipkart/user/accountDetails/user-profile/<%=session.userId%>';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.data.message || 'Failed to update user.',
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'An unexpected error occurred.',
+                });
+            }
+        });
+    </script>
+</body>
+</html>
