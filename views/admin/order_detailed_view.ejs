@@ -5,40 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details - <%= order.orderId %></title>
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- SweetAlert2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
-    
-    <style>
-        body {
-            background-color: #f4f6f9;
-        }
-        .order-card {
-            transition: transform 0.3s;
-        }
-        .order-card:hover {
-            transform: scale(1.01);
-        }
-        .product-image {
-            max-width: 100px;
-            height: auto;
-        }
-        @media (max-width: 768px) {
-            .responsive-stack > * {
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+
+<style>
+    body { background-color: #f4f6f9; }
+    .order-card { transition: transform 0.3s; }
+    .order-card:hover { transform: scale(1.01); }
+    .product-image { max-width: 100px; height: auto; }
+    @media (max-width: 768px) {
+        .responsive-stack > * { margin-bottom: 10px; }
+    }
+    .brand {
+    color: #5a91e8;
+}
+.logo h1 {
+    font-size: 1.7rem;
+    margin: 15px 0 -30px 14px;}
+</style>
 </head>
 <body>
+    <div class="logo">
+        <h1><span class="brand">Zip</span>Kart</h1>
+      </div>
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12 col-xl-10 offset-xl-1">
                 <div class="card shadow-sm order-card">
-                    <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
-                        <h4 class="mb-0">Order #<%= order.orderId %></h4>
+                    <div style="background-color: #1f2937;" class="card-header text-white d-flex flex-wrap justify-content-between align-items-center">
+                        <h4 class="mb-0">Order Id:- <%= order.orderId %></h4>
                         <div class="d-flex align-items-center responsive-stack">
                             <select id="orderStatus" class="form-select form-select-sm w-auto me-2">
                                 <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] %>
@@ -56,29 +51,27 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <h5>Customer Details</h5>
+                                <h5>Customer</h5>
                                 <p><strong>Name:</strong> <%= order.address.name %></p>
                                 <p><strong>Phone:</strong> <%= order.address.phoneNumber %></p>
                                 <p><strong>Address:</strong> <%= order.address.address %>, <%= order.address.locality %>, 
                                     <%= order.address.cityDistrictTown %>, <%= order.address.state %> <%= order.address.pincode %></p>
                             </div>
                             <div class="col-md-6">
-                                <h5>Order Information</h5>
-                                <p><strong>Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                                <h5>Order Info</h5>
+                                <p><strong>Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
                                 <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
-                                <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+                                <p><strong>Status :</strong> <%= order.paymentStatus %></p>
                             </div>
                         </div>
-                        
                         <hr>
-                        
-                        <h5>Ordered Products</h5>
+                        <h5>Products</h5>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Product</th>
-                                        <th>Quantity</th>
+                                        <th>Qty</th>
                                         <th>Price</th>
                                         <th>Subtotal</th>
                                         <th>Status</th>
@@ -88,9 +81,7 @@
                                     <% order.products.forEach(product => { %>
                                     <tr>
                                         <td>
-                                            <img src="/path/to/product/image/<%= product.productId %>" 
-                                                class="product-image img-thumbnail" 
-                                                alt="Product Image">
+                                            <img height="50" width="50" src="<%= product.productId.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
                                         </td>
                                         <td><%= product.quantity %></td>
                                         <td>₹<%= product.price.toFixed(2) %></td>
@@ -101,122 +92,89 @@
                                 </tbody>
                             </table>
                         </div>
-                        
                         <div class="row mt-3">
                             <div class="col-md-6">
-                                <h5>Order Summary</h5>
+                                <h5>Summary</h5>
                                 <table class="table">
                                     <tr>
                                         <td>Subtotal:</td>
                                         <td class="text-end">₹<%= order.subtotal.toFixed(2) %></td>
                                     </tr>
                                     <tr>
-                                        <td>Delivery Charge:</td>
+                                        <td>Delivery:</td>
                                         <td class="text-end">₹<%= order.deliveryCharge.toFixed(2) %></td>
                                     </tr>
                                     <tr>
                                         <td><strong>Total:</strong></td>
-                                        <td class="text-end">
-                                            <strong>₹<%= (order.subtotal + order.deliveryCharge).toFixed(2) %></strong>
-                                        </td>
+                                        <td class="text-end"><strong>₹<%= (order.subtotal + order.deliveryCharge).toFixed(2) %></strong></td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="card-footer d-flex justify-content-between">
-                        <a href="/orders" class="btn btn-secondary">Back to Orders</a>
-                        <button id="cancelOrder" class="btn btn-danger">Cancel Entire Order</button>
-                    </div>
+                        <a href="/zipkart/admin/orders/view-orders" class="btn btn-secondary">Back to Orders</a>
+                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             const updateStatusBtn = document.getElementById('updateStatus');
             const cancelOrderBtn = document.getElementById('cancelOrder');
-
-            updateStatusBtn.addEventListener('click', function() {
-                const statusSelect = document.getElementById('orderStatus');
-                const selectedStatus = statusSelect.value;
-
+    
+            updateStatusBtn.addEventListener('click', () => {
+                const status = document.getElementById('orderStatus').value;
                 Swal.fire({
-                    title: 'Update Order Status',
-                    text: `Are you sure you want to change status to ${selectedStatus}?`,
+                    title: 'Update Status',
+                    text: `Change to ${status}?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, update!'
-                }).then((result) => {
+                    confirmButtonText: 'Update'
+                }).then(result => {
                     if (result.isConfirmed) {
-                        // Add AJAX call to update status
                         fetch(`/orders/<%= order._id %>/update-status`, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ status: selectedStatus })
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status })
                         })
                         .then(response => response.json())
-                        .then(data => {
-                            Swal.fire(
-                                'Updated!',
-                                `Order status changed to ${selectedStatus}`,
-                                'success'
-                            );
+                        .then(() => {
+                            Swal.fire('Updated!', `Status changed to ${status}`, 'success');
                         })
-                        .catch(error => {
-                            Swal.fire(
-                                'Error!',
-                                'Failed to update order status',
-                                'error'
-                            );
+                        .catch(() => {
+                            Swal.fire('Error', 'Failed to update status', 'error');
                         });
                     }
                 });
             });
-
-            cancelOrderBtn.addEventListener('click', function() {
+    
+            cancelOrderBtn.addEventListener('click', () => {
                 Swal.fire({
                     title: 'Cancel Order',
-                    text: 'Are you sure you want to cancel this entire order?',
+                    text: 'Confirm cancellation?',
                     icon: 'error',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, cancel order!'
-                }).then((result) => {
+                    confirmButtonText: 'Cancel'
+                }).then(result => {
                     if (result.isConfirmed) {
-                        // Add AJAX call to cancel order
-                        fetch(`/orders/<%= order._id %>/cancel`, {
-                            method: 'POST'
-                        })
+                        fetch(`/orders/<%= order._id %>/cancel`, { method: 'POST' })
                         .then(response => response.json())
-                        .then(data => {
-                            Swal.fire(
-                                'Cancelled!',
-                                'The order has been cancelled.',
-                                'success'
-                            ).then(() => {
-                                window.location.href = '/orders';
-                            });
+                        .then(() => {
+                            Swal.fire('Cancelled', 'Order has been cancelled', 'success')
+                            .then(() => { window.location.href = '/orders'; });
                         })
-                        .catch(error => {
-                            Swal.fire(
-                                'Error!',
-                                'Failed to cancel order',
-                                'error'
-                            );
+                        .catch(() => {
+                            Swal.fire('Error', 'Failed to cancel order', 'error');
                         });
                     }
                 });

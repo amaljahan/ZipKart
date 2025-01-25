@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .tracker-container {
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .tracker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-top: 40px;
+    }
+
+    .tracker .line {
+      position: absolute;
+      top: 18%;
+      height: 4px;
+      background-color: #d3d3d3;
+      z-index: 1;
+    }
+
+    .tracker .line-complete {
+      position: absolute;
+      top: 18%;
+      height: 4px;
+      background-color: #28a745;
+      z-index: 2;
+    }
+
+    .tracker .step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      width: 18%;
+    }
+
+    .tracker .step .circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #28a745;
+      display: inline-block;
+      line-height: 30px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .tracker .step .text {
+      margin-top: 10px;
+    }
+
+    .tracker .step .date {
+      font-size: 14px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .tracker .step.active .circle {
+      background-color: #28a745;
+    }
+
+    .tracker .step:not(.active) .circle {
+      background-color: #d3d3d3;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h2>Order: #TK1231039</h2>
+  <h1>Delivered</h1>
+
+  <div class="tracker-container">
+    <div class="tracker">
+      <!-- Progress Lines -->
+      <div class="line" style="left: 11%; width: 16%;"></div>
+      <div class="line" style="left: 32%; width: 16%;"></div>
+      <div class="line" style="left: 52%; width: 16%;"></div>
+      <div class="line" style="left: 73%; width: 16%;"></div>
+
+      <!-- Completed Lines -->
+      <div class="line-complete" style="left: 11%; width: 16%;"></div>
+      <div class="line-complete" style="left: 32%; width: 16%;"></div>
+      <div class="line-complete" style="left: 52%; width: 16%;"></div>
+      <div class="line-complete" style="left: 73%; width: 16%;"></div>
+
+      <!-- Steps -->
+      <div class="step active">
+        <div class="circle">✔</div>
+        <div class="text">Ordered</div>
+        <div class="date">Aug 7</div>
+      </div>
+
+      <div class="step active">
+        <div class="circle">✔</div>
+        <div class="text">Order Ready</div>
+        <div class="date">Aug 8</div>
+      </div>
+
+      <div class="step active">
+        <div class="circle">✔</div>
+        <div class="text">In Transit</div>
+        <div class="date">Aug 9</div>
+      </div>
+
+      <div class="step active">
+        <div class="circle">✔</div>
+        <div class="text">Out for Delivery</div>
+        <div class="date">Aug 16</div>
+      </div>
+
+      <div class="step active">
+        <div class="circle">✔</div>
+        <div class="text">Delivered</div>
+        <div class="date">Aug 16</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

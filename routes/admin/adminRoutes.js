@@ -9,6 +9,7 @@ const users = require('./usersRoutes')
 const category = require('./categoryRoutes')
 const dashboard = require('./dashboardRoutes')
 const products = require('./productsRoutes');
+const Orders = require('./orderRoutes')
 const { isLogged, isAdmin } = require('../../middleware/admin/adminAuthMiddleware');
 const { logout } = require('../../controller/user/login_and_signup_Controller');
 
@@ -17,23 +18,12 @@ const { logout } = require('../../controller/user/login_and_signup_Controller');
 router.get('/login',isLogged,get_admin_login)
 router.post('/login',post_admin_login)
 
-//Logout
-router.get('/logout',isAdmin,logout)
-
- 
-//Users
-router.use('/users',isAdmin,users)
-
-//category
-router.use('/categories',isAdmin,category)
-
-//dashboard 
-router.use('/',isAdmin,dashboard)
- 
- 
-
-//products
-router.use('/products',isAdmin,products)
+router.get('/logout',isAdmin,logout)//Logout
+router.use('/users',isAdmin,users) //Users
+router.use('/categories',isAdmin,category)//category
+router.use('/',isAdmin,dashboard)//dashboard
+router.use('/products',isAdmin,products)//products
+router.use('/orders',isAdmin,Orders)//Orders
 
 
 

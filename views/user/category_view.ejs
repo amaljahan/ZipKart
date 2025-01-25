@@ -109,11 +109,8 @@
                         <div class="d-flex m-3 me-0"> 
 
                              <!-- =================== -->
-                               <% if (session.user) { %>
-                                <a href="/zipkart/user/logout" class="text-white">  
-                                    <button class="logout">Logout</button>
-                                </a>
-                            <% } else { %>
+                               <% if (!session.user) { %>
+                            
                                 <a href="/zipkart/user/login" class="text-white">  
                                     <button class="logout" style="background-color: yellow;color:black">Login</button>
                                 </a>
@@ -438,8 +435,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Product added to cart successfully!");
             console.log(response.data.cart); // Optional: Log the updated cart
 
-            // Redirect to the provided URL from the response
-            window.location.href = response.data.url;
         } else {
             // Handle failure (success: false from backend)
             alert(response.data.message || "Failed to update cart");

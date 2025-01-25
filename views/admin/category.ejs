@@ -8,8 +8,168 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      display: flex;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
 
+    .sidebar {
+      background-color: #1f2937;
+      color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      width: 240px;
+      transition: width 0.3s ease;
+    }
 
+    .sidebar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .sidebar .menu-item {
+      margin-bottom: 10px;
+    }
+
+    .sidebar .menu-item a {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar .menu-item.active a {
+      font-weight: bold;
+    }
+
+    .sidebar .menu-item i {
+      margin-right: 10px;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .header .title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .category-actions {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #1f2937;
+      color: #fff;
+    }
+
+    .btn-edit, .btn-delete, .btn-list, .btn-unlist {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+
+    .btn-edit {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .btn-list {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    .btn-unlist {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .sidebar .logo {
+        margin-bottom: 0;
+      }
+
+      .sidebar .menu-item {
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .header .title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+
+      table th, table td {
+        font-size: 0.9rem;
+        padding: 6px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .btn-edit, .btn-delete, .btn-list, .btn-unlist {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header .title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
+
+      table th, table td {
+        font-size: 0.8rem;
+        padding: 4px;
+      }
+
+      .btn-edit, .btn-delete, .btn-list, .btn-unlist {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Sidebar -->
@@ -19,12 +179,12 @@
     </div>
     <nav class="menu">
       <ul>
-        <li class="menu-item"><a href="/zipkart/admin/dashboard">Dashboard</a></li>
-        <li class="menu-item"><a href="/zipkart/admin/users/view-users">Users</a></li>
-        <li class="menu-item active"><a href="/zipkart/admin/categories/view-category">Categories</a></li>
-        <li class="menu-item "><a href="/zipkart/admin/products/view-products">Products</a></li>
-        <li class="menu-item"><a href="#">Orders</a></li>
-        <li class="menu-item"><a href="#">Settings</a></li>
+        <li class="menu-item"><a href="/zipkart/admin/dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/users/view-users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+        <li class="menu-item active"><a href="/zipkart/admin/categories/view-category"><i class="fas fa-list"></i> <span>Categories</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/products/view-products"><i class="fas fa-box"></i> <span>Products</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/orders/view-orders"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
+        <li class="menu-item"><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -34,16 +194,11 @@
     <!-- Header -->
     <header class="header">
       <div class="title">Categories Management</div>
-      <a href="/zipkart/admin/logout"><button class="logout">Logout</button></a>
     </header>
 
     <!-- Add Category Button -->
     <div class="category-actions">
-      <a href="/zipkart/admin/categories/add-category"><button id="addCategoryBtn" style="background-color: #4f46e5;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">Add Category</button></a>
+      <a href="/zipkart/admin/categories/add-category"><button id="addCategoryBtn" style="background-color: #4f46e5; padding: 12px 20px; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">Add Category</button></a>
     </div>
 
     <!-- Categories Table -->
@@ -67,15 +222,13 @@
                 <td><%= category.description || "No description provided" %></td>
                 <td><%= category.isListed ? "Active" : "Inactive" %></td>
                 <td>
-                  <!-- Inside each row -->
-<a href="/zipkart/admin/categories/edit-category/<%= category._id %>"><button class="btn-edit" >Edit</button>
-</a>                  <% if (category.isListed) { %>
+                  <a href="/zipkart/admin/categories/edit-category/<%= category._id %>"><button class="btn-edit">Edit</button></a>
+                  <% if (category.isListed) { %>
                     <button class="btn-unlist" onclick="toggleStatus('<%= category._id %>', 'Inactive')">Unlist</button>
                   <% } else { %>
                     <button class="btn-list" onclick="toggleStatus('<%= category._id %>', 'Active')">List</button>
                   <% } %>
-                  <button class="btn-delete" onclick="deleteCategory('<%= category._id %>')"><i class="fas fa-trash"></i> </button>
-
+                  <button class="btn-delete" onclick="deleteCategory('<%= category._id %>')"><i class="fas fa-trash"></i></button>
                 </td>
               </tr>
             <% }); %>
@@ -87,122 +240,74 @@
         </tbody>
       </table>
     </section>
-    
   </main>
 
   <!-- JavaScript -->
-   <script>
+  <script>
+    async function toggleStatus(categoryId, newStatus) {
+      const isListed = newStatus === "Active";
 
-// ===============================================================================================================================
-async function toggleStatus(categoryId, newStatus) {
-    const isListed = newStatus === "Active";
-
-    try {
-        // Show confirmation alert before making the API call
+      try {
         const result = await Swal.fire({
-            title: 'Are you sure?',
-            text: `Do you want to set the status to "${newStatus}"?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, proceed!',
-            cancelButtonText: 'Cancel'
+          title: 'Are you sure?',
+          text: `Do you want to set the status to "${newStatus}"?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, proceed!',
+          cancelButtonText: 'Cancel'
         });
 
         if (result.isConfirmed) {
-            // Proceed with the API call after confirmation
-            const response = await axios.patch(`/zipkart/admin/categories/edit-category/${categoryId}/status`, { isListed });
+          const response = await axios.patch(`/zipkart/admin/categories/edit-category/${categoryId}/status`, { isListed });
 
-            // Show success alert
-            await Swal.fire({
-                title: 'Success!',
-                text: response.data.message,
-                icon: 'success',
-                confirmButtonText: 'OK'
-            });
-
-            // Reload the page to reflect changes
-            location.reload();
-        } else {
-            // Show cancelled alert
-            await Swal.fire({
-                title: 'Cancelled',
-                text: 'No changes were made.',
-                icon: 'info',
-                confirmButtonText: 'OK'
-            });
-        }
-    } catch (error) {
-        // Show error alert
-        await Swal.fire({
-            title: 'Error!',
-            text: error.response?.data?.error || 'Something went wrong. Please try again.',
-            icon: 'error',
+          await Swal.fire({
+            title: 'Success!',
+            text: response.data.message,
+            icon: 'success',
             confirmButtonText: 'OK'
+          });
+
+          location.reload();
+        } else {
+          await Swal.fire({
+            title: 'Cancelled',
+            text: 'No changes were made.',
+            icon: 'info',
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        await Swal.fire({
+          title: 'Error!',
+          text: error.response?.data?.error || 'Something went wrong. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
         });
+      }
     }
-}
-// ===============================================================================================================================
-// Delete Category
-async function deleteCategory(categoryId) {
-  // Show SweetAlert2 confirmation
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel'
-  });
 
-  if (result.isConfirmed) {
-    try {
-      // Send DELETE request to the server
-      const response = await axios.delete(`/zipkart/admin/categories/delete-category/${categoryId}`);
-      // Show success alert
-      await Swal.fire('Deleted!', response.data.message, 'success');
-      location.reload(); // Reload the page to reflect the changes
-    } catch (error) {
-      // Show error alert
-      Swal.fire('Error!', 'There was an issue deleting the category.', 'error');
-    }
-  } else {
-    // Show cancelled alert
-    Swal.fire('Cancelled', 'The category was not deleted.', 'info');
-  }
-}
+    async function deleteCategory(categoryId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
 
-   </script>
-  <!-- <script>
-    // Function to toggle status (Active/Inactive)
-    function toggleStatus(categoryId, newStatus) {
-      const row = document.querySelector(`#categoriesTable tr:nth-child(${categoryId})`);
-      const statusCell = row.querySelector('td:nth-child(4)');
-      const actionButton = row.querySelector('td:nth-child(5) button:last-child');
-
-      if (newStatus === 'Active') {
-        statusCell.textContent = 'Active';
-        actionButton.textContent = 'Unlist';
-        actionButton.className = 'btn-unlist';
-        actionButton.onclick = () => toggleStatus(categoryId, 'Inactive');
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`/zipkart/admin/categories/delete-category/${categoryId}`);
+          await Swal.fire('Deleted!', response.data.message, 'success');
+          location.reload();
+        } catch (error) {
+          Swal.fire('Error!', 'There was an issue deleting the category.', 'error');
+        }
       } else {
-        statusCell.textContent = 'Inactive';
-        actionButton.textContent = 'List';
-        actionButton.className = 'btn-list';
-        actionButton.onclick = () => toggleStatus(categoryId, 'Active');
+        Swal.fire('Cancelled', 'The category was not deleted.', 'info');
       }
     }
-
-    // Function to edit category
-    function editCategory(categoryId) {
-      const categoryName = prompt("Edit Category Name:");
-      const categoryDescription = prompt("Edit Category Description:");
-
-      if (categoryName && categoryDescription) {
-        const row = document.querySelector(`#categoriesTable tr:nth-child(${categoryId})`);
-        row.querySelector('td:nth-child(2)').textContent = categoryName;
-        row.querySelector('td:nth-child(3)').textContent = categoryDescription;
-      }
-    }
-  </script> -->
+  </script>
 </body>
 </html>

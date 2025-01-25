@@ -17,7 +17,6 @@ router.use('/',home_page) //Home page route
 router.use('/product-detailed',isBlocked,review) //Product review
 router.use('/accountDetails',isUser ,isBlocked,accountDetails) //AccountDetails
 router.use('/accountDetails',isUser ,isBlocked,changePassword)
-// router.use('/',isUser ,isBlocked,cartRout)
 router.use('/',cartRout)
  
 

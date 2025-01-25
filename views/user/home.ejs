@@ -23,6 +23,7 @@
 
         <script src="https://cdn.jsde   livr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
         <!-- Customized Bootstrap Stylesheet -->
@@ -107,15 +108,64 @@
                         </div>
                         <div class="d-flex m-3 me-0">
                               <!-- =================== -->
-                              <% if (session.user) { %>
-                                <a href="/zipkart/user/logout" class="text-white">  
-                                    <button class="logout">Logout</button>
-                                </a>
-                            <% } else { %>
+                              <% if (!session.user) { %>
+                               
+            
                                 <a href="login" class="text-white">  
                                     <button class="logout" style="background-color: yellow;color:black">Login</button>
                                 </a>
-                            <% } %>                      
+                            <% } %> 
+                            
+                            
+
+
+
+
+
+
+
+                            <button onclick="simulateLogin()" class="logout" style="background-color: rgb(0, 255, 123); color:black;">Simulate Login</button>
+                            <button onclick="currentPage()" class="logout" style="background-color: rgb(52, 107, 79); color:black;">Current Page</button>
+                            
+                            <script>
+                                function simulateLogin() {
+                                    axios.post('/simulateLogin')
+                                        .then(response => {
+                                            if (response.data.success) {
+                                                // Redirect to the home page or any other page
+                                                window.location.href = '/zipkart/user/home';  // Adjust this path as per your project
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error("Error during login simulation:", error);
+                                        });
+                                }
+                            
+                                function currentPage() {
+                                    window.location.href = '/zipkart/user/accountDetails/view-order/ZKORD-1737214227883-6988';
+                                }     
+                            </script>                       
+                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             <!-- =================== -->
 
                             <button class="btn-search btn border border-secondary btn-md-square rounded-circle bg-white me-4" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fas fa-search text-primary"></i></button>

@@ -15,6 +15,7 @@ const view_products = async (req, res) => {
           
       res.render("admin/products", { products });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Failed to fetch products" });
     }
   };

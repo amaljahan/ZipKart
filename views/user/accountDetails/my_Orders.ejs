@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/accountDetails.css">
+    <link rel="stylesheet" href="../../../public/css/accountDetails.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background-color: #007bff;
+            padding: 20px 0;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            display: flex;
+            max-width: 1200px;
+            margin: 8px 10px 0 430px;
+            gap: 20px;
+            flex-grow: 1;
+        }
+        /* Account Actions */
+        .account-actions {
+            flex: 1;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 65px;
+        }
+
+        .account-actions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .account-actions li {
+            margin-bottom: 15px;
+        }
+
+        .account-actions a {
+            text-decoration: none;
+            color: #555;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Orders Section */
+        .orders-section {
+            flex: 3;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 150px); /* Adjust the height dynamically */
+            overflow-y: auto; /* Enable vertical scrolling */
+            scrollbar-width: none; /* For Firefox */
+            flex-grow: 1; /* Ensure this takes up remaining space */
+        }
+
+        .orders-section h4 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .orders-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .orders-section th, .orders-section td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+            font-size: 15px;
+        }
+
+        .orders-section th {
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+
+        .orders-section tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .orders-section .view {
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .orders-section .view:hover {
+            text-decoration: underline;
+        }
+
+        .orders-section {
+            scrollbar-width: none; /* For Firefox */
+        }
+
+        .orders-section::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Edge */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/zipkart/user/home" class="navbar-brand"><h1 class="text-primary display-6">ZipKart</h1></a>
+    <div class="user-actions">
+        <a href="#"><%=session.user %></a>
+        
+    </div>
+    
+    
+   
+</header>
+    <main>
+        <div class="section">
+            <!-- Account Actions -->
+            <div class="account-actions">
+                <ul class="acnt-actions">
+                    <li><a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>"><i class="fas fa-cog"></i> Manage Account</a></li>
+                    <li class="active"><a href="/zipkart/user/accountDetails/my-orders"><i class="fas fa-box"></i> My Orders</a></li>
+                    <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
+                    <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
+                    <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                    <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
+                    <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                    <li><a href="/zipkart/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+       
+            <!-- Orders Section -->
+            <div class="orders-section">
+                <h4>My Orders</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach(function(order) { %>
+                                <tr>
+                                    <td><%= order.orderId %></td>
+                                    <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+                                    <td><%= order.status %></td>
+                                    <td>₹<%= order.totalPrice %> for <%= order.products.length %> items</td>
+                                    <td><a href="/zipkart/user/accountDetails/view-order/<%= order.orderId %>" class="view">View</a></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted"> No Order Found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

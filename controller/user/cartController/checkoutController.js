@@ -16,7 +16,7 @@ const   view_checkout_page = async(req,res)=>{
                 if (!cart) {
                     return res.status(404).render('user/cart/cart', { message: "Unable to process, Cart not found", cart: null,session: req.session });
                 }
-        res.render("user/cart/checkout",{session:req.session, cart, addresses})
+        res.render("user/cart/checkout",{session:req.session, cart: cart || null, addresses})
     }
     catch(err){
         console.log("Error viewing from checkout page:", err);
@@ -24,7 +24,6 @@ const   view_checkout_page = async(req,res)=>{
     }
 } 
 
-const creaate_order = 
 
 
 module.exports = {

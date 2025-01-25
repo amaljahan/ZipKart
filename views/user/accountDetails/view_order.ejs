@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        header .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        header nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+        }
+
+        header nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .order-header .delivery-address {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .order-header .order-info {
+            flex: 1;
+            padding-left: 20px;
+            border-left: 2px solid #f4f4f4;
+        }
+
+        .order-header h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .order-header p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table th, table td {
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        table th {
+            background-color: #f9f9f9;
+        }
+
+        table td img {
+            max-width: 50px;
+            border-radius: 5px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-cancel {
+            background-color: #d9534f;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background-color: #c9302c;
+        }
+
+        .progress-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background-color: #ddd;
+            z-index: 0;
+            transform: translateY(-50%);
+        }
+
+        .progress-step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .progress-step .circle {
+            width: 30px;
+            height: 30px;
+            background-color: #ddd;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-step.active .circle {
+            background-color: #007bff;
+        }
+
+        .progress-step .label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .progress-step.active .label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-top: 2px solid #f4f4f4;
+        }
+
+        footer .btn {
+            font-size: 16px;
+        }
+
+        footer .btn-back {
+            background-color: #007bff;
+            color: white;
+        }
+
+        footer .btn-back:hover {
+            background-color: #0163cd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/zipkart/user/home"><div class="logo">ZipKart</div></a>
+        <nav>
+            <a href="/zipkart/user/home">Home</a>
+            <a href="/zipkart/user/products-categorised-view">Shop</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="order-header">
+                    
+            <div class="delivery-address">
+                <h3>Delivery Address</h3>
+                <p><strong>Name:</strong> <%= order.address.name %></p>
+                <p><strong>Phone:</strong> <%= order.address.phoneNumber %></p>
+                <p><strong>Address:</strong> <%= order.address.address %>, <%= order.address.locality %>, <%= order.address.cityDistrictTown %> - <%= order.address.pincode %></p>
+                <p><strong>District:</strong> <%= order.address.cityDistrictTown %></p>
+                <p><strong>State:</strong> <%= order.address.state %></p>
+                <p><strong>Country:</strong> <%= order.address.country %></p>
+                <p><strong>Landmark:</strong> <%= order.address.landmark %></p>
+            </div>
+            <div class="order-info">
+                <h3>Order Information</h3>
+                <p><strong>Order ID:</strong> <%= order.orderId %></p>
+                <p><strong>Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+                <p><strong>Status:</strong> <%= order.status %></p>
+                <p><strong>Sub Total:</strong> <%= order.subtotal %></p>
+                <p><strong>Delivery Charge:</strong> <%= order.deliveryCharge %></p>
+                <p><strong>Total:</strong> ₹<%= order.totalPrice %> for <%= order.products.length %> item(s)</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.products.forEach(function(product) { %>
+                    <tr>
+                        <td><%= product.productId.name %></td>
+                        <td>₹<%= product.price %></td>
+                        <td><%= product.quantity %></td>
+                        <td>₹<%= product.price * product.quantity %></td>
+                        <td>
+                            <% if (product.status === "Cancelled") { %>
+                                <button type="button" class="btn btn-cancel btn-disabled" disabled>Cancelled</button>
+                            <% } else { %>
+                                <button 
+                                    type="button" 
+                                    onclick="orderCancel('<%= product.productId._id %>', this)" 
+                                    class="btn btn-cancel">
+                                    Cancel
+                                </button>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+                
+
+
+
+
+                <script>
+    function orderCancel(productId, button) {
+        // Show confirmation alert
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to cancel this order?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Make Axios request to cancel the order
+                axios.patch('/zipkart/user/accountDetails/view-order/<%= order.orderId %>/order/cancel', { productId })
+                    .then((response) => {
+                        // On success, show a success alert
+                        Swal.fire(
+                            'Cancelled!',
+                            'Your order has been cancelled.',
+                            'success'
+                        );
+
+                        // Change the button text to "Cancelled"
+                        button.innerText = 'Cancelled';
+                        button.classList.add('btn-disabled'); // Add a disabled styling class
+                        button.disabled = true; // Disable the button
+                    })
+                    .catch((error) => {
+                        // Handle errors
+                        Swal.fire(
+                            'Error',
+                            'Something went wrong. Please try again.',
+                            'error'
+                        );
+                        console.error(error);
+                    });
+            }
+        });
+    }
+                    </script>
+
+
+
+            </tbody>
+        </table>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <% const steps = ['Ordered', 'Order Ready', 'In Transit', 'Out for Delivery', 'Delivered']; %>
+                <% steps.forEach(function(step, index) { %>
+                    <div class="progress-step <%= order.status === step ? 'active' : '' %>">
+                        <div class="circle"><%= index + 1 %></div>
+                        <div class="label"><%= step %><br><small><%= new Date(order.orderDate).toLocaleDateString() %></small></div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <footer>
+            <a href="/zipkart/user/accountDetails/my-orders"><button class="btn btn-back">Back to Orders</button></a>
+            <!-- <button class="btn btn-cancel">Cancel Order</button> -->
+        </footer>
+    </div>
+</body>
+</html>

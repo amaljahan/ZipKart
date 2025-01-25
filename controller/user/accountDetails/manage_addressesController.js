@@ -35,10 +35,10 @@ const get_add_address = async(req,res)=>{
 const add_address = async(req,res)=>{
     
     console.log("req.body :==>", req.body);
-    const { userId, firstName, lastName, phoneNumber, pincode, locality, address, cityDistrictTown, state, landmark, alternatePhone, addressType } = req.body;
+    const { userId, firstName, lastName, phoneNumber, pincode, locality, address, cityDistrictTown, state, country, landmark, alternatePhone, addressType } = req.body;
 
     try{
-        if (!userId || !firstName || !phoneNumber || !pincode || !locality || !address || !cityDistrictTown || !state || !addressType) {
+        if (!userId || !firstName || !phoneNumber || !pincode || !locality || !address || !cityDistrictTown || !state || !addressType || country) {
             return res.status(400).json({ message: "All required fields must be filled" });
         }
 
@@ -66,6 +66,7 @@ const add_address = async(req,res)=>{
             address,
             cityDistrictTown,
             state,
+            country,
             landmark,
             alternatePhone,
             addressType
@@ -114,7 +115,7 @@ const edit_address = async(req,res)=>{
         console.log(req.params.id);
         
         const addressId  = req.params.id; 
-        const { userId, firstName, lastName, phoneNumber, pincode, locality, address, cityDistrictTown, state, landmark, alternatePhone, addressType } = req.body;
+        const { userId, firstName, lastName, phoneNumber, pincode, locality, address, cityDistrictTown, state, country, landmark, alternatePhone, addressType } = req.body;
 
         // Validate address ID
         if (!addressId) {
@@ -166,6 +167,7 @@ const edit_address = async(req,res)=>{
                 address,
                 cityDistrictTown,
                 state,
+                country,
                 landmark,
                 alternatePhone,
                 addressType,

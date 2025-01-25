@@ -69,6 +69,18 @@ app.use((err, req, res, next) => {
   res.render('errors/_500',{err}) 
 });
 
+
+
+
+//simulateLogin
+
+app.post('/simulateLogin',(req,res)=>{
+  req.session.userId = "6769241448191f120903c196";
+    req.session.user = "Amal";
+    res.status(200) 
+    res.render('user/home',{session:req.session})
+})
+
 app.listen(port,()=>{  
     console.log(`server running on http://localhost:${port}/zipkart/user/home
         `) 

@@ -10,11 +10,14 @@ const view_cart = async(req,res)=>{
     
     
     try{
-        const cart = await Carts.findOne({ userId }).populate('products.productId');
+        let cart = await Carts.findOne({ userId }).populate('products.productId');
         if (!cart) {
-            return res.status(404).render('user/cart/cart', { message: "Cart not found", cart: null,session: req.session });
+            cart = new Carts({
+                userId,
+                products: [],
+            });       
         }
-        res.render('user/cart/cart', { cart,session:req.session });
+        res.render('user/cart/cart', { cart:cart||null,session:req.session });
     }
     catch(err){
         console.error("Error: ", err);
@@ -106,7 +109,7 @@ const updateCart = async (req, res) => {
         if (product.stock < 0) {//for ensuring stock not going below zero
             product.stock = 0;
         }
-        product.popularity = product.popularity + 5;
+        product.popularity = product.popularity + 4;
 
         await Promise.all([
             cart.save(),

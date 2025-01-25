@@ -155,250 +155,94 @@
 
 
         <!-- Cart Page Start -->
-        <div class="container-fluid py-5">
+        <div class="container-fluid py-5 bg-light">
             <div class="container py-5">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                          <tr>
-                            <th scope="col">Products</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Handle</th>
-                          </tr>
+                <h1 class="text-center text-primary mb-5">Your Shopping Cart</h1>
+        
+                <!-- Table Section -->
+                <div class="table-responsive shadow-sm rounded bg-white p-4">
+                    <table class="table table-striped align-middle">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th scope="col">Products</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Actions</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <% if (cart && cart.products && cart.products.length > 0) { %>
                                 <% cart.products.forEach(product => { %>
                                     <tr>
-                                        <th scope="row">
-                                            <div class="d-flex align-items-center">
-                                                <img src="<%= product.productId.images && product.productId.images[0] ? product.productId.images[0].thumbnailUrl : 'default-image.png' %>" 
-                                                     class="img-fluid me-5 rounded-circle" 
-                                                     style="width: 80px; height: 80px;" 
-                                                     alt="<%= product.productId.name %>">
-                                            </div>
-                                        </th>
-                                        
                                         <td>
-                                            <p class="mb-0 mt-4"><%= product.productId.name %></p>
+                                            <img src="<%= product.productId.images && product.productId.images[0] ? product.productId.images[0].thumbnailUrl : 'default-image.png' %>" 
+                                                 class="img-fluid rounded-circle shadow-sm" 
+                                                 style="width: 80px; height: 80px;" 
+                                                 alt="<%= product.productId.name %>">
                                         </td>
+                                        <td><p class="mb-0 fw-bold"><%= product.productId.name %></p></td>
+                                        <td><p class="mb-0 text-success">₹<%= product.productId.price.toFixed(2) %> / <%= product.productId.unit %></p></td>
                                         <td>
-                                            <p class="mb-0 mt-4">
-                                               ₹<%= product.productId ? product.productId.price.toFixed(2) : 'N/A' %> / <%= product.productId.unit%>                                            </p>
-                                        </td>
-                                        <td>
-
-                                            <div class="input-group quantity mt-4" style="width: 133px;">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border" onclick="updateQuantity('<%= session.userId %>','<%= product.productId._id %>', -1)">
-                                                        <i class="fa fa-minus"></i>
-                                                    </button>
-                                                </div>
-                                                <input type="text" class="form-control form-control-sm text-center border-0" value="<%= product.quantity %>" onchange="handleQuantityChange(this, '<%= product.productId._id %>', '<%= session.userId %>')">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity('<%= session.userId %>','<%= product.productId._id %>', 1)">
-                                                        <i class="fa fa-plus"></i>
-                                                    </button>&nbsp;<%= product.productId.unit%>
-                                                </div>
+                                            <div class="input-group quantity align-items-center" style="width: 140px;">
+                                                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('<%= session.userId %>', '<%= product.productId._id %>', -1)">
+                                                    <i class="fa fa-minus"></i>
+                                                </button>
+                                                <input type="text" class="form-control text-center border" value="<%= product.quantity %>" 
+                                                       onchange="handleQuantityChange(this, '<%= product.productId._id %>', '<%= session.userId %>')">
+                                                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('<%= session.userId %>', '<%= product.productId._id %>', 1)">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
                                             </div>
                                         </td>
+                                        <td><p class="mb-0 fw-bold">₹<%= (product.productId.price * product.quantity).toFixed(2) %></p></td>
                                         <td>
-                                            <p class="mb-0 mt-4">₹<%= (product.productId.price * product.quantity).toFixed(2) %> </p>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-md rounded-circle bg-light border mt-4" onclick="removeProduct('<%= session.userId %>','<%= product.productId._id %>')"> <i class="fa fa-times text-danger"></i></button>
+                                            <button class="btn btn-danger btn-sm rounded-circle shadow-sm" onclick="removeProduct('<%= session.userId %>', '<%= product.productId._id %>')">
+                                                <i class="fa fa-times"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="6" class="text-center">No products in cart</td>
+                                    <td colspan="6" class="text-center text-muted">Your cart is empty</td>
                                 </tr>
                             <% } %>
-
-
-                            <script>
-                                const DEBOUNCE_DELAY = 300; // Delay in milliseconds
-                                let updateTimeout; // Timeout for debouncing
-                            
-                                // Function to update the quantity of a product in the cart
-                                async function updateQuantity(userId, productId, count) {
-                                    clearTimeout(updateTimeout); // Clear any existing timeout
-                            
-                                    updateTimeout = setTimeout(async () => {
-                                        console.log("Update quantity clicked:", { count, productId, userId });
-                            
-                                        try {
-                                            const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
-                                            
-                                            if (response.data.success) {
-                                                    window.location.reload();
-                                            } else {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Error',
-                                                    text: response.data.message,
-                                                })
-                                                .then(() => {
-                                                    window.location.reload();
-                                                });
-                                            }
-                                        } catch (error) {
-                                            console.error("Error updating quantity:", error);
-                            
-                                            if (error.response && error.response.data && error.response.data.message) {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Error',
-                                                    text: error.response.data.message, // Backend error message
-                                                })
-                                                .then(() => {
-                                                    window.location.reload();
-                                                });
-                                            } else {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Network Error',
-                                                    text: 'Failed to update the quantity. Please try again later.',
-                                                })
-                                                .then(() => {
-                                                    window.location.reload();
-                                                });
-                                            }
-                                        }
-                                    }, DEBOUNCE_DELAY);
-                                }
-
-                                //for input field
-                                function handleQuantityChange(input, productId, userId) {
-                                    const previousValue = parseInt(input.getAttribute('data-prev-value')) || parseInt(input.defaultValue);
-                                    const currentValue = parseInt(input.value);
-
-                                    if (isNaN(currentValue)) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Invalid Input',
-                                            text: 'Please enter a valid number.',
-                                        });
-                                        input.value = previousValue; // Reset to the previous value
-                                        return;
-                                    }
-
-                                    const count = currentValue - previousValue;
-
-                                    // Update the previous value attribute for future changes
-                                    input.setAttribute('data-prev-value', currentValue);
-
-                                    // Call the updateQuantity function
-                                    updateQuantity(userId, productId, count);
-                                }
-                            
-                                // Function to remove a product from the cart
-                                let removeTimeout; // Timeout for debouncing remove action
-                                async function removeProduct(userId,productId) {
-                                    clearTimeout(removeTimeout); // Clear any existing timeout
-                            
-                                    removeTimeout = setTimeout(async () => {
-                                        try {
-                                            const result = await Swal.fire({
-                                                title: 'Are you sure?',
-                                                text: 'Do you really want to remove this product from the cart?',
-                                                icon: 'warning',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#d33',
-                                                cancelButtonColor: '#3085d6',
-                                                confirmButtonText: 'Yes, remove it!',
-                                            });
-                            
-                                            if (result.isConfirmed) {
-                                                const response = await axios.delete(`/zipkart/user/${userId}/cart/remove-product/${productId}`);
-                            
-                                                if (response.data.success) {
-                                                    Swal.fire({
-                                                        icon: 'success',
-                                                        title: 'Removed',
-                                                        text: response.data.message,
-                                                        timer: 1500,
-                                                        showConfirmButton: false,
-                                                    }).then(() => {
-                                                        window.location.reload();
-                                                    });
-                                                } else {
-                                                    Swal.fire({
-                                                        icon: 'error',
-                                                        title: 'Error',
-                                                        text: response.data.message,
-                                                    });
-                                                }
-                                            }
-                                        } catch (error) {
-                                            console.error("Error removing product:", error);
-                            
-                                            if (error.response && error.response.data && error.response.data.message) {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Error',
-                                                    text: error.response.data.message,
-                                                });
-                                            } else {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Network Error',
-                                                    text: 'Failed to remove the product. Please try again later.',
-                                                });
-                                            }
-                                        }
-                                    }, DEBOUNCE_DELAY);
-                                }
-                            </script>
-                            
-                            
-
                         </tbody>
                     </table>
                 </div>
-                
-                <div class="row g-4 justify-content-end">
-                    <div class="col-8"></div>
-                    <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
-                        <div class="bg-light rounded">
-                            <div class="p-4">
-                                <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
-                                
-                                <!-- <div class="d-flex justify-content-between mb-4">
-                                    <h5 class="mb-0 me-4">Subtotal:</h5>
-                                    <p class="mb-0">
-                                        ₹<%= cart.products.reduce((total, product) => total + (product.productId.price * product.quantity), 0).toFixed(2) %>
-                                    </p>
-                                </div> -->
-<!--                         
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="mb-0 me-4">Shipping</h5>
-                                    <div class="">
-                                        <p class="mb-0">Flat rate: ₹3.00</p>
+        
+                <!-- Total and Checkout Section -->
+                <%if( cart.products.length>0 ){%>
+                    <div class="row g-4 justify-content-end mt-5">
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="bg-white shadow-sm rounded">
+                                <div class="p-4">
+                                    <h4 class="text-secondary mb-4">Cart Total</h4>
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <p class="mb-0">Subtotal:</p>
+                                        <p class="mb-0">₹<%= cart.products.reduce((total, product) => total + (product.productId.price * product.quantity), 0).toFixed(2) %></p>
+                                    </div>
+                                    <div class="border-top pt-3">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="fw-bold mb-0">Total:</h5>
+                                            <h5 class="fw-bold mb-0 text-primary">₹<%= cart.products.reduce((total, product) => total + (product.productId.price * product.quantity), 0).toFixed(2) %></h5>
+                                        </div>
                                     </div>
                                 </div>
-                                <p class="mb-0 text-end">Shipping to Ukraine.</p> -->
+                                <div class="p-4 border-top text-center">
+                                    <a href="/zipkart/user/view-checkout" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm text-uppercase fw-bold">
+                                        Proceed to Checkout
+                                    </a>
+                                </div>
                             </div>
-                        
-                            <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
-                                <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4">
-                                    ₹<%= (cart.products.reduce((total, product) => total + (product.productId.price * product.quantity), 0)).toFixed(2) %>
-                                </p>
-                            </div>
-                            <a href="/zipkart/user/view-checkout">
-                                <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</button>
-                            </a>
                         </div>
-                        
                     </div>
-                </div>
+                <%}%>
             </div>
         </div>
+        
         <!-- Cart Page End -->
 
 
@@ -508,6 +352,140 @@
     <script src="/css/lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Template Javascript -->
+    <script>
+        const DEBOUNCE_DELAY = 300; // Delay in milliseconds
+        let updateTimeout; // Timeout for debouncing
+    
+        // Function to update the quantity of a product in the cart
+        async function updateQuantity(userId, productId, count) {
+            clearTimeout(updateTimeout); // Clear any existing timeout
+    
+            updateTimeout = setTimeout(async () => {
+                console.log("Update quantity clicked:", { count, productId, userId });
+    
+                try {
+                    const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
+                    
+                    if (response.data.success) {
+                            window.location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.data.message,
+                        })
+                        .then(() => {
+                            window.location.reload();
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error updating quantity:", error);
+    
+                    if (error.response && error.response.data && error.response.data.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.response.data.message, // Backend error message
+                        })
+                        .then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Network Error',
+                            text: 'Failed to update the quantity. Please try again later.',
+                        })
+                        .then(() => {
+                            window.location.reload();
+                        });
+                    }
+                }
+            }, DEBOUNCE_DELAY);
+        }
+
+        //for input field
+        function handleQuantityChange(input, productId, userId) {
+            const previousValue = parseInt(input.getAttribute('data-prev-value')) || parseInt(input.defaultValue);
+            const currentValue = parseInt(input.value);
+
+            if (isNaN(currentValue)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Input',
+                    text: 'Please enter a valid number.',
+                });
+                input.value = previousValue; // Reset to the previous value
+                return;
+            }
+
+            const count = currentValue - previousValue;
+
+            // Update the previous value attribute for future changes
+            input.setAttribute('data-prev-value', currentValue);
+
+            // Call the updateQuantity function
+            updateQuantity(userId, productId, count);
+        }
+    
+        // Function to remove a product from the cart
+        let removeTimeout; // Timeout for debouncing remove action
+        async function removeProduct(userId,productId) {
+            clearTimeout(removeTimeout); // Clear any existing timeout
+    
+            removeTimeout = setTimeout(async () => {
+                try {
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Do you really want to remove this product from the cart?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, remove it!',
+                    });
+    
+                    if (result.isConfirmed) {
+                        const response = await axios.delete(`/zipkart/user/${userId}/cart/remove-product/${productId}`);
+    
+                        if (response.data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Removed',
+                                text: response.data.message,
+                                timer: 1500,
+                                showConfirmButton: false,
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.data.message,
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error removing product:", error);
+    
+                    if (error.response && error.response.data && error.response.data.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.response.data.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Network Error',
+                            text: 'Failed to remove the product. Please try again later.',
+                        });
+                    }
+                }
+            }, DEBOUNCE_DELAY);
+        }
+    </script>
     <script src="/css/js/main.js"></script>
     </body>
 

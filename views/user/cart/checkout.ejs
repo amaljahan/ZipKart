@@ -25,6 +25,11 @@
         <!-- Customized Bootstrap Stylesheet -->
         <link href="/css/css/bootstrap.min.css" rel="stylesheet">
 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
         <!-- Template Stylesheet -->
         <link href="/css/css/style.css" rel="stylesheet">
         <style>
@@ -139,144 +144,293 @@
         <!-- Single Page Header End -->
 
 
+        <style>
+            .form-container {
+                max-width: 500px;
+                margin: 0 auto;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                background-color: #fff;
+                padding: 20px;
+            }
+            .submit-btn {
+                background-color: #007bff;
+                color: white;
+            }
+            .submit-btn:disabled {
+                background-color: #d3d3d3;
+                color: #a9a9a9;
+            }
+        </style>
+
         <!-- Checkout Page Start -->
-        <div class="container-fluid py-5">
+        <div class="container-fluid py-5 bg-light">
             <div class="container py-5">
-                <h1 class="mb-4">Billing details</h1>
-                <div class="text-left">
-                    <a href="/zipkart/user/accountDetails/manage-addresses/add-new-address"><button class="btn btn-warning">Add Address</button></a>
-                    
-                </div><br>
-                    <form action="" method="post">
-                        <div class="row g-5">
-                            <!-- Addresses Section -->
-                            <div class="col-md-5 addresses-container">
-                                <% addresses.forEach((address, index) => { %>
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <!-- Radio Button for Address Selection -->
-                                            <div class="form-check mb-3">
-                                                <input 
-                                                    class="form-check-input" 
-                                                    type="radio" 
-                                                    name="selectedAddress" 
-                                                    id="address-<%= index %>" 
-                                                    value="<%= address._id %>" 
-                                                    <%= index === 0 ? 'checked' : '' %> <!-- Select the first address by default -->
-                                                
-                                                <label class="form-check-label" for="address-<%= index %>">
-                                                    <h5 class="card-title mb-1">
-                                                        <%= address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) %>
-                                                    </h5>
-                                                </label>
-                                            </div>
-                                            <p class="card-text text-muted mb-0">
-                                                <%= address.firstName %> <%= address.lastName %>,
-                                                <%= address.address %>,
-                                                <%= address.locality %>,
-                                                <%= address.cityDistrictTown %>,
-                                                <%= address.state %>,
-                                                Pincode: <%= address.pincode %>,
-                                                Landmark: <%= address.landmark || 'N/A' %>
-                                            </p>
-                                            <p class="card-text text-muted mb-0">
-                                                Phone: <%= address.phoneNumber %> | Alternate: <%= address.alternatePhone || 'N/A' %>
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <a href="/zipkart/user/accountDetails/manage-addresses/edit-address/<%= address._id %>">
-                                                <button type="button" class="btn btn-outline-primary me-2">Edit</button>
-                                            </a>
-                                            
-                                        </div>
+                <h1 class="mb-4 text-center text-primary">Billing Details</h1>
+                <!-- <form action="/zipkart/user/order" method="post"> -->
+                <div class="row g-5">
+                    <!-- Addresses Section -->
+                    <div class="col-md-5">
+                        <h4 class="mb-4 text-secondary">Your Addresses</h4>
+                        <% addresses.forEach((address, index) => { %>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <!-- Radio Button for Address Selection -->
+                                    <div class="form-check mb-3">
+                                        <input 
+                                            class="form-check-input" 
+                                            type="radio" 
+                                            name="selectedAddressId" 
+                                            id="address-<%= index %>" 
+                                            value="<%= address._id %>" 
+                                            <%= index === 0 ? 'checked' : '' %>
+                                        >
+                                        <label class="form-check-label text-primary" for="address-<%= index %>">
+                                            <h5 class="card-title mb-1">
+                                                <%= address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1) %>
+                                            </h5>
+                                        </label>
                                     </div>
+                                    <p class="card-text text-muted">
+                                        <strong><%= address.firstName %> <%= address.lastName %></strong><br>
+                                        <%= address.address %>, <%= address.locality %>, <%= address.cityDistrictTown %>, 
+                                        <%= address.state %>, Pincode: <%= address.pincode %><br>
+                                        Landmark: <%= address.landmark || 'N/A' %>
+                                    </p>
+                                    <p class="card-text text-muted">Phone: <%= address.phoneNumber %></p>
                                 </div>
-                                <% }) %>
-                            </div>
-                            
-            
-                            <!-- Cart Section -->
-                            <div class="col-md-7 cart-container">
-                                <div class="table-responsive">
-                                    <table class="table equal-spacing">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" class="products-column">Products</th>
-                                                <th scope="col">Name</th>
-                                                <th scope="col">Price</th>
-                                                <th scope="col">Quantity</th>
-                                                <th scope="col">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% if (cart && cart.products && cart.products.length > 0) { %>
-                                                <% cart.products.forEach(product => { %>
-                                                <tr>
-                                                    <th scope="row">
-                                                        <div class="d-flex align-items-center mt-2">
-                                                            <img src="<%= product.productId.images && product.productId.images[0] ? product.productId.images[0].thumbnailUrl : 'default-image.png' %>"
-                                                                class="img-fluid rounded-circle" 
-                                                                style="width: 90px; height: 90px;" 
-                                                                alt="<%= product.productId.name %>">
-                                                        </div>
-                                                    </th>
-                                                    <td class="py-5"><%= product.productId.name %></td>
-                                                    <td class="py-5">₹<%= product.productId ? product.productId.price.toFixed(2) : 'N/A' %> / <%= product.productId.unit%> </td>
-                                                    <td class="py-5"><%= product.quantity %></td>
-                                                    <td class="py-5">₹<%= (product.productId.price * product.quantity).toFixed(2) %></td>
-                                                </tr>
-                                                <% }) %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="6" class="text-center">No products in cart</td>
-                                                </tr>
-                                            <% } %>
-                                        </tbody>
-                                    </table>
-                                    
-                                </div>
-                                <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                    <div class="col-12">
-                                        <div class="form-check text-start my-3">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Transfer-1" name="Transfer" value="Transfer">
-                                            <label class="form-check-label" for="Transfer-1">Direct Bank Transfer</label>
-                                        </div>
-                                        <p class="text-start text-dark">Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.</p>
-                                    </div>
-                                </div>
-                                <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                    <div class="col-12">
-                                        <div class="form-check text-start my-3">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Payments-1" name="Payments" value="Payments">
-                                            <label class="form-check-label" for="Payments-1">Check Payments</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                    <div class="col-12">
-                                        <div class="form-check text-start my-3">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Delivery-1" name="Delivery" value="Delivery">
-                                            <label class="form-check-label" for="Delivery-1">Cash On Delivery</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                    <div class="col-12">
-                                        <div class="form-check text-start my-3">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Paypal-1" name="Paypal" value="Paypal">
-                                            <label class="form-check-label" for="Paypal-1">Paypal</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row g-4 text-center align-items-center justify-content-center pt-4">
-                                    <button type="button" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Place Order</button>
+                                <div>
+                                    <a href="/zipkart/user/accountDetails/manage-addresses/edit-address/<%= address._id %>">
+                                        <button type="button" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit</button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                </form>
+                        <% }) %>
+                        <div class="text-center mt-4">
+                            <a href="/zipkart/user/accountDetails/manage-addresses/add-new-address">
+                                <button class="btn btn-warning"><i class="bi bi-plus-circle"></i> Add Address</button>
+                            </a>
+                        </div>
+                    </div>
+        
+                    <!-- Cart Section -->
+                    <div class="col-md-7">
+                        <h4 class="mb-4 text-secondary">Your Cart</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% let subtotal = 0; %> <!-- Declare subtotal variable -->
+                                    <% if (cart && cart.products && cart.products.length > 0) { %>
+                                        <% cart.products.forEach(product => { 
+                                            let productTotal = product.productId.price * product.quantity;
+                                            subtotal += productTotal;
+                                        %>
+                                        <tr>
+                                            <td>
+                                                <img src="<%= product.productId.images && product.productId.images[0] ? product.productId.images[0].thumbnailUrl : 'default-image.png' %>" 
+                                                     class="img-fluid rounded-circle" 
+                                                     style="width: 70px; height: 70px;" 
+                                                     alt="<%= product.productId.name %>">
+                                            </td>
+                                            <td><%= product.productId.name %></td>
+                                            <td>₹<%= product.productId ? product.productId.price.toFixed(2) : 'N/A' %></td>
+                                            <td><%= product.quantity %></td>
+                                            <td>₹<%= productTotal.toFixed(2) %></td>
+                                        </tr>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center">No products in cart</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+        
+                        <!-- Apply Coupon Section -->
+                        <div class="border rounded p-4 my-4 bg-white shadow-sm">
+                            <h5 class="text-secondary">Apply Coupon</h5>
+                            <div class="input-group">
+                                <input id="couponCode" type="text" class="form-control" placeholder="Enter Coupon Code" name="couponCode">
+                                <button class="btn btn-outline-primary" type="button"><i class="bi bi-ticket"></i> Apply</button>
+                            </div>
+                        </div>
+        
+                        <!-- Payment Options -->
+                        <div class="border rounded p-4 my-4 bg-white shadow-sm">
+                            <h5 class="text-secondary">Payment Options</h5>
+                            <div class="form-check my-2">
+                                <input type="radio" class="form-check-input" id="cashOnDelivery-1" name="paymentMethod" value="COD" checked>
+                                <label class="form-check-label" for="cashOnDelivery-1">Cash On Delivery</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input type="radio" class="form-check-input" id="wallet-1" name="paymentMethod" value="wallet-1">
+                                <label class="form-check-label" for="wallet-1">Wallet</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input type="radio" class="form-check-input" id="razorpay-1" name="paymentMethod" value="razorpay">
+                                <label class="form-check-label" for="razorpay-1">Razorpay</label>
+                            </div>
+                        </div>
+        
+                        <!-- Summary -->
+                        <div class="border rounded p-4 bg-white shadow-sm">
+                            <h5 class="text-secondary">Order Summary</h5>
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal</span>
+                                <span>₹<%= subtotal.toFixed(2) %></span>
+                            </div>
+                        
+                            <!-- Conditional Delivery Charge -->
+                            <div class="d-flex justify-content-between">
+                                <span>Delivery Charge</span>
+                                <% let deliveryCharge = subtotal < 500 ? 40 : 0; %> <!-- Conditional delivery charge -->
+                                <span>₹<%= deliveryCharge.toFixed(2) %></span>
+                            </div>
+                        
+                            <hr>
+                        
+                            <!-- Total Calculation -->
+                            <div class="d-flex justify-content-between font-weight-bold">
+                                <span>Total</span>
+                                <span>₹<%= (subtotal + deliveryCharge).toFixed(2) %></span>
+                            </div>
+                        </div>
+                        
+        
+                        <div class="text-center mt-4">
+                            <button id="submit-btn" type="submit" class="btn btn-primary py-3 px-5 text-uppercase w-100" disabled>Place Order</button>
+                        </div>
+                    </div>
+                </div>
+                <input type="text" id="userId" name="userId" value="<%= session.userId %>" hidden>
+                <!-- </form> -->
             </div>
         </div>
+        
+
+        <script>
+            // Get form elements
+            const selectedAddressIdInputs = document.querySelectorAll('input[name="selectedAddressId"]');
+            const couponCode = document.getElementById('couponCode');
+            const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+            const userId = document.getElementById('userId');
+            const submitBtn = document.getElementById('submit-btn');
+            const subtotal = parseFloat('<%= subtotal.toFixed(2) %>'); // Assuming subtotal is passed from the backend to EJS template
+        
+            // Calculate delivery charge based on subtotal
+            let deliveryCharge = subtotal < 500 ? 40 : 0;
+        
+            // Function to validate form fields
+            function validateForm() {
+                const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+                const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked');
+                const userIdExists = !!userId.value.trim();
+        
+                // Enable button if all conditions are met
+                if (selectedPayment && selectedAddressId && userIdExists) {
+                    submitBtn.disabled = false;
+                } else {
+                    submitBtn.disabled = true;
+                }
+            }
+        
+            // Add event listeners for validation
+            paymentMethods.forEach(input => {
+                input.addEventListener('change', validateForm);
+            });
+        
+            selectedAddressIdInputs.forEach(input => {
+                input.addEventListener('change', validateForm);
+            });
+        
+            // Trigger validation initially
+            validateForm();
+        
+            // Submit data via Axios
+            submitBtn.addEventListener('click', () => {
+                const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+                const selectedAddressIdId = document.querySelector('input[name="selectedAddressId"]:checked')?.value;
+        
+                if (!selectedPayment || !selectedAddressIdId || !userId.value.trim()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please make sure all required fields are filled.',
+                    });
+                    return;
+                }
+        
+                const formData = {
+                    userId: userId.value,
+                    selectedAddressId: selectedAddressIdId,
+                    paymentMethod: selectedPayment,
+                    couponCode: couponCode.value.trim() || null, // Optional
+                    deliveryCharge: deliveryCharge, // Add the delivery charge to the form data
+                    totalPrice: subtotal + deliveryCharge,
+                    subtotal,
+                };
+        
+                // Show loading alert
+                Swal.fire({
+                    title: 'Placing your order...',
+                    text: 'Please wait while we process your order.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                });
+        
+                // Send data to the backend
+                axios.post('/zipkart/user/order', formData)
+                .then(response => {
+                    if(response.data.success){
+                        console.log(response);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed Successfully!',
+                            text: 'Your order has been placed. Thank you for shopping with us!',
+                            showConfirmButton: false, 
+                            timer: 1000 
+                        }).then(() => {
+                            // Optionally redirect the user
+                            window.location.href = '/zipkart/user/order/success';
+                        });
+                    }
+                    else if(response.data.success==false){
+                        Swal.fire({
+                            icon: 'false',
+                            title: 'Error!',
+                            text: response.data.message,
+                        })
+                    }
+                })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Order Placement Failed',
+                            text: error.response?.data?.message || 'An error occurred while placing your order. Please try again.',
+                        });
+                    });
+            });
+        </script>
+        
+        
+        
         <!-- Checkout Page End -->
 
 
@@ -294,7 +448,7 @@
                         <div class="col-lg-6">
                             <div class="position-relative mx-auto">
                                 <input class="form-control border-0 w-100 py-3 px-4 rounded-pill" type="number" placeholder="Your Email">
-                                <button type="submit" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Subscribe Now</button>
+                                <button type="button" class="btn btn-primary border-0 border-secondary py-3 px-4 position-absolute rounded-pill text-white" style="top: 0; right: 0;">Subscribe Now</button>
                             </div>
                         </div>
                         <div class="col-lg-3">

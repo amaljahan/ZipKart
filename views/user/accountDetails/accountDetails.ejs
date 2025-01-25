@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Details</title>
+    <link rel="stylesheet" href="./asd.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-zR2Th8I/Qisw7C9+yArm49Lq74N15ADl4Q1reQ7BlRaCsL0LW4ZcA+M+zO+hHP8+39BZ+yOOB0YMDP9tIXnG7/y6o4qKfK+s/0x41j0S/NuW0lQVBqZg==" crossorigin="anonymous"/>
-   <link rel="stylesheet" href="/css/accountDetails.css">
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/accountDetails.css">
+    <link rel="stylesheet" href="../../../public/css/accountDetails.css">
 
    
         <!-- Customized Bootstrap Stylesheet -->
@@ -41,16 +44,16 @@
         <div class="account-actions" style="margin-top: 65px;">
             <ul class="acnt-actions">
                 <li class="active"><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
-                <li><a href="#"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="/zipkart/user/accountDetails/my-orders"><i class="fas fa-box"></i> My Orders</a></li>
                 <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
                 <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
                 <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
                 <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
                 <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
-                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><a href="/zipkart/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </div>
-        <div class="profile-section">
+        <div class="profile-section"> 
             <!-- Single Page Header start -->
                 <div class="container-fluid page-header py-5">
                     <h1 class="text-center text-white display-6">Account Detail</h1>

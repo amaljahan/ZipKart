@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || "Order Success" %></title>
+    <title>Order Success</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.0.0/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Body styles */
@@ -120,12 +120,12 @@
         <!-- Message -->
         <p class="success-text">
             Thank you for shopping with us!<br>
-            Your order ID is: <strong><%= orderId || "123456789" %></strong>.
+            Your order ID is: <strong><%= orderId || "Order Id" %></strong>.
         </p>
 
         <!-- Buttons -->
-        <a href="/orders" class="btn">View Orders</a>
-        <a href="/home" class="btn btn-outline">Continue Shopping</a>
+        <a href="/zipkart/user/accountDetails/my-orders" class="btn">View Orders</a>
+        <a href="/zipkart/user/home" class="btn btn-outline">Continue Shopping</a>
     </div>
 </body>
 </html>

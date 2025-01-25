@@ -111,6 +111,10 @@
             </div>
 
             <div class="form-group">
+                <label for="country">Country </label>
+                <input type="text" id="country" name="country" placeholder="Enter country ">
+            </div>
+            <div class="form-group">
                 <label for="landmark">Landmark (Optional)</label>
                 <input type="text" id="landmark" name="landmark" placeholder="Enter landmark (optional)">
             </div>
@@ -130,6 +134,10 @@
                     <label>
                         <input type="radio" id="work" name="addresstype" value="work">
                         Work (Delivery between 10 AM - 5 PM)
+                    </label>
+                    <label>
+                        <input type="radio" id="other" name="addresstype" value="other">
+                        Other
                     </label>
                 </div>
             </div>
@@ -158,6 +166,7 @@
                 address: document.getElementById('address').value.trim(),
                 cityDistrictTown: document.getElementById('citydistricttown').value.trim(),
                 state: document.getElementById('state').value,
+                country: document.getElementById('country').value,
                 landmark: document.getElementById('landmark').value.trim(),
                 alternatePhone: document.getElementById('alternatephone').value.trim(),
                 addressType: document.querySelector('input[name="addresstype"]:checked')?.value,

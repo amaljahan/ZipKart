@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -14,8 +15,8 @@
 <body>
     <div class="container mt-5">
         <h2>Edit Product</h2>
-        <form action="/zipkart/admin/products/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
-            <!-- Your form fields go here... -->
+        <form id="productEditForm" action="/zipkart/admin/products/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="productId" value="<%= product._id %>">
 
             <div class="mb-3">
                 <label for="name" class="form-label">Product Name</label>
@@ -29,7 +30,7 @@
                 oninput="validateName(this)" 
               >
               <small id="nameError" style="color: red; display: none;">Invalid name. Only alphabets are allowed.</small>
-                          </div>
+            </div>
         
             <div class="mb-3">
                 <label for="category" class="form-label">Category</label>
@@ -126,8 +127,8 @@
 
     <script>
         $(document).ready(function () {
-            let cropper; // Cropper instance
-            let currentInput; // Current file input being cropped
+            let cropper;
+            let currentInput;
 
             // Add new image input field
             $('#addImageBtn').click(function () {
@@ -135,14 +136,12 @@
                 newInput.type = "file";
                 newInput.name = "images";
                 newInput.className = "form-control mb-2";
-                newInput.accept = "image/jpeg, image/jpg, image/png, image/webp"; // Accept specific file types
+                newInput.accept = "image/jpeg, image/jpg, image/png, image/webp";
                 newInput.addEventListener("change", function () {
                     openCropModal(this);
                 });
                 $('#imageFields').append(newInput);
             });
-
-         
 
             // Open crop modal
             window.openCropModal = function (input) {
@@ -153,10 +152,10 @@
                         $('#cropImage').attr('src', e.target.result);
                         $('#cropModal').modal('show');
                         currentInput = input;
-                        if (cropper) cropper.destroy(); // Destroy previous cropper instance
+                        if (cropper) cropper.destroy();
                         const image = document.getElementById('cropImage');
                         cropper = new Cropper(image, {
-                            aspectRatio: 1, // Adjust as per requirements
+                            aspectRatio: 1,
                             viewMode: 2,
                         });
                     };
@@ -181,179 +180,97 @@
                 const index = $(this).data('index');
                 $('#image-preview-' + index).remove();
             });
-       
-             // Input validation with SweetAlert
-             function showAlert(title, text, icon) {
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: icon,
-                confirmButtonText: 'OK',
-            });
-        }
 
-        // Name validation
-        document.getElementById('name').addEventListener('input', function () {
-            const input = this;
-            const regex = /^[A-Za-z\s]*$/;
-            if (!regex.test(input.value)) {
-                input.value = input.value.replace(/[^A-Za-z\s]/g, '');
-                showAlert('Invalid Name', 'Only alphabets and spaces are allowed.', 'error');
-            }
-            input.value = input.value.replace(/\s+/g, ' ');
-        });
+            // Form submission with Axios
+            $('#productEditForm').on('submit', function (e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
 
-        // Price validation
-        document.getElementById('price').addEventListener('input', function () {
-            const priceInput = this;
-            const priceValue = priceInput.value.trim();
-            if (priceValue === "" || parseFloat(priceValue) <= 0) {
-                showAlert('Invalid Price', 'Price must be a positive number.', 'error');
-                priceInput.style.borderColor = "red";
-            } else {
-                priceInput.style.borderColor = "";
-            }
-        });
-
-        // Stock validation
-        document.getElementById('stock').addEventListener('input', function () {
-            const stockInput = this;
-            const stockValue = stockInput.value.trim();
-            if (stockValue === "" || parseFloat(stockValue) < 0) {
-                showAlert('Invalid Stock', 'Stock cannot be negative.', 'error');
-                stockInput.style.borderColor = "red";
-            } else {
-                stockInput.style.borderColor = "";
-            }
-        });
-
-        // Unit validation
-        document.getElementById('unit').addEventListener('input', function () {
-            const unitInput = this;
-            const unitValue = unitInput.value.trim();
-            if (unitValue === "" || parseFloat(unitValue) < 0) {
-                showAlert('Invalid Unit', 'Unit cannot be empty or negative.', 'error');
-                unitInput.style.borderColor = "red";
-            } else {
-                unitInput.style.borderColor = "";
-            }
-        });
-
-        // Image validation for file type
-        document.getElementById('addImageBtn').addEventListener('click', function () {
-            const inputs = document.querySelectorAll('input[type="file"]');
-            inputs.forEach(input => {
-                input.addEventListener('change', function () {
-                    const file = this.files[0];
-                    if (file && !['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
-                        showAlert('Invalid File Type', 'Only JPEG, JPG, PNG, and WEBP formats are accepted.', 'error');
-                        this.value = '';
+                axios.post(`/zipkart/admin/products/edit-product/${formData.get('productId')}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
                     }
+                })
+                .then(response => {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Product updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/zipkart/admin/products/view-products';
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.response?.data?.message || 'Failed to update product.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            });
+
+            // Input validation with SweetAlert
+            function showAlert(title, text, icon) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    confirmButtonText: 'OK',
+                });
+            }
+
+            // Name validation
+            document.getElementById('name').addEventListener('input', function () {
+                const input = this;
+                const regex = /^[A-Za-z\s]*$/;
+                if (!regex.test(input.value)) {
+                    input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+                    showAlert('Invalid Name', 'Only alphabets and spaces are allowed.', 'error');
+                }
+                input.value = input.value.replace(/\s+/g, ' ');
+            });
+
+            // Price validation
+            document.getElementById('price').addEventListener('input', function () {
+                const priceInput = this;
+                const priceValue = priceInput.value.trim();
+                if (priceValue === "" || parseFloat(priceValue) <= 0) {
+                    showAlert('Invalid Price', 'Price must be a positive number.', 'error');
+                    priceInput.style.borderColor = "red";
+                } else {
+                    priceInput.style.borderColor = "";
+                }
+            });
+
+            // Stock validation
+            document.getElementById('stock').addEventListener('input', function () {
+                const stockInput = this;
+                const stockValue = stockInput.value.trim();
+                if (stockValue === "" || parseFloat(stockValue) < 0) {
+                    showAlert('Invalid Stock', 'Stock cannot be negative.', 'error');
+                    stockInput.style.borderColor = "red";
+                } else {
+                    stockInput.style.borderColor = "";
+                }
+            });
+
+            // Image validation for file type
+            document.getElementById('addImageBtn').addEventListener('click', function () {
+                const inputs = document.querySelectorAll('input[type="file"]');
+                inputs.forEach(input => {
+                    input.addEventListener('change', function () {
+                        const file = this.files[0];
+                        if (file && !['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+                            showAlert('Invalid File Type', 'Only JPEG, JPG, PNG, and WEBP formats are accepted.', 'error');
+                            this.value = '';
+                        }
+                    });
                 });
             });
         });
-    });
     </script>
-
-<script>
-
-    function validateName(input) {
-        // Remove leading and trailing spaces
-        input.value = input.value.trimStart();
-
-        // Regex for validation: Only alphabets and spaces are allowed
-        const regex = /^[A-Za-z\s]*$/;
-
-        // Validate input value
-        if (!regex.test(input.value)) {
-            // Remove invalid characters
-            input.value = input.value.replace(/[^A-Za-z\s]/g, '');
-        }
-
-        // Remove extra spaces between words
-        input.value = input.value.replace(/\s+/g, ' ');
-
-        // Check if the input is only spaces or empty
-        const nameError = document.getElementById('nameError');
-        if (input.value.trim() === '') {
-            nameError.style.display = 'inline';
-        } else {
-            nameError.style.display = 'none';
-        }
-    }
-
-    //validation for price
-    document.getElementById('price').addEventListener('input', function() {
-        const priceInput = document.getElementById('price');
-        const priceError = document.getElementById('priceError');
-        const priceValue = priceInput.value.trim(); // Remove spaces
-
-        // Check if the price is empty, contains spaces, or is a negative number
-        if (priceValue === "" || parseFloat(priceValue) <= 0) {
-            priceError.style.display = "inline"; // Show error message
-            priceInput.style.borderColor = "red"; // Optional: change border color for error
-        } else {
-            priceError.style.display = "none"; // Hide error message
-            priceInput.style.borderColor = ""; // Reset border color
-        }
-    });
-
-     //validation for stock
-    document.getElementById('stock').addEventListener('input', function() {
-        const priceInput = document.getElementById('stock');
-        const priceError = document.getElementById('stockError');
-        const priceValue = priceInput.value.trim(); // Remove spaces
-
-        // Check if the price is empty, contains spaces, or is a negative number
-        if (priceValue === "" || parseFloat(priceValue) < 0) {
-            priceError.style.display = "inline"; // Show error message
-            priceInput.style.borderColor = "red"; // Optional: change border color for error
-        } else {
-            priceError.style.display = "none"; // Hide error message
-            priceInput.style.borderColor = ""; // Reset border color
-        }
-    });
-
-     //validation for Unit
-    document.getElementById('unit').addEventListener('unit', function() {
-        const priceInput = document.getElementById('unit');
-        const priceError = document.getElementById('unitError');
-        const priceValue = priceInput.value.trim(); // Remove spaces
-
-        // Check if the price is empty, contains spaces, or is a negative number
-        if (priceValue === "" || parseFloat(priceValue) < 0) {
-            priceError.style.display = "inline"; // Show error message
-            priceInput.style.borderColor = "red"; // Optional: change border color for error
-        } else {
-            priceError.style.display = "none"; // Hide error message
-            priceInput.style.borderColor = ""; // Reset border color
-        }
-    });
-    //validation for description
-    document.getElementById('description').addEventListener('input', function() {
-        const descriptionInput = document.getElementById('description');
-        const descriptionError = document.getElementById('descriptionError');
-        let descriptionValue = descriptionInput.value.trim(); // Trim leading/trailing spaces
-
-        // Remove extra spaces between words (i.e., replace multiple spaces with a single space)
-        descriptionValue = descriptionValue.replace(/\s+/g, ' ');
-
-        // Split the trimmed description text by spaces and count the words
-        const wordCount = descriptionValue.split(' ').length;
-
-        // Check if the word count is less than 5
-        if (wordCount < 5) {
-            descriptionError.style.display = "inline"; // Show error message
-            descriptionInput.style.borderColor = "red"; // Change border color to red
-        } else {
-            descriptionError.style.display = "none"; // Hide error message
-            descriptionInput.style.borderColor = ""; // Reset border color
-        }
-    });
-
-
-
-</script>
-
 </body>
 </html>

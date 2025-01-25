@@ -123,6 +123,7 @@
             margin-top: 20px;
             padding: 10px 0;
             border-top: 2px solid #f4f4f4;
+            position: relative;
         }
 
         .tracking-step {
@@ -131,25 +132,51 @@
             position: relative;
         }
 
-        .tracking-step.active {
-            color: #5cb85c;
+        .tracking-step .circle {
+            width: 30px;
+            height: 30px;
+            background-color: #ddd;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-weight: bold;
         }
 
-        .tracking-step::after {
-            content: '';
-            width: 100%;
-            height: 2px;
-            background-color: #ddd;
+        .tracking-step.active .circle {
+            background-color: #5cb85c;
+        }
+
+        .tracking-step .line {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateY(-50%);
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
             z-index: -1;
         }
 
-        .tracking-step:first-child::after {
+        .tracking-step.active + .tracking-step .line {
+            background-color: #5cb85c;
+        }
+
+        .tracking-step:first-child .line {
             display: none;
+        }
+
+        .tracking-step .label {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .tracking-step.active .label {
+            font-weight: bold;
+            color: #333;
         }
 
         footer {
@@ -250,11 +277,30 @@
         </table>
 
         <div class="tracking">
-            <div class="tracking-step active">ORDER PLACED</div>
-            <div class="tracking-step">CONFIRMED</div>
-            <div class="tracking-step">SHIPPED</div>
-            <div class="tracking-step">OUT FOR DELIVERY</div>
-            <div class="tracking-step">DELIVERED</div>
+            <div class="tracking-step active">
+                <div class="circle">✔</div>
+                <div class="label">Ordered<br><small>Jan 15</small></div>
+            </div>
+            <div class="tracking-step active">
+                <div class="line"></div>
+                <div class="circle">✔</div>
+                <div class="label">Order Ready<br><small>Jan 16</small></div>
+            </div>
+            <div class="tracking-step active">
+                <div class="line"></div>
+                <div class="circle">✔</div>
+                <div class="label">In Transit<br><small>Jan 17</small></div>
+            </div>
+            <div class="tracking-step active">
+                <div class="line"></div>
+                <div class="circle">✔</div>
+                <div class="label">Out for Delivery<br><small>Jan 18</small></div>
+            </div>
+            <div class="tracking-step active">
+                <div class="line"></div>
+                <div class="circle">✔</div>
+                <div class="label">Delivered<br><small>Jan 18</small></div>
+            </div>
         </div>
 
         <footer>

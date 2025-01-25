@@ -13,7 +13,8 @@ const addressesSchema = new mongoose.Schema({
         required: true 
     },
     lastName: { 
-        type: String 
+        type: String,
+        required: true 
     },
     phoneNumber: { 
         type: String, 
@@ -38,23 +39,23 @@ const addressesSchema = new mongoose.Schema({
     state: { type: String, 
         required: true 
     },
+    country: { 
+        type: String, 
+        required: true 
+    },
     landmark: { 
         type: String, 
         required: true 
     },
-    // country: { 
-    //     type: String, 
-    //     required: true 
-    // },
     alternatePhone: { 
         type: String, 
     },
     addressType:{
         type: String, 
         required: true ,
-        enum: [ 'home', 'work' ]
+        enum: [ 'home', 'work', 'other' ]
     }
+    
+},{ timestamps: true });
 
-  },{ timestamps: true });
-
-  module.exports = mongoose.model("Address",addressesSchema)
+module.exports = mongoose.model("Address",addressesSchema)
