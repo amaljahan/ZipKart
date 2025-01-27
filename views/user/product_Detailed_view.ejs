@@ -371,7 +371,9 @@
                             
 
                             <!-- -------------------------start-------------------------------------------------------------- -->
-                            <div class="col-lg-6">
+                            <div class="col-lg-6"><td>
+                                <img height="50" width="50" src="<%= product.productId.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
+                            </td>
                                 <h4 class="fw-bold mb-3"><%= product.name %></h4> <!-- Product Name -->
                                 <p class="mb-3">Category: <%= product.category.name %></p> <!-- Category Name -->
                                 <h5 class="text-danger text-decoration-line-through">100 ₹</h5>

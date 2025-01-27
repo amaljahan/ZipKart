@@ -7,6 +7,9 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <style>
     body { background-color: #f4f6f9; }
@@ -35,18 +38,50 @@
                     <div style="background-color: #1f2937;" class="card-header text-white d-flex flex-wrap justify-content-between align-items-center">
                         <h4 class="mb-0">Order Id:- <%= order.orderId %></h4>
                         <div class="d-flex align-items-center responsive-stack">
-                            <select id="orderStatus" class="form-select form-select-sm w-auto me-2">
-                                <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] %>
+                            <select id="orderStatus-<%= order.orderId %>" class="form-select form-select-sm w-auto me-2">
+                                <%if( order.status === "Cancelled"){%>
+                                    <option value="<%= order.status %>" 
+                                        selected>
+                                        <%= order.status %>
+                                    </option>
+                                <% }else{%>
+                                    <% const statuses = [
+                                    'Order placed',
+                                    'Shipped',
+                                    'Out for Delivery',
+                                    'Delivered',
+                                    ] %>
                                 <% statuses.forEach(status => { %>
-                                    <option value="<%= status.toLowerCase() %>" 
+                                    <option value="<%= status %>" 
                                         <%= order.status === status ? 'selected' : '' %>>
                                         <%= status %>
                                     </option>
                                 <% }) %>
+                                <%}%>
                             </select>
-                            <button id="updateStatus" class="btn btn-light btn-sm">Update Status</button>
+                            <%if( order.status === "Cancelled"){%>
+
+                            <button disabled
+                                id="updateStatus-<%= order.orderId %>" 
+                                class="btn btn-light btn-sm"
+                                onclick="updateOrderStatus('<%= order.orderId %>')">
+                                Update Status
+                            </button>
+                            <% }else{%>
+
+                            <button 
+                                id="updateStatus-<%= order.orderId %>" 
+                                class="btn btn-light btn-sm"
+                                onclick="updateOrderStatus('<%= order.orderId %>')">
+                                Update Status
+                            </button>
+                            <%}%>
+
                         </div>
                     </div>
+                    
+                    
+                    
                     
                     <div class="card-body">
                         <div class="row">
@@ -71,6 +106,7 @@
                                 <thead>
                                     <tr>
                                         <th>Product</th>
+                                        <th>Product Name</th>
                                         <th>Qty</th>
                                         <th>Price</th>
                                         <th>Subtotal</th>
@@ -83,6 +119,7 @@
                                         <td>
                                             <img height="50" width="50" src="<%= product.productId.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
                                         </td>
+                                        <td><%= product.productId.name %></td>    
                                         <td><%= product.quantity %></td>
                                         <td>₹<%= product.price.toFixed(2) %></td>
                                         <td>₹<%= (product.quantity * product.price).toFixed(2) %></td>
@@ -114,7 +151,8 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between">
                         <a href="/zipkart/admin/orders/view-orders" class="btn btn-secondary">Back to Orders</a>
-                     </div>
+                        <button id="cancelOrder" class="btn btn-danger">Cancel Entire Order</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -125,61 +163,111 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const updateStatusBtn = document.getElementById('updateStatus');
-            const cancelOrderBtn = document.getElementById('cancelOrder');
-    
-            updateStatusBtn.addEventListener('click', () => {
-                const status = document.getElementById('orderStatus').value;
-                Swal.fire({
-                    title: 'Update Status',
-                    text: `Change to ${status}?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Update'
-                }).then(result => {
-                    if (result.isConfirmed) {
-                        fetch(`/orders/<%= order._id %>/update-status`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status })
-                        })
-                        .then(response => response.json())
-                        .then(() => {
-                            Swal.fire('Updated!', `Status changed to ${status}`, 'success');
-                        })
-                        .catch(() => {
-                            Swal.fire('Error', 'Failed to update status', 'error');
+    // Update Order Status Function
+    window.updateOrderStatus = (orderId) => {
+        const selectElement = document.getElementById(`orderStatus-${orderId}`);
+        if (!selectElement) {
+            console.error(`No select element found for orderId: ${orderId}`);
+            return;
+        }
+
+        const selectedStatus = selectElement.value;
+        const statuses = ['Order placed', 'Shipped', 'Out for Delivery', 'Delivered'];
+        const cancelAt = selectedStatus
+
+        Swal.fire({
+            title: 'Update Status',
+            text: `Change status to "${selectedStatus}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Update'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.patch(`/zipkart/admin/orders/view-orders/<%= order._id %>/update-status`, { status: selectedStatus ,cancelAt})
+                    .then(() => {
+                        // Update dropdown options dynamically
+                        const currentIndex = statuses.indexOf(selectedStatus);
+                        const updatedStatuses = statuses.slice(currentIndex); // Keep options from the current selection onward
+
+                        // Clear existing options
+                        selectElement.innerHTML = '';
+
+                        // Populate the dropdown with updated statuses
+                        updatedStatuses.forEach((status, index) => {
+                            const option = document.createElement('option');
+                            option.value = status;
+                            option.textContent = status;
+                            if (index === 0) option.selected = true; // Set the current status as the first option
+                            selectElement.appendChild(option);
                         });
-                    }
-                });
-            });
-    
-            cancelOrderBtn.addEventListener('click', () => {
-                Swal.fire({
-                    title: 'Cancel Order',
-                    text: 'Confirm cancellation?',
-                    icon: 'error',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Cancel'
-                }).then(result => {
-                    if (result.isConfirmed) {
-                        fetch(`/orders/<%= order._id %>/cancel`, { method: 'POST' })
-                        .then(response => response.json())
-                        .then(() => {
-                            Swal.fire('Cancelled', 'Order has been cancelled', 'success')
-                            .then(() => { window.location.href = '/orders'; });
-                        })
-                        .catch(() => {
-                            Swal.fire('Error', 'Failed to cancel order', 'error');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: `Order status updated to "${selectedStatus}"`,
+                            confirmButtonText: 'OK'
                         });
-                    }
-                });
+                    })
+                    .catch((error) => {
+                        const errorMessage = error.response?.data?.message || 'Failed to update order status.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                            confirmButtonText: 'OK'
+                        });
+                        console.error('Error updating status:', error);
+                    });
+            }
+        });
+    };
+
+    // Cancel Entire Order Function
+    const cancelOrderButton = document.getElementById('cancelOrder');
+    if (cancelOrderButton) {
+        cancelOrderButton.addEventListener('click', () => {
+            Swal.fire({
+                title: 'Cancel Order',
+                text: 'Are you sure you want to cancel this entire order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.patch(`/zipkart/admin/orders/view-orders/<%= order._id %>/update-status`, { status: 'Cancelled' })
+                        .then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Order Cancelled',
+                                text: 'The order has been successfully cancelled.',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Optionally redirect or refresh the page
+                                window.location.reload(); // Refresh the page to reflect the changes
+                            });
+                        })
+                        .catch((error) => {
+                            const errorMessage = error.response?.data?.message || 'Failed to cancel the order.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage,
+                                confirmButtonText: 'OK'
+                            });
+                            console.error('Error cancelling order:', error);
+                        });
+                }
             });
         });
+    }
+});
+
     </script>
+    
+    
 </body>
 </html>

@@ -186,7 +186,8 @@
       <table class="orders-table">
         <thead>
           <tr>
-            <th>Order ID</th>
+            <th>Index</th>
+            <th>Order ID</th> 
             <th>Order Placed</th>
             <th>Customer</th>
             <th>Total Price</th>
@@ -196,17 +197,20 @@
           </tr>
         </thead>
         <tbody>
-          <% orders.forEach(order => { %>
+          <% orders.forEach((order, index) => { %>
             <tr>
+              <td><%= index + 1 %></td> <!-- This line was already correct, adding index -->
               <td><%= order.orderId %></td>
               <td><%= order.orderDate.toLocaleDateString('en-IN') %></td>
               <td><%= order.address.name %></td>
               <td>₹<%= order.totalPrice %></td>
               <td><%= order.paymentMethod %></td>
               <% if (order.status === "Cancelled") { %>
-                <td style="color: red;"><%= order.status %></td>
+                <td style="color: red;"><strong><%= order.status %></strong></td>
+              <% } else if (order.status === "Delivered") { %>
+                <td style="color: green;"><strong><%= order.status %></strong></td>
               <% } else { %>
-                <td><%= order.status %></td>
+                <td><strong><%= order.status %></strong></td>
               <% } %>
               <td>
                 <a style="text-decoration: none;" href="/zipkart/admin/orders/view-orders/<%= order._id %>" class="btn-view">View</a>
@@ -214,6 +218,7 @@
             </tr>
           <% }) %>
         </tbody>
+
       </table>
     </section>
   </main>

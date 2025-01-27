@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details</title>
+    <title>Order Details from user</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -143,6 +143,7 @@
             background-color: #ddd;
             z-index: 0;
             transform: translateY(-50%);
+            transition: background-color 0.3s ease;
         }
 
         .progress-step {
@@ -162,10 +163,23 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
         .progress-step.active .circle {
             background-color: #007bff;
+        }
+
+        .progress-step.completed .circle {
+            background-color: #5cb85c;
+        }
+
+        .progress-step.cancelled .circle {
+            background-color: #d9534f;
+        }
+
+        .progress-bar::before.cancelled-progress {
+            background-color: #d9534f;
         }
 
         .progress-step .label {
@@ -211,7 +225,6 @@
 
     <div class="container">
         <div class="order-header">
-                    
             <div class="delivery-address">
                 <h3>Delivery Address</h3>
                 <p><strong>Name:</strong> <%= order.address.name %></p>
@@ -237,6 +250,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Product </th>
                     <th>Product Name</th>
                     <th>Price</th>
                     <th>Quantity</th>
@@ -247,12 +261,15 @@
             <tbody>
                 <% order.products.forEach(function(product) { %>
                     <tr>
+                        <td>
+                            <img height="50" width="50" src="<%= product.productId.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
+                        </td>
                         <td><%= product.productId.name %></td>
                         <td>₹<%= product.price %></td>
                         <td><%= product.quantity %></td>
                         <td>₹<%= product.price * product.quantity %></td>
                         <td>
-                            <% if (product.status === "Cancelled") { %>
+                            <% if (product.status === "Cancelled" || order.status === "Cancelled") { %>
                                 <button type="button" class="btn btn-cancel btn-disabled" disabled>Cancelled</button>
                             <% } else { %>
                                 <button 
@@ -265,14 +282,9 @@
                         </td>
                     </tr>
                 <% }); %>
-                
-
-
-
 
                 <script>
     function orderCancel(productId, button) {
-        // Show confirmation alert
         Swal.fire({
             title: 'Are you sure?',
             text: "Do you really want to cancel this order?",
@@ -283,23 +295,19 @@
             confirmButtonText: 'Yes, cancel it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Make Axios request to cancel the order
                 axios.patch('/zipkart/user/accountDetails/view-order/<%= order.orderId %>/order/cancel', { productId })
                     .then((response) => {
-                        // On success, show a success alert
                         Swal.fire(
                             'Cancelled!',
                             'Your order has been cancelled.',
                             'success'
                         );
 
-                        // Change the button text to "Cancelled"
                         button.innerText = 'Cancelled';
-                        button.classList.add('btn-disabled'); // Add a disabled styling class
-                        button.disabled = true; // Disable the button
+                        button.classList.add('btn-disabled');
+                        button.disabled = true;
                     })
                     .catch((error) => {
-                        // Handle errors
                         Swal.fire(
                             'Error',
                             'Something went wrong. Please try again.',
@@ -310,28 +318,56 @@
             }
         });
     }
-                    </script>
-
-
-
+                </script>
             </tbody>
         </table>
 
         <div class="progress-container">
             <div class="progress-bar">
-                <% const steps = ['Ordered', 'Order Ready', 'In Transit', 'Out for Delivery', 'Delivered']; %>
-                <% steps.forEach(function(step, index) { %>
-                    <div class="progress-step <%= order.status === step ? 'active' : '' %>">
+                <% 
+                // Define the steps of the order process
+                let steps = ['Order placed', 'Shipped', 'Out for Delivery', 'Delivered'];
+        
+                // Insert 'Cancelled' dynamically if the status is 'Cancelled'
+                if (order.status === 'Cancelled') {
+                    const cancelIndex = steps.indexOf(order.cancelAt) + 1; // Insert after the specified step
+                    steps.splice(cancelIndex, 0, 'Cancelled');
+                }
+        
+                const currentStatusIndex = steps.indexOf(order.status);
+                %>
+        
+                <% steps.forEach(function(step, index) { 
+                    let stepClass = '';
+        
+                    // Determine the class for each step
+                    if (index < currentStatusIndex) {
+                        stepClass = 'completed';
+                    } else if (index === currentStatusIndex) {
+                        stepClass = 'active';
+                    }
+        
+                    // Highlight 'Cancelled' status specifically
+                    if (step === 'Cancelled' && order.status === 'Cancelled') {
+                        stepClass = 'cancelled active'; // Mark 'Cancelled' as active
+                    }
+                %>
+                    <div class="progress-step <%= stepClass %>">
                         <div class="circle"><%= index + 1 %></div>
-                        <div class="label"><%= step %><br><small><%= new Date(order.orderDate).toLocaleDateString() %></small></div>
+                        <div class="label">
+                            <%= step %>
+                            <% if (step === order.status) { %>
+                                <br><small><%= new Date(order.orderDate).toLocaleDateString() %></small>
+                            <% } %>
+                        </div>
                     </div>
                 <% }); %>
             </div>
         </div>
+        
 
         <footer>
             <a href="/zipkart/user/accountDetails/my-orders"><button class="btn btn-back">Back to Orders</button></a>
-            <!-- <button class="btn btn-cancel">Cancel Order</button> -->
         </footer>
     </div>
 </body>

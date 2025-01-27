@@ -174,8 +174,13 @@
                                 <tr>
                                     <td><%= order.orderId %></td>
                                     <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
-                                    <td><%= order.status %></td>
-                                    <td>₹<%= order.totalPrice %> for <%= order.products.length %> items</td>
+                                    <% if (order.status === "Cancelled") { %>
+                                        <td style="color: red;"><strong><%= order.status %></strong></td>
+                                      <% } else if (order.status === "Delivered") { %>
+                                        <td style="color: green;"><strong><%= order.status %></strong></td>
+                                      <% } else { %>
+                                        <td><strong><%= order.status %></strong></td>
+                                      <% } %>                                    <td>₹<%= order.totalPrice %> for <%= order.products.length %> items</td>
                                     <td><a href="/zipkart/user/accountDetails/view-order/<%= order.orderId %>" class="view">View</a></td>
                                 </tr>
                             <% }); %>
