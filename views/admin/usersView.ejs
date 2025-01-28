@@ -7,6 +7,12 @@
   <link rel="stylesheet" href="/css/admin/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- SweetAlert2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     body {
       display: flex;
@@ -313,32 +319,62 @@
     function toggleStatus(userId, isBlocked, newStatus, button) {
       const row = button.closest('tr');
       const statusCell = row.querySelector('td:nth-child(5)');
-
-      axios.post('block-unblock', { userId, isBlocked })
-        .then(response => {
-          if (response.data.success) {
-            if (isBlocked) {
-              statusCell.textContent = 'Blocked';
-              button.textContent = 'Unblock';
-              button.classList.remove('btn-block');
-              button.classList.add('btn-unblock');
-              button.setAttribute('onclick', `toggleStatus('${userId}', false, 'Active', this)`);
-            } else {
-              statusCell.textContent = 'Active';
-              button.textContent = 'Block';
-              button.classList.remove('btn-unblock');
-              button.classList.add('btn-block');
-              button.setAttribute('onclick', `toggleStatus('${userId}', true, 'Blocked', this)`);
-            }
-          } else {
-            alert('Failed to update status');
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert('Error updating user status');
-        });
+  
+      Swal.fire({
+        title: isBlocked ? 'Block User?':'Unblock User?'  ,
+        text: `Are you sure you want to ${isBlocked ? 'block' :'unblock' } this user?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: isBlocked ? 'Block' : 'Unblock',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios.post('/zipkart/admin/users/view-users/block-unblock', { userId, isBlocked })
+            .then((response) => {
+              if (response.data.success) {
+                // Update UI based on the new status
+                if (isBlocked) {
+                  statusCell.textContent = 'Blocked';
+                  button.textContent = 'Unblock';
+                  button.classList.remove('btn-block');
+                  button.classList.add('btn-unblock');
+                  button.setAttribute('onclick', `toggleStatus('${userId}', false, 'Active', this)`);
+                } else {
+                  statusCell.textContent = 'Active';
+                  button.textContent = 'Block';
+                  button.classList.remove('btn-unblock');
+                  button.classList.add('btn-block');
+                  button.setAttribute('onclick', `toggleStatus('${userId}', true, 'Blocked', this)`);
+                }
+  
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: `User status has been updated to ${newStatus}.`,
+                  timer: 2000,
+                  showConfirmButton: false,
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Failed',
+                  text: 'Failed to update user status.',
+                });
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while updating the user status.',
+              });
+            });
+        }
+      });
     }
   </script>
+  
 </body>
 </html>

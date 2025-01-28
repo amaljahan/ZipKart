@@ -118,7 +118,7 @@ async function submitFun(){
                 return Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Please enter a valid email address.'
+              text: 'Please enter a valid Name address.'
             });
               
           }
@@ -127,11 +127,11 @@ async function submitFun(){
                 return Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Please enter a valid email address.'
+              text: 'Please enter a valid Last Name address.'
             });
               
           }
-          const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
           if (!email.match(emailPattern)) {
                 return Swal.fire({
               icon: 'error',

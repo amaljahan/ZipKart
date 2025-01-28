@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Zipkart Login</title>
@@ -11,176 +10,247 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <link rel="stylesheet" href="/css/signup&login.css">
-    <!-- End layout styles -->
-    <link rel="shortcut icon" href="../../assets/images/favicon.png" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f5f5f5;
+        min-height: 100vh;
+      }
+
+      .container-scroller {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .auth.login-bg {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+        margin: 1rem;
+      }
+
+      .card-body {
+        padding: 2rem;
+      }
+
+      .card-title {
+        color: #2874f0;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+
+      .form-control:focus {
+        border-color: #2874f0;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.2);
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+      }
+
+      .btn-primary {
+        background: #2874f0;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1c5ac0;
+      }
+
+      small {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .card-body {
+          padding: 1.5rem;
+        }
+
+        .card-title {
+          font-size: 1.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .card-body {
+          padding: 1rem;
+        }
+
+        .form-control {
+          padding: 0.5rem 0.75rem;
+        }
+
+        .btn {
+          padding: 0.5rem 1rem;
+        }
+      }
+
+      /* Error list styling */
+      ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1rem;
+      }
+
+      ul li {
+        color: #dc3545;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+      }
+    </style>
   </head>
   <body>
     <div class="container-scroller">
-      <div class="container-fluid page-body-wrapper full-page-wrapper">
-        <div class="row w-100 m-0">
-          <div class="content-wrapper full-page-wrapper d-flex align-items-center auth login-bg">
-            <div class="card col-lg-4 mx-auto">
-              <div class="card-body px-5 py-5">
-                <h3 class="card-title text-left mb-3" style="color: #2874f0;">Zipkart Admin Login</h3>
-                <% if(message){  %>
-                  <p style="color: red;"><%=message %></p>
-                  <% } %>
-                  <% if (errorsToShowInLogin && errorsToShowInLogin.length > 0) { %>
-                    <ul>
-                      <% errorsToShowInLogin.forEach((error) => { %>
-                        <li style="color: red;"><%= error %></li>
-                      <% }) %>
-                    </ul>
-                  <% } %>
+      <div class="auth login-bg">
+        <div class="card">
+          <div class="card-body">
+            <!-- <h3 class="card-title">Zipkart Admin Login</h3> -->
 
-                <form id="adminLoginForm" >
-                      <div class="form-group">
-                        <label>Email</label>
-                        <input type="text" class="form-control p_input" name="email" id="email">
-                        <small id="emailError" style="color: red;"></small>
-                      </div>
-                      <div class="form-group">
-                        <label>Password </label>
-                        <input type="password" class="form-control p_input" name="password" id="password">
-                        <small id="passwordError" style="color: red;"></small>
-                      </div>
-                      <div class="form-group d-flex align-items-center justify-content-between">
-                      </div>
-                      <div class="text-center">
-                        <button type="button" onclick="submitFun()" class="btn btn-primary btn-block enter-btn">Login</button>
-                      </div>
-                      <div style="width: 100%;position: relative;" class="d-flex">
-                      </div>
-                </form>
+<!-- ------------------------------login ------it for development purpose------------------------------------------------------------------------------- -->
+            <a href="" onclick="login()"><h3 class="card-title">Zipkart Admin Login</h3></a>
+            <script>
+                async function login(){
+                  try {
+                    const userData = {
+                      email:"admin@gmail.com",
+                      password:"1234567890",
+                    };
+                      const response = await axios.post('login',userData);
+                      await Swal.fire({
+                      icon: 'success',
+                      title: 'Success!',
+                      text: 'Login successful. Redirecting to admin dashboard...',
+                    });
+                    window.location.href = response.data.redirectUrl;
+                  } catch (error) {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Error!',
+                      text: error.response?.data?.message || 'An unexpected error occurred.',
+                    });
+                  }
+                }
+      
+            </script>
+<!-- ------------------------------login ------it for development purpose------------------------------------------------------------------------------- -->
+
+
+
+
+            <form id="adminLoginForm">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" for="emailError" class="form-control" name="email" id="email" placeholder="Enter your email">
+                <small id="emailError"></small>
               </div>
-            </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" for="passwordError" class="form-control" name="password" id="password" placeholder="Enter your password">
+                <small id="passwordError"></small>
+              </div>
+              <button type="submit" onclick="submitFun()" class="btn btn-primary">Login</button>
+            </form>
           </div>
-          <!-- content-wrapper ends -->
         </div>
-        <!-- row ends -->
       </div>
-      <!-- page-body-wrapper ends -->
     </div>
 
-  <script>
-
-async function submitFun(){
-
-const email = document.getElementById('email').value.trim();
-const password = document.getElementById('password').value.trim();
-console.log("tesdsdf");
-
-      if (email === '' || password === '') {
-              
-              return Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'All fields are required!'
-        });
-      }
-        const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
-          if (!email.match(emailPattern)) {
-                return Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Please enter a valid email address.'
-            });
-              
-          }
-
-           // Password Length Validation
-          //  if (password.length <=0) {
-              // e.preventDefault();
-              
-            
-          //     return;
-          // }
-
-           // Make the Axios POST request
-        const userData = {
-                      email,
-                      password,
-                  };
-
-axios.post('login', userData)
-    .then(response => {
-        // Show success message
-        console.log("response ",response.data.redirectUrl);
-        
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'Login successfully,Redirecting to admin dashboard page',
-        }).then(() => {
-            // Redirect to the URL if provided
-            
-                window.location.href = response.data.redirectUrl;
-          
-        });
-    })
-    .catch(error => {
-        // Handle errors
-        if (error.response && error.response.data && error.response.data.message) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: error.response.data.message,
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'An unexpected error occurred.',
-            });
-        }
-    });
-
-
-
-}
-
-  </script>
-
-
-    
     <script>
-      document.getElementById('loginForm').addEventListener('submit', function (event) {
-        let valid = true;
-    
-        // Get form fields and error containers
+      async function submitFun() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-    
-        // Clear previous errors
-        emailError.textContent = '';
-        passwordError.textContent = '';
-    
-        // Email validation
-        if (email === '') {
-          emailError.textContent = 'Email is required.';
-          valid = false;
-        } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-          emailError.textContent = 'Enter a valid email.';
-          valid = false;
+
+        if (email === '' || password === '') {
+          return Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'All fields are required!'
+          });
         }
-    
-        // Password validation
-        if (password === '') {
-          passwordError.textContent = 'Password is required.';
-          valid = false;
-        } else if (password.length < 8) {
-          passwordError.textContent = 'Password must be at least 8 characters.';
-          valid = false;
+
+        const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+        if (!email.match(emailPattern)) {
+          return Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please enter a valid email address.'
+          });
         }
-    
-        // If not valid, prevent form submission
-        if (!valid) {
-          event.preventDefault();
+
+        const userData = {
+          email,
+          password,
+        };
+
+        try {
+          const response = await axios.post('login', userData);
+          await Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Login successful. Redirecting to admin dashboard...',
+          });
+          window.location.href = response.data.redirectUrl;
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: error.response?.data?.message || 'An unexpected error occurred.',
+          });
         }
-      });
+      }
     </script>
   </body>
 </html>

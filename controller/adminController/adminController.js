@@ -16,13 +16,14 @@ const get_admin_login = async(req,res)=>{
 
 const post_admin_login = async(req,res)=>{
     const {email,password} = req.body; 
+    console.log(req.body, ADMIN_EMAIL,ADMIN_PASSWORD);
+    
 
     try{
         
 
-        if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
+                if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
             req.session.admin = email;
-            // res.redirect('dashboard')
             res.status(200).json({success:true,message:"Login successfully",redirectUrl:"/zipkart/admin/dashboard"})
         }
         else {
@@ -35,11 +36,11 @@ const post_admin_login = async(req,res)=>{
 }
 
 
-const logout = async (req,res)=>{
+const adminLogout = async (req,res)=>{
     try{
         req.session.admin = null;
        
-        return res.redirect('/zipkart/admin/login')
+        res.redirect('/zipkart/admin/login')
            
     }
     catch(err){
@@ -51,5 +52,5 @@ const logout = async (req,res)=>{
 module.exports = {
     get_admin_login,
     post_admin_login,
-    logout
+    adminLogout,
 }

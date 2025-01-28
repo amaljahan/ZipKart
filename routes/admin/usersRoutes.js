@@ -9,7 +9,7 @@ router.get('/view-users/search-user',search_user)
 
 
 //BLOCK unblock
-router.post('/block-unblock',block_unblock)
+router.post('/view-users/block-unblock',block_unblock)
 
 
 module.exports = router;

@@ -13,6 +13,8 @@ const view_users = async(req,res)=>{
             .sort({ createdAt: -1 }) // latest first
             .skip(skip)
             .limit(limit);
+             
+            
 
             const totalUsers = await User.countDocuments();
             const totalPages = Math.ceil(totalUsers / limit);
@@ -54,6 +56,7 @@ const search_user = async(req,res)=>{
                 ]
             })
             .skip(skip)
+            .sort({ createdAt: -1 }) 
             .limit(limit);
 
             totalUsers = await User.countDocuments({ 

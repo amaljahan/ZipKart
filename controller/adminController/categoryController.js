@@ -13,13 +13,14 @@ const view_category = async(req,res)=>{
 }
 
 // Add Category
-const add_category = async (req, res) => {
-    console.log("at add",req.body);
-    
+const add_category = async (req, res) => {    
     try {
       let { name, description } = req.body;
       name = name.toUpperCase();
-      console.log("Name :",name);
+      const ctgry = await Category.findOne({name})
+      if(ctgry){
+        return res.status(409).json({success:false, message:"Category name already exists! Please try with a new name."})//409 => dublicate or conflict with and existing one 
+      }
 
       const category = new Category({ name, description });
       await category.save();
@@ -32,7 +33,6 @@ const add_category = async (req, res) => {
 
 // Add Category
 const get_add_category = async (req, res) => {
-    console.log("at add");
     
     try {
       res.render('admin/add_category')
