@@ -39,9 +39,7 @@ const post_admin_login = async(req,res)=>{
 const adminLogout = async (req,res)=>{
     try{
         req.session.admin = null;
-       
-        res.redirect('/zipkart/admin/login')
-           
+       res.status(200).json({success:true, message:"Successfully Logouted..."})           
     }
     catch(err){
         console.log("Error: ",err); 

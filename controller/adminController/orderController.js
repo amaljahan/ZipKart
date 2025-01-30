@@ -1,18 +1,40 @@
 const Orders = require('../../model/user/order_model')
 
 
-const viewOrdersList = async(req,res)=>{
+const viewOrdersList = async (req, res) => {
     try {
-        const orders = await Orders.find().sort({ orderDate: -1 });
-        if(!orders){
-            res.status(400).json({success:false,message:"No orders found."})
-        }
-        res.render('admin/orders',{orders})
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+  
+      const [orders, totalOrders] = await Promise.all([
+        Orders.find()
+              .sort({ orderDate: -1 })
+              .skip(skip)
+              .limit(limit),
+        Orders.countDocuments(),
+      ]);
+  
+      if (!orders) {
+        res.status(400).json({ success: false, message: "No orders found." });
+      }
+  
+      const totalPages = Math.ceil(totalOrders / limit);
+  
+      res.render('admin/orders', {
+        orders,
+        currentPage: page,
+        skip,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit
+      });
     } catch (error) {
-        console.error(error);
-        res.status(500).send({message:'Error from orders'});
+      console.error(error);
+      res.status(500).send({ message: 'Error from orders' });
     }
-}
+  };
 
 
 const orderDetailedView = async(req,res)=>{

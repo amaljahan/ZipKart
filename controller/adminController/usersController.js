@@ -79,6 +79,7 @@ const search_user = async(req,res)=>{
             users,
             message: users.length > 0 ? null : "No user found",
             currentPage: page,
+            skip,
             totalPages,
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1,

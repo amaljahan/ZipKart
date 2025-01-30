@@ -24,12 +24,14 @@
 }
 .logo h1 {
     font-size: 1.7rem;
-    margin: 15px 0 -30px 14px;}
+    margin: 15px 0 -30px 14px;
+    color: black;
+    }
 </style>
 </head>
 <body>
     <div class="logo">
-        <h1><span class="brand">Zip</span>Kart</h1>
+       <a style="text-decoration: none;" href="/zipkart/admin/dashboard"><h1><span class="brand">Zip</span>Kart</h1></a> 
       </div>
     <div class="container-fluid py-4">
         <div class="row">
@@ -39,25 +41,21 @@
                         <h4 class="mb-0">Order Id:- <%= order.orderId %></h4>
                         <div class="d-flex align-items-center responsive-stack">
                             <select id="orderStatus-<%= order.orderId %>" class="form-select form-select-sm w-auto me-2">
-                                <%if( order.status === "Cancelled"){%>
-                                    <option value="<%= order.status %>" 
-                                        selected>
-                                        <%= order.status %>
-                                    </option>
-                                <% }else{%>
-                                    <% const statuses = [
-                                    'Order placed',
-                                    'Shipped',
-                                    'Out for Delivery',
-                                    'Delivered',
-                                    ] %>
-                                <% statuses.forEach(status => { %>
-                                    <option value="<%= status %>" 
-                                        <%= order.status === status ? 'selected' : '' %>>
-                                        <%= status %>
-                                    </option>
-                                <% }) %>
-                                <%}%>
+                                <%if(order.status === "Cancelled"){%>
+                                    <option value="<%= order.status %>" selected><%= order.status %></option>
+                                <% } else { %>
+                                    <% 
+                                    const statuses = ['Order placed', 'Shipped', 'Out for Delivery', 'Delivered'];
+                                    const currentIndex = statuses.indexOf(order.status);
+                                    const availableStatuses = currentIndex === -1 ? statuses : statuses.slice(currentIndex);
+                                    %>
+                                    <% availableStatuses.forEach(status => { %>
+                                        <option value="<%= status %>" 
+                                            <%= order.status === status ? 'selected' : '' %>>
+                                            <%= status %>
+                                        </option>
+                                    <% }) %>
+                                <% } %>
                             </select>
                             <%if( order.status === "Cancelled"){%>
 
@@ -151,7 +149,9 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between">
                         <a href="/zipkart/admin/orders/view-orders" class="btn btn-secondary">Back to Orders</a>
-                        <button id="cancelOrder" class="btn btn-danger">Cancel Entire Order</button>
+                        <%if(order.status !== "Delivered"){%>
+                            <button id="cancelOrder" class="btn btn-danger">Cancel Entire Order</button>
+                        <%}%>
                     </div>
                 </div>
             </div>
@@ -187,27 +187,14 @@
             if (result.isConfirmed) {
                 axios.patch(`/zipkart/admin/orders/view-orders/<%= order._id %>/update-status`, { status: selectedStatus ,cancelAt})
                     .then(() => {
-                        // Update dropdown options dynamically
-                        const currentIndex = statuses.indexOf(selectedStatus);
-                        const updatedStatuses = statuses.slice(currentIndex); // Keep options from the current selection onward
-
-                        // Clear existing options
-                        selectElement.innerHTML = '';
-
-                        // Populate the dropdown with updated statuses
-                        updatedStatuses.forEach((status, index) => {
-                            const option = document.createElement('option');
-                            option.value = status;
-                            option.textContent = status;
-                            if (index === 0) option.selected = true; // Set the current status as the first option
-                            selectElement.appendChild(option);
-                        });
-
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
                             text: `Order status updated to "${selectedStatus}"`,
                             confirmButtonText: 'OK'
+                        }).then(() => {
+                                // Optionally redirect or refresh the page
+                                window.location.reload(); // Refresh the page to reflect the changes
                         });
                     })
                     .catch((error) => {

@@ -23,55 +23,6 @@ const get_signup = async(req,res)=>{
     }
 }
 
-//register - post
-// ======================================================================
-// const post_signup = async (req,res)=>{
-    
-
-
-//     // let errorsToShowInSignup = [];
-//     const {firstName,lastName,email,password,otp,message}=req.body
-//     console.log("req body : ",req.body)
-//     try{
-        
-// // ===============================================================
-
-
-//         const existUser = await User.findOne({email})
-//         if(existUser){
-//             return  res.render('user/signup',{message:"user already exist "})
-//         }
-//         const OtpEmail = await Otp.findOne({email})
-        
-//         const otpMatch = await bcrypt.compare(otp,OtpEmail.otp)
-//         if(!otpMatch){
-//             return res.render('user/signup',{message:"invalid otp "})
-//             // return res.status(400).json({message:"user already exist "}) 
-//         }
-//         const hashedPassword = await bcrypt.hash(password,10)
-//         console.log(password,hashedPassword)
-
-
-//         const newUser = new User({
-//             firstName,
-//             lastName,
-//             email,
-//             password:hashedPassword,
-            
-//         });
-//         await newUser.save();
-//         console.log("newUser",newUser)
-       
-//         req.session.user = newUser.firstName
-//         req.session.userId = newUser._id
-//         res.redirect('home')
-//         // res.status(201).json({message:"user registered successfully"})
-        
-//     }catch(err){
-//         console.log('Error:',err);
-//         res.status(500).json({message:"server error"})
-//     }
-// }
 
 
 //Login - get
@@ -125,63 +76,6 @@ const post_login = async(req,res)=>{
     }
 }
  
-
-
-const get_otp_page = async(req,res)=>{
-    const {email} =req.body
-    console.log("reqbody",email,req.body);
-    
-    try{
-        res.render('user/otp')
-    }catch(err){
-        console.log('Error:',err);
-        res.status(500).json({message:"server error"})
-
-    }
-}
-
-
-
-
-// ============================================================================
-// const generate_otp = async (req,res)=>{
-// console.log("generate otp; ",req.body);
-
-// const {firstName,lastName,email,password}=req.body
-// console.log("at generate otp",firstName,lastName,email,password);
-// try{
-
-//         const user = await User.findOne({email})
-//         if(user){
-//             return res.render('user/otp', { message: "Email already used" });
-
-//         }
-//         const existUser = await Otp.findOne({email})
-//         if(existUser){
-//             console.log("existing otp email id",existUser)
-//             await Otp.deleteOne({ _id: existUser._id });//===========================================================z
-//             console.log("existing otp email id deleted",existUser)
-//           }
-//         const otp = crypto.randomInt(1000,9999).toString();
-//         console.log("OTP ",otp , typeof otp)
-//         const hashedOtp = await bcrypt.hash(otp,10) 
-//         const newOtp = new Otp({
-//             email,
-//             otp:hashedOtp,
-//             otpExpiresAt:Date.now() +1*60*1000,//1mnt
-//         })
-//         await newOtp.save();
-        
-//         await sendOtp(email,otp);
-//         return res.render('user/otp',{firstName,lastName,email,password})
-
-//     }catch(err){
-//         console.log('Error:',err);
-//         res.status(500).json({message:"server error"})
-
-//     }
-// }
-
 
 
 // ========================creating otp numbers===============================
@@ -279,10 +173,6 @@ const verify_otp_and_register = async (req,res)=>{
             return res.status(400).json({message:"Otp expired"})
         }
 
-        
-        
-        
-        
         const hashedPassword = await bcrypt.hash(password,10)
         console.log(password,hashedPassword)
         
@@ -301,10 +191,6 @@ const verify_otp_and_register = async (req,res)=>{
         req.session.userId = newUser._id
         res.redirect('home')
         
-        // res.status(200).json({message:"otp verified successfully , logged in"})
-
-
-
 
     }catch(err){
         console.log('Error:',err);
@@ -334,28 +220,19 @@ const logout = async (req,res)=>{
 }
 
 
-// //check user exist
-// const checkUser = async (req,res)=>{
-//     console.log("at check user");
-//     const {firstNameemail}=req.body
-//     console.log("adla0", req.body);
+const forgot_password = async(req,res)=>{
+    const email = req.body
+    console.log("body ....: " , req.body)
+try {
+
+    res.render("user/changePassword/frgtPswdEmailVerify")
     
-//     const isExistUser = await User.findOne({email})
-//     try{
-       
-//         if(isExistUser){
-            
-//             return res.status(400).json({message:"User already exist, try with another mail"})
-            
-//         }      
-//         console.log("ോേ്ിുപരക");
-//         return        
-//     }
-//     catch(err){
-//         console.error("Error during logout:", err);
-//         res.status(500).send("Internal Server Error");
-//     }
-// }
+} catch (error) {
+    console.log("Error from forgot password: ",err);  
+    res.status(500).json({message:"server error"})
+}
+}
+
 
 
 
@@ -367,6 +244,7 @@ module.exports = {
     generate_otp,
     verify_otp_and_register,
     logout,
-    get_otp_page,
-    resend_otp
+    // get_otp_page,
+    resend_otp,
+    forgot_password,
 }

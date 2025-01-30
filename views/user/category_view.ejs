@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="utf-8">
-        <title>Fruitables - Vegetable Website Template</title>
+        <title>Fruitables- shop - Vegetable Website Template</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="" name="keywords">
         <meta content="" name="description">
@@ -218,6 +218,7 @@
                                         </div>
                                     </div>
                             
+                                    <input type="text" name="category" hidden value="<%= ctgry._id%>">
                                     <!-- Submit Button -->
                                     <div class="col-xl-12 text-center">
                                         <button id="submitBut" type="submit" class="btn btn-primary">Apply Search & Sort</button>
@@ -234,29 +235,29 @@ const productsPerPage = 10; // Set the number of products per page (adjust as ne
 
 const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10) => {
       
-document.addEventListener('DOMContentLoaded', () => {
-    // Event listener for sorting
-    document.getElementById('sortBy').addEventListener('change', (event) => {
-        console.log("change happened");
-        
-        const sortCriteria = event.target.value;
-        const searchQuery = document.getElementById('search').value;
-        getProducts(sortCriteria, searchQuery, currentPage, productsPerPage);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Event listener for sorting
+        document.getElementById('sortBy').addEventListener('change', (event) => {
+            console.log("change happened");
+            
+            const sortCriteria = event.target.value;
+            const searchQuery = document.getElementById('search').value;
+            getProducts(sortCriteria, searchQuery, currentPage, productsPerPage);
+        });
+
+        // Event listener fopr search
+        document.getElementById('search').addEventListener('input', (event) => {
+            console.log("search happened");
+
+            const searchQuery = event.target.value;
+            const sortCriteria = document.getElementById('sortBy').value;
+            getProducts(sortCriteria, searchQuery, currentPage, productsPerPage);
+        });
+
+        // Initial fetch
+        getProducts('createdAt');
     });
-
-    // Event listener for search
-    document.getElementById('search').addEventListener('input', (event) => {
-        console.log("search happened");
-
-        const searchQuery = event.target.value;
-        const sortCriteria = document.getElementById('sortBy').value;
-        getProducts(sortCriteria, searchQuery, currentPage, productsPerPage);
-    });
-
-    // Initial fetch
-    getProducts('createdAt');
-});
-
+}
 </script>
                         </div>
                         <div class="row g-4">
@@ -385,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="col-lg-9">
                                 <div class="row g-4 justify-content-center">
                                     <div class="row">
+                                        <% if(products.length > 0){ %>
                                         <% products.forEach(product => { %>
                                             <div class="col-md-6 col-lg-6 col-xl-4">
                                                 <div class="rounded position-relative fruite-item">
@@ -392,9 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                     </div>
                                                     <a href="product-detailed/<%= product._id %>"><img src="<%= product.images[0].thumbnailUrl %>" class="img-fluid w-100 rounded-top" alt="<%= product.name %>">
                                                     </a>
-                                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">
-                                                        <%= product.category.name %> 
-                                                    </div>
+                                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;"><%= product.categoryName %></div>
                                                     <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                                         <h4><%= product.name %></h4> <!-- Product Name -->
                                                         <p><%= product.description %></p> <!-- Product Description -->
@@ -423,7 +423,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                        <% }); %>
+                                            <% } )%>
+                                            <% } else { %>
+                                                <div>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted"><h1  style="margin: 25px 0px 0px 133px;">No Product found</h1></td>
+                                                    </tr>
+                                                </div>
+                                            <% } %>
                                     </div>
 <script>
     const updateCart = async (userId, productId, count) => {
@@ -433,8 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle success
         if (response.data.success) {
             alert("Product added to cart successfully!");
-            console.log(response.data.cart); // Optional: Log the updated cart
-
+            console.log(response.data.cart); // Optional:
         } else {
             // Handle failure (success: false from backend)
             alert(response.data.message || "Failed to update cart");

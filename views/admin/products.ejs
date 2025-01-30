@@ -22,6 +22,8 @@
       box-sizing: border-box;
       width: 240px;
       transition: width 0.3s ease;
+      z-index: 1500;
+
     }
 
     .sidebar .logo {
@@ -52,7 +54,64 @@
     .main-content {
       flex-grow: 1;
       padding: 20px;
+      padding-bottom: 60px; /* Space for fixed pagination */
       overflow-x: auto;
+    }
+    .pagination {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 10px 0;
+      background-color: #f8f9fa;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .pagination a {
+      padding: 8px 12px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      color: #333;
+      margin: 0 4px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+      background-color: #e9ecef;
+    }
+
+    .pagination a.active {
+      background-color: #1f2937;
+      color: white;
+      border-color: #1f2937;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding-bottom: 80px;
+      }
+
+      .pagination {
+        flex-wrap: wrap;
+        padding: 8px 0;
+      }
+
+      .pagination a {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        margin: 2px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .pagination a {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
     }
 
     .header .title {
@@ -79,24 +138,97 @@
       background-color: #1f2937;
       color: #fff;
     }
-
     .image-container {
-      display: flex;
-      align-items: center;
+      position: relative;
+      display: inline-block;
+      margin: 0 auto;
     }
 
     .product-image {
       max-width: 100px;
       max-height: 100px;
-      margin: 0 10px;
+      border-radius: 8px;
+      display: block;
     }
 
     .btn-arrow {
-      background: none;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(31, 41, 55, 0.8);
       border: none;
       cursor: pointer;
+      color: white;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      opacity: 0.8;
     }
 
+    .btn-arrow:hover {
+      background: rgba(79, 70, 229, 0.9);
+      opacity: 1;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .btn-arrow:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .btn-arrow.left-arrow {
+      left: -12px;
+    }
+
+    .btn-arrow.right-arrow {
+      right: -12px;
+    }
+
+    .btn-arrow i {
+      font-size: 0.8rem;
+    }
+
+    /* Image container hover effect */
+    .image-container:hover .btn-arrow {
+      opacity: 1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .btn-arrow {
+        width: 22px;
+        height: 22px;
+      }
+
+      .btn-arrow i {
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-arrow {
+        width: 20px;
+        height: 20px;
+      }
+
+      .btn-arrow i {
+        font-size: 0.6rem;
+      }
+
+      .btn-arrow.left-arrow {
+        left: -8px;
+      }
+
+      .btn-arrow.right-arrow {
+        right: -8px;
+      }
+    }
+    
     .btn-edit, .btn-delete, .btn-list, .btn-unlist {
       padding: 5px 10px;
       border: none;
@@ -133,6 +265,8 @@
       .sidebar {
         width: 100%;
         padding: 10px;
+        z-index: 1500;
+
       }
 
       .sidebar .logo {
@@ -191,7 +325,7 @@
         max-height: 40px;
       }
 
-      .btn-edit, .btn-delete, .btn-list, .btn-unlist {
+      .btn-edit, .btn-delete, .btn-lis  t, .btn-unlist {
         font-size: 0.7rem;
         padding: 3px 6px;
       }
@@ -249,7 +383,7 @@
           <% if (products.length > 0) { %>
             <% products.forEach((product, index) => { %>
               <tr>
-                <td><%= index + 1 %></td>
+                <td><%= skip + index + 1 %></td>
                 <td><%= product.name %></td>
                 <td><%= product.category.name %></td>
                 <td>₹<%= product.price.toFixed(2) %></td>
@@ -284,10 +418,17 @@
                   <% } else { %>
                     <button class="btn-list" onclick="toggleStatus('<%= product._id %>', 'Listed')">List</button>
                   <% } %>
-                  <a href="/zipkart/admin/products/view-edit-product/<%= product._id %>">
+
+                  
+                  <a style="text-decoration: none;" href="/zipkart/admin/products/view-edit-product/<%= product._id %>">
                     <button class="btn-edit"><i class="fas fa-edit"></i></button>
                   </a>
                   <button class="btn-delete" onclick="deleteProduct('<%= product._id %>')"><i class="fas fa-trash"></i></button>
+                  <% if (product.featured) { %>
+                    <button class="btn-list" onclick="toggleStatusForFeatured('<%= product._id %>', 'Not Featured')">Not Featured</button>
+                    <% } else { %>
+                      <button class="btn-unlist" onclick="toggleStatusForFeatured('<%= product._id %>', 'Featured')">Featured</button>
+                  <% } %>
                 </td>
               </tr>
             <% }); %>
@@ -298,13 +439,136 @@
           <% } %>
         </tbody>
       </table>
+      <!-- Pagination -->
+      <div class="pagination">
+        <% if (hasPrevPage) { %>
+          <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>">&laquo;</a>
+        <% } %>
+    
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>&limit=<%= limit %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+        
+        <% if (hasNextPage) { %>
+          <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>">&raquo;</a>
+        <% } %>
+      </div>
     </section>
   </main>
 
   <!-- JavaScript -->
   <script>
-    // Same JavaScript code as before (toggleStatus, deleteProduct, nextImage, previousImage functions)
-    // ... [previous script remains unchanged]
+    // Edit product status with SweetAlert
+    async function toggleStatus(productId, newStatus) {
+      const isListed = newStatus === "Listed";
+      
+      // SweetAlert Confirmation
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: `You want to change the status to ${newStatus}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, change it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.patch(`/zipkart/admin/products/edit-product/${productId}/status`, { isListed });
+          await Swal.fire('Success!', response.data.message, 'success');
+          location.reload(); // Reload the page to reflect changes
+        } catch (error) {
+          Swal.fire('Error!', 'There was an issue updating the status.', 'error');
+        }
+      }
+    }
+
+    async function toggleStatusForFeatured(productId, newStatus) {
+      const featured = newStatus === "Featured";
+      
+      // SweetAlert Confirmation
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: `You want to change the status to ${newStatus}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, change it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.patch(`/zipkart/admin/products/edit-product/${productId}/status-featured`, { featured });
+          await Swal.fire('Success!', response.data.message, 'success');
+          location.reload(); // Reload the page to reflect changes
+        } catch (error) {
+          Swal.fire('Error!', 'There was an issue updating the status for Featured.', 'error');
+        }
+      }
+    }
+
+
+    // Delete product with SweetAlert
+    async function deleteProduct(productId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`/zipkart/admin/products/delete-product/${productId}`);
+          await Swal.fire('Deleted!', response.data.message, 'success');
+          location.reload(); // Reload the page to reflect changes
+        } catch (error) {
+          Swal.fire('Error!', 'There was an issue deleting the product.', 'error');
+        }
+      }
+    }
+
+    function nextImage(productId) {
+      console.log('Next Button clicked for Product ID:', productId);
+
+      const imageElement = document.getElementById(`productImage${productId}`);
+      const images = JSON.parse(imageElement.getAttribute('data-images')); // Parse the images data
+
+      // Get the current image URL as a relative path (without the domain)
+      const currentImageUrl = new URL(imageElement.src).pathname; // Extract the relative path
+      console.log('Current Image URL:', currentImageUrl);
+
+      // Find the current index of the image in the array
+      const currentIndex = images.findIndex(image => image.thumbnailUrl === currentImageUrl || image.showcaseUrl === currentImageUrl);
+
+      // Get the next image index, looping if needed
+      const nextIndex = (currentIndex + 1) % images.length;
+
+      // Update the image's src and alt attributes
+      imageElement.src = images[nextIndex].thumbnailUrl; // You can use .showcaseUrl if you want to show showcase images
+      imageElement.alt = images[nextIndex].altText;
+    }
+
+    function previousImage(productId) {
+
+      const imageElement = document.getElementById(`productImage${productId}`);
+      const images = JSON.parse(imageElement.getAttribute('data-images')); // Parse the images data
+
+      // Get the current image URL as a relative path (without the domain)
+      const currentImageUrl = new URL(imageElement.src).pathname; // Extract the relative path
+
+      // Find the current index of the image in the array
+      const currentIndex = images.findIndex(image => image.thumbnailUrl === currentImageUrl || image.showcaseUrl === currentImageUrl);
+
+      // Get the previous image index, looping if needed
+      const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
+      // Update the image's src and alt attributes
+      imageElement.src = images[prevIndex].thumbnailUrl; // You can use .showcaseUrl if you want to show showcase images
+      imageElement.alt = images[prevIndex].altText;
+    }
   </script>
 </body>
 </html>

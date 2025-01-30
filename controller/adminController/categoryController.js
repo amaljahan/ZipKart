@@ -1,16 +1,40 @@
 const Category = require('../../model/adminModel/categoryModel')
 
 //get category
-const view_category = async(req,res)=>{
-    try{
-        const categories = await Category.find().sort({ createdAt: -1 });
-        res.render('admin/category',{categories})
+const view_category = async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+  
+      const [categories, totalCategory] = await Promise.all([
+        Category.find()
+              .sort({ orderDate: -1 })
+              .skip(skip)
+              .limit(limit),
+              Category.countDocuments(),
+      ]);
+  
+      if (!categories) {
+        res.status(400).json({ success: false, message: "No categories found." });
+      }
+  
+      const totalPages = Math.ceil(totalCategory / limit);
+  
+      res.render('admin/category', {
+        categories,
+        currentPage: page,
+        totalPages,
+        skip,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Error from categories' });
     }
-    catch(err){
-        console.log("Error: ",err); 
-        res.status(500).json({message:"server error"})
-    }
-}
+  };
 
 // Add Category
 const add_category = async (req, res) => {    

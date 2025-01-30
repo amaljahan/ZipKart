@@ -1,13 +1,12 @@
 const Product = require('../../model/adminModel/product_model')
 const Category = require('../../model/adminModel/categoryModel')
 const Review = require('../../model/reviews_model')
+const mongoose = require('mongoose')
 
 // =============================================//get home====================================
 const get_home = async (req,res)=>{
-    const products = await Product.find().populate('category')
-    try{
-        console.log('at home session : ',req.session.user);
-        
+    const products = await Product.find({isListed:true}).populate('category')
+    try{        
         res.render('user/home',{products,session:req.session})
     }
     catch(err){
@@ -20,45 +19,26 @@ const get_home = async (req,res)=>{
 
 const get_category_vised_products = async (req, res) => {
     const { sort = 'createdAt', search = '', page = 1, limit = 10, category } = req.query;
-    console.log(req.query);
+    console.log("category id:", category);
 
     try {
-        const categoryPromise = Product.aggregate([
-            {
-                $group: {
-                    _id: "$category",
-                    productCount: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "categoryDetails",
-                },
-            },
-            {
-                $unwind: "$categoryDetails",
-            },
-            {
-                $project: {
-                    name: "$categoryDetails.name",
-                    productCount: 1,
-                },
-            },
-        ]);
-
-
-        let filter = {};
+        let filter = { isListed: true };    
         if (search) {
             filter.name = { $regex: search, $options: "i" }; 
         }
+        let ctgry;
+
         if (category) {
-            filter.category = category; 
+            try {
+                filter.category = new mongoose.Types.ObjectId(category);
+                ctgry = await Category.findById(category);
+            } catch (error) {
+                console.error("Invalid category ObjectId:", error);
+                return res.status(400).json({ message: "Invalid category ID format" });
+            }
         }
-
-
+        console.log("filter applied:", filter);
+        
         let sortObject = {};
         switch (sort) {
             case "popularity":
@@ -71,7 +51,7 @@ const get_category_vised_products = async (req, res) => {
                 sortObject = { price: -1 };
                 break;
             case "average-ratings":
-                sortObject = { avgRating: -1 }; // For reviews
+                sortObject = { avgRating: -1 };
                 break;
             case "featured":
                 sortObject = { featured: -1 };
@@ -92,69 +72,117 @@ const get_category_vised_products = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-
-        const reviewsAggregation = Product.aggregate([   // Aggregation for reviews of each product
-
+        const reviewsAggregation = Product.aggregate([
+            {
+                $match: filter  // Apply all filters at once
+            },
             {
                 $lookup: {
-                    from: "reviews", 
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            {
+                $match: {
+                    "categoryDetails": { $ne: [] }
+                }
+            },
+            {
+                $lookup: {
+                    from: "reviews",
                     localField: "_id",
                     foreignField: "product",
-                    as: "reviews",
-                },
+                    as: "reviews"
+                }
             },
             {
                 $addFields: {
-                    avgRating: { $avg: "$reviews.star" }, // Calculate average star rating
-                    reviewCount: { $size: "$reviews" }, // Count the number of reviews
-                },
+                    avgRating: { $avg: "$reviews.star" },
+                    reviewCount: { $size: "$reviews" }
+                }
             },
             {
-                $match: filter, // Apply filters for category and search
+                $match: {
+                    "categoryDetails.isListed": true
+                }
             },
             {
-                $sort: sortObject,
+                $unwind: "$categoryDetails"
             },
             {
-                $skip: skip,
+                $sort: sortObject
             },
             {
-                $limit: Number(limit),
+                $skip: skip
             },
+            {
+                $limit: Number(limit)
+            },
+            {
+                $project: {
+                    name: 1,
+                    category: 1,
+                    price: 1,
+                    unit: 1,
+                    description: 1,
+                    stock: 1,
+                    images: 1,
+                    isListed: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    featured: 1,
+                    popularity: 1,
+                    reviews: 1,
+                    avgRating: 1,
+                    reviewCount: 1,
+                    categoryName: "$categoryDetails.name"
+                }
+            }
         ]);
 
-        // Count total products
-        const totalProductsPromise = Product.countDocuments(filter);
-
-        // Resolve all promises
         const [categoriesWithCount, productsWithReviews, totalProducts] = await Promise.all([
-            categoryPromise,
+            Product.aggregate([
+                { $match: { isListed: true } },
+                { $group: { _id: "$category", productCount: { $sum: 1 } } },
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "categoryDetails"
+                    }
+                },
+                { $unwind: "$categoryDetails" },
+                { $project: { name: "$categoryDetails.name", productCount: 1 } }
+            ]),
             reviewsAggregation,
-            totalProductsPromise,
+            Product.countDocuments(filter)
         ]);
+
+        console.log("categories with count:", categoriesWithCount);
+        console.log("products with reviews:", productsWithReviews);
+        console.log("total products:", totalProducts);
 
         const totalPages = Math.ceil(totalProducts / limit);
 
-        console.log(
-            "categoriesWithCount:",
-            
-        );
-
-        // Render the page with products, categories, and reviews
         return res.render("user/category_view", {
             categories: categoriesWithCount,
             products: productsWithReviews,
             totalPages,
             currentPage: page,
             session: req.session,
-            searchQuery:search,
-            sort
+            searchQuery: search,
+            sort,
+            ctgry: ctgry || ""
         });
     } catch (err) {
-        console.error("Error: ", err);
+        console.error("Error in get_category_vised_products:", err);
         res.status(500).json({ message: "Server error" });
     }
 };
+
 
 
 
@@ -168,15 +196,16 @@ const get_product_detailed = async(req,res)=>{
         const [
             product,
             products,
-            // categories,
             reviews,
             categoiesWithCount
         ] = await Promise.all([
             Product.findById(productId).populate('category'),
-            Product.find().populate('category'),
-            // Category.find(),
+            Product.find({isListed:true}).populate('category'),
             Review.find({ product: productId }).sort({ createdAt: -1 }),
             Product.aggregate([
+                {
+                    $match: { isListed: true },  // Filter out products that are listed
+                },
                 {
                     $group: {
                         _id: "$category", // Group by category ID

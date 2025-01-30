@@ -40,11 +40,13 @@ const change_password  = async(req,res)=>{
     }
     catch(err){
         console.log("Error: ",err);  
-          res.status(500).json({message:"server error"})
+        res.status(500).json({message:"server error"})
     }
 }
 
+
+
 module.exports = {
     view_change_password,
-    change_password
+    change_password,
 }

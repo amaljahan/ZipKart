@@ -5,7 +5,7 @@ const Product = require('../../../model/adminModel/product_model')
 const view_my_orders = async(req,res)=>{
     try {
         const userId = req.session.userId
-        const orders = await Orders.find({userId})
+        const orders = await Orders.find({userId}).sort({orderDate: -1})
         if(!orders){
             res.render('user/accountDetails/my_Orders',{session: req.session})
         }

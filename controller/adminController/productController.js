@@ -11,9 +11,30 @@ const convertToWebPath = (filePath) => filePath.replace(/\\/g, '/');
 //get products 
 const view_products = async (req, res) => {
     try {
-      const products = await Product.find().populate('category', 'name').sort({ createdAt: -1 }); // Populate only the 'name' field of the category
-          
-      res.render("admin/products", { products });
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+      const [products, totalProducts] = await Promise.all([
+        Product.find().populate('category', 'name') // Populate only the 'name' field of the category
+                                            .sort({ createdAt: -1 }) // latest first
+                                            .skip(skip)
+                                            .limit(limit),
+        Product.countDocuments(),
+      ])
+      const totalPages = Math.ceil(totalProducts / limit);
+
+
+                                            
+      res.render("admin/products", {
+            products,
+            message:null,
+            skip,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            limit
+       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Failed to fetch products" });
@@ -66,6 +87,13 @@ const edit_product = async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
+    }
+
+    if(product.name !== name){
+       const isExist = await Product.findOne({name})
+      if(isExist.name !== product.name){
+        return res.status(409).json({success:false, message:"Product name already exist!, Please try with a different name."})
+      }
     }
 
     // Update product details
@@ -156,13 +184,17 @@ const edit_product = async (req, res) => {
 // ============================================= Create Product =============================================================
 
 const add_Product = async (req, res) => {
-  console.log("workeddddddd");
 
   try {
     let { name, category, price, stock, description, unit } = req.body;
     name = name.toUpperCase();
 
     const imageUrls = [];  // This will hold the URLs of resized images
+
+    const isExist = await Product.findOne({name})
+    if(isExist){
+      return res.status(409).json({success:false, message:"Product name already exist!, Please try with a different name."})
+    }
 
     // Loop through the uploaded images
     if (req.files && req.files.length > 0) {
@@ -260,6 +292,32 @@ const add_Product = async (req, res) => {
     }
   }
 
+  //edit Product Status(list/unlist)
+  const edit_product_status_for_featured =  async (req, res) => {
+    
+    try {
+      const productId  = req.params.id;
+      const { featured } = req.body;
+      console.log(featured);
+      
+  
+      const product = await Product.findByIdAndUpdate(
+        productId,
+        {featured} , 
+        { new: true }
+      );
+  console.log("000000000000 ",product.featured);
+  
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+  
+      res.status(200).json({ message: `Product successfully set as ${featured ? "Featured" : "Not Featured"}!` });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update product status-featured" });
+    }
+  }
+
 
   //-------------------------------------------Delete product---------------------------------------------------------
   const delete_product = async (req, res) => {
@@ -287,5 +345,6 @@ const add_Product = async (req, res) => {
     get_edit_product,
     edit_product,
     edit_product_status,
+    edit_product_status_for_featured,
     delete_product,
   }

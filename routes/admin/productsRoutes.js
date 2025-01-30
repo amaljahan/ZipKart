@@ -6,7 +6,8 @@ const {
     get_edit_product, 
     edit_product, 
     edit_product_status, 
-    delete_product 
+    delete_product, 
+    edit_product_status_for_featured
 } = require('../../controller/adminController/productController');
 const router = express.Router(); 
 const multer = require('multer');
@@ -59,10 +60,8 @@ router.get("/view-add-product",get_add_product)
 
 //render edit product page
 router.get("/view-edit-product/:id",get_edit_product)
-
-
-//edit product status as isListed / Listed
-router.patch("/edit-product/:id/status", edit_product_status)
+router.patch("/edit-product/:id/status", edit_product_status)//edit product status as isListed / Listed
+router.patch("/edit-product/:id/status-featured", edit_product_status_for_featured)//edit product status-featured as featured / not featured
 
 
 //delete product

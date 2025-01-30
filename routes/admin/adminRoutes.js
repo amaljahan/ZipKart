@@ -17,13 +17,12 @@ const { isLogged, isAdmin } = require('../../middleware/admin/adminAuthMiddlewar
 //admin login
 router.get('/login',isLogged,get_admin_login)
 router.post('/login',post_admin_login)
-
-router.get('/logout',isAdmin,adminLogout)//Logout
 router.use('/users',isAdmin,users) //Users
 router.use('/categories',isAdmin,category)//category
 router.use('/',isAdmin,dashboard)//dashboard
 router.use('/products',isAdmin,products)//products
 router.use('/orders',isAdmin,Orders)//Orders
+router.post('/logout',isAdmin,adminLogout)//Logout
 
 
 

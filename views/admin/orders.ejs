@@ -52,6 +52,68 @@
     .main-content {
       flex-grow: 1;
       padding: 20px;
+      padding-bottom: 60px; /* Space for fixed pagination */
+      overflow-x: auto;
+    }
+    
+
+    /* Pagination Styles */
+    .pagination {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 10px 0;
+      background-color: #f8f9fa;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 500;
+    }
+
+    .pagination a {
+      padding: 8px 12px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      color: #333;
+      margin: 0 4px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+      background-color: #e9ecef;
+    }
+
+    .pagination a.active {
+      background-color: #1f2937;
+      color: white;
+      border-color: #1f2937;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding-bottom: 80px;
+      }
+
+      .pagination {
+        flex-wrap: wrap;
+        padding: 8px 0;
+      }
+
+      .pagination a {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        margin: 2px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .pagination a {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
     }
 
     .header .title {
@@ -99,6 +161,7 @@
       .sidebar {
         width: 100%;
         padding: 10px;
+        z-index: 1500;
       }
 
       .sidebar .logo {
@@ -199,7 +262,7 @@
         <tbody>
           <% orders.forEach((order, index) => { %>
             <tr>
-              <td><%= index + 1 %></td> <!-- This line was already correct, adding index -->
+              <td><%= skip + index + 1 %></td>
               <td><%= order.orderId %></td>
               <td><%= order.orderDate.toLocaleDateString('en-IN') %></td>
               <td><%= order.address.name %></td>
@@ -220,6 +283,19 @@
         </tbody>
 
       </table>
+      <div class="pagination">
+  <% if (hasPrevPage) { %>
+    <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>">&laquo;</a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>&limit=<%= limit %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+  <% } %>
+  
+  <% if (hasNextPage) { %>
+    <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>">&raquo;</a>
+  <% } %>
+</div>
     </section>
   </main>
 </body>
