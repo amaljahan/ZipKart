@@ -188,44 +188,38 @@ const get_category_vised_products = async (req, res) => {
 
 // -----------------------------------------------//get single product detailed view----------------------------------------------------------------------
 
-
 const get_product_detailed = async (req, res) => {
     try {
-        const productId = req.params.id;
 
-        if (!mongoose.Types.ObjectId.isValid(productId)) {
-            return res.status(400).json({ success: false, message: "Invalid Product ID" });
-        }
+        const productId = new mongoose.Types.ObjectId(req.params.id);
 
         const [product, products, reviews, categoriesWithCount] = await Promise.all([
             Product.findById(productId).populate('category'),
-            Product.find({ isListed: true }).limit(20).populate('category'),  
-            Review.find({ product: productId }).sort({ createdAt: -1 }).populate("user"),
+            Product.find({ isListed: true }).populate('category'),
+            Review.find({ product: productId })
+                .populate('user') 
+                .sort({ createdAt: -1 })
+                .exec(),// is used to explicitly execute a Mongoose query and return a Promise.
             Product.aggregate([
                 { $match: { isListed: true } },
                 { $group: { _id: "$category", productCount: { $sum: 1 } } },
-                {
+                { 
                     $lookup: {
-                        from: "categories",  
+                        from: "categories",
                         localField: "_id",
                         foreignField: "_id",
                         as: "categoryDetails"
                     }
                 },
-                {
-                    $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true }
-                },
-                {
-                    $project: {
-                        name: "$categoryDetails.name",
-                        productCount: 1
-                    }
-                }
+                { $unwind: "$categoryDetails" },
+                { $project: { name: "$categoryDetails.name", productCount: 1 } }
             ])
         ]);
 
+        console.log("Fetched Reviews:", reviews[0]); 
+
         if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
+            return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
         product.popularity += 1;
@@ -244,6 +238,7 @@ const get_product_detailed = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 
 const demo = async (req,res)=>{

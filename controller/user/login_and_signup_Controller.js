@@ -200,16 +200,15 @@ const verify_otp_and_register = async (req,res)=>{
 
 //Logout
 const logout = async (req,res)=>{
-    console.log("Logouted....");
     
     try{
         req.session.destroy((err)=>{
             if(err){
-                console.log('error while destroyin session; ',err);
+                console.log('error while destroying session; ',err);
                 return res.redirect('/zipkart/user/home')
                 
             }
-            res.redirect('/zipkart/user/home')
+           return res.status(200).json({success: true, message: "Logout successfully",url:'/zipkart/user/home'})
         }) 
     }
     catch(err){ 

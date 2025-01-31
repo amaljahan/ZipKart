@@ -33,19 +33,9 @@ const updateCart = async (req, res) => {
     count = Number(count)
     console.log(req.query);
     console.log(req.params);
-    
-    
-    
-
-    // if (!productId || typeof count !== "number") {
-    //     return res.status(400).json({ success: false, message: "Invalid input data" });
-    // }
 
     try {
-
-        // const product = await Product.findById(productId);
-        // console.log(product);
-        
+      
         if (!productId || isNaN(count)) {
             return res.status(400).json({ success: false, message: "Invalid input data" });
         }
@@ -70,9 +60,7 @@ const updateCart = async (req, res) => {
             });
         }
         
-         const productIndex = cart.products.findIndex((item) => {
-            console.log(item.productId._id.toString() === productId,"==========","item.productId._id.toString() ==",item.productId._id.toString()," === productId",productId);
-            
+         const productIndex = cart.products.findIndex((item) => {      
             return item.productId._id.toString() === productId;
         });
         
@@ -96,11 +84,15 @@ const updateCart = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Cannot decrease quantity of non-existent product" });
             }
         }
-        if(productIndex>=0){
-            if(product.stock < cart.products[productIndex].quantity){
-                return res.status(400).json({ success: false, message: `only ${product.stock} left.` });
-            }
+
+
+
+        console.log( "product stock : ",product.stock, " cart product quantity : ",cart.products[productIndex].quantity);
+        
+        if (productIndex >= 0 && product.stock < cart.products[productIndex].quantity) {
+            return res.status(400).json({ success: false, message: "Out of stock" });
         }
+        
 
         if(product.stock==0){//--------------------check this code is it necessary or not
             return res.status(400).json({ success: false, message: "Out of stock" });
@@ -111,10 +103,8 @@ const updateCart = async (req, res) => {
         }
         product.popularity = product.popularity + 4;
 
-        await Promise.all([
-            cart.save(),
-            product.save()
-        ]);
+        await cart.save();
+        await product.save();
         
         //  res.rdirect('user/cart/cart',{message: "Cart updated successfully",cart,session: req.session})
         return res.status(200).json({ success: true, message: "Cart updated successfully" ,url:`/zipkart/user/${userId}/cart`});

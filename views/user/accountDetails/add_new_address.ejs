@@ -155,24 +155,68 @@
 
     <script>
         document.getElementById('edit-address-form').addEventListener('submit', async function (event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            const data = {
-                firstName: document.getElementById('firstName').value.trim(),
-                lastName: document.getElementById('lastName').value.trim(),
-                phoneNumber: document.getElementById('phonenumber').value.trim(),
-                pincode: document.getElementById('pincode').value.trim(),
-                locality: document.getElementById('locality').value.trim(),
-                address: document.getElementById('address').value.trim(),
-                cityDistrictTown: document.getElementById('citydistricttown').value.trim(),
-                state: document.getElementById('state').value,
-                country: document.getElementById('country').value,
-                landmark: document.getElementById('landmark').value.trim(),
-                alternatePhone: document.getElementById('alternatephone').value.trim(),
-                addressType: document.querySelector('input[name="addresstype"]:checked')?.value,
-                userId: document.getElementById('userId').value
-            };
-console.log(data);
+
+    function showError(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: message,
+    });
+}
+    // Get input values
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const phoneNumber = document.getElementById('phonenumber').value.trim();
+    const pincode = document.getElementById('pincode').value.trim();
+    const locality = document.getElementById('locality').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const cityDistrictTown = document.getElementById('citydistricttown').value.trim();
+    const state = document.getElementById('state').value;
+    const country = document.getElementById('country').value.trim();
+    const landmark = document.getElementById('landmark').value.trim();
+    const alternatePhone = document.getElementById('alternatephone').value.trim();
+    const addressType = document.querySelector('input[name="addresstype"]:checked')?.value;
+    const userId = document.getElementById('userId').value;
+
+    // Regex patterns
+    const nameRegex = /^[A-Za-z][A-Za-z\s]*$/;  // Starts with a letter, contains only letters & spaces
+    const phoneRegex = /^[0-9]{10}$/; // Exactly 10 digits
+    const pincodeRegex = /^[0-9]{6}$/; // Exactly 6 digits
+    const addressRegex = /^[A-Za-z][A-Za-z0-9\s,.-]*$/; // Starts with a letter, allows letters, numbers, spaces, commas, periods, hyphens
+    const cityCountryRegex = /^[A-Za-z][A-Za-z\s]*$/; // Starts with a letter, contains only letters & spaces
+
+    // Validation checks
+    if (!nameRegex.test(firstName)) return showError('First name must start with a letter and contain only letters and spaces.');
+    if (!nameRegex.test(lastName)) return showError('Last name must start with a letter and contain only letters and spaces.');
+    if (!phoneRegex.test(phoneNumber)) return showError('Phone number must be exactly 10 digits and non negative.');
+    if (!pincodeRegex.test(pincode)) return showError('Pincode must be exactly 6 digits and non negative.');
+    if (!addressRegex.test(locality)) return showError('Locality must start with a letter and contain valid characters.');
+    if (!addressRegex.test(address)) return showError('Address must start with a letter and contain valid characters.');
+    if (!cityCountryRegex.test(cityDistrictTown)) return showError('City/District/Town must start with a letter and contain only letters and spaces.');
+    if (!cityCountryRegex.test(country)) return showError('Country must start with a letter and contain only letters and spaces.');
+    if (landmark && !addressRegex.test(landmark)) return showError('Landmark must start with a letter and contain valid characters.');
+    if (alternatePhone && !phoneRegex.test(alternatePhone)) return showError('Alternate phone must be exactly 10 digits if provided.');
+    if (!addressType) return showError('Please select an address type.');
+
+    // Data to send
+    const data = {
+        firstName,
+        lastName,
+        phoneNumber,
+        pincode,
+        locality,
+        address,
+        cityDistrictTown,
+        state,
+        country,
+        landmark,
+        alternatePhone,
+        addressType,
+        userId
+    };
+
 
             try {
                 const response = await axios.post('add-new-address', data);

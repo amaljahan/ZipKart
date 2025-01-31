@@ -22,7 +22,7 @@
         <link href="/css/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
         <!-- Customized Bootstrap Stylesheet -->
@@ -432,37 +432,57 @@ const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10)
                                                 </div>
                                             <% } %>
                                     </div>
-<script>
-    const updateCart = async (userId, productId, count) => {
-    try {
-            const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
-
-        // Handle success
-        if (response.data.success) {
-            alert("Product added to cart successfully!");
-            console.log(response.data.cart); // Optional:
-        } else {
-            // Handle failure (success: false from backend)
-            alert(response.data.message || "Failed to update cart");
-        }
-    } catch (err) {
-        // Handle errors (axios handles status codes outside 2xx)
-        console.error("Error updating cart:", err);
-        if (err.response) {
-            // If there is a response from the server, handle it
-            alert(`Error: ${err.response.data.message || "Something went wrong"}`);
-        } else if (!userId) {
-            // Handle session not found
-            alert("You must be logged in to perform this action.");
-        } 
-         else {
-            // Handle network errors
-            alert("Network error. Please try again.");
-        }
-    }
-};
-
-</script>
+                                    <script>
+                                        const updateCart = async (userId, productId, count) => {
+                                            try {
+                                                const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
+                                        
+                                                // Handle success
+                                                if (response.data.success) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Success",
+                                                        text: "Product added to cart successfully!",
+                                                    });
+                                                    console.log(response.data.cart); // Optional
+                                                } else {
+                                                    // Handle failure (success: false from backend)
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Failed",
+                                                        text: response.data.message || "Failed to update cart",
+                                                    });
+                                                }
+                                            } catch (err) {
+                                                // Handle errors (axios handles status codes outside 2xx)
+                                                console.error("Error updating cart:", err);
+                                        
+                                                if (!userId) {
+                                                    // Handle session not found
+                                                    Swal.fire({
+                                                        icon: "warning",
+                                                        title: "Not Logged In",
+                                                        text: "You must be logged in to perform this action.",
+                                                    });
+                                                } else if (err.response) {
+                                                    // If there is a response from the server, handle it
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Error",
+                                                        text: err.response.data.message || "Something went wrong",
+                                                    });
+                                                } else {
+                                                    // Handle network errors
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Network Error",
+                                                        text: "Please check your internet connection and try again.",
+                                                    });
+                                                }
+                                            }
+                                        };
+                                        </script>
+                                        
 
                                     <!-- //paginiation -->
                                     <div class="col-12">

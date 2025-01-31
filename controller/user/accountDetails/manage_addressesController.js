@@ -8,7 +8,7 @@ const view_addresses =   async(req,res)=>{
     try{
         const userId = req.params.id
         if(userId){
-                    const addresses = await Addresses.find({userId})
+                    const addresses = await Addresses.find({userId}).sort({createdAt: -1})
                     res.render('user/accountDetails/manage_address',{session:req.session,addresses}) 
         }
         
@@ -20,8 +20,6 @@ const view_addresses =   async(req,res)=>{
 }
 
 const get_add_address = async(req,res)=>{
-    console.log("==============================================================");
-    
     try{
         
         res.render('user/accountDetails/add_new_address',{session:req.session}) 
@@ -34,14 +32,40 @@ const get_add_address = async(req,res)=>{
 
 const add_address = async(req,res)=>{
     
-    console.log("req.body :==>", req.body);
     const { userId, firstName, lastName, phoneNumber, pincode, locality, address, cityDistrictTown, state, country, landmark, alternatePhone, addressType } = req.body;
-
+    
     try{
-        if (!userId || !firstName || !phoneNumber || !pincode || !locality || !address || !cityDistrictTown || !state || !addressType || country) {
-            return res.status(400).json({ message: "All required fields must be filled" });
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required." });
         }
-
+        if (!firstName) {
+            return res.status(400).json({ message: "First name is required." });
+        }
+        if (!phoneNumber) {
+            return res.status(400).json({ message: "Phone number is required." });
+        }
+        if (!pincode) {
+            return res.status(400).json({ message: "Pincode is required." });
+        }
+        if (!locality) {
+            return res.status(400).json({ message: "Locality is required." });
+        }
+        if (!address) {
+            return res.status(400).json({ message: "Address is required." });
+        }
+        if (!cityDistrictTown) {
+            return res.status(400).json({ message: "City/District/Town is required." });
+        }
+        if (!state) {
+            return res.status(400).json({ message: "State is required." });
+        }
+        if (!addressType) {
+            return res.status(400).json({ message: "Address type is required." });
+        }
+        if (!country) {
+            return res.status(400).json({ message: "Country is required." });
+        }
+        
         //checking address exist 
         const existingAddress = await Addresses.findOne({ 
             userId, 
