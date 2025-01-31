@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frogot Password Email Verification</title>
-    <link rel="stylesheet" href="../../../public/css/reset_password.css">
-    <link rel="stylesheet" href="/css/public/css/reset_password.css"></head>
-    <link rel="stylesheet" href="../../../public/css/userPasswordReset.css">
-    <link rel="stylesheet" href="/css/public/css/userPasswordReset.css"></head>
+    <title>Forgot Password Email Verification</title>
+
+    <link rel="stylesheet" href="../../../public/css/frgtPswdEmailVerify.css">
+    <link rel="stylesheet" href="/css/frgtPswdEmailVerify.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 <body>
     <header>
         <div class="logo">
@@ -16,13 +20,26 @@
     </header>
 
     <main>
-        <h1>Forgot  Password</h1>
+        <h1>Forgot Password</h1>
 
-        <form action="#">
+        <form id="forgotPasswordForm" onsubmit="submitFun(event)">
             <label for="email">Email:</label>
-            <input type="email" id="email" placeholder="Enter your email address">
+            <input class="text-box" type="email" id="email" placeholder="Enter your email address">
+            
+            <label for="newPassword">New Password:</label>
+            <input class="text-box" type="password" id="newPassword" placeholder="Enter your New Password" oninput="validatePasswords()">
+            
+            <div class="input-group-append">
+                <span class="input-group-text" id="showPasswordToggle" style="cursor: pointer;">
+                  <i id="showPasswordIcon" class="fa fa-eye" aria-hidden="true"></i>
+                </span>
+            </div>
+            
+            <label for="confirmPassword">Confirm Password:</label>
+            <input class="text-box" type="password" id="confirmPassword" placeholder="Confirm your Password" oninput="validatePasswords()">
+            <small id="passwordMatchMessage" style="color: red; display: none;"></small>
 
-            <button type="submit">Verify</button>
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-block enter-btn" disabled>Confirm</button>
         </form>
 
         <div class="links">
@@ -31,9 +48,114 @@
         </div>
     </main>
 
-    <footer>
-        </footer>
+    <footer></footer>
 
-    <script src="script.js"></script>
+    <script>
+        async function submitFun(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!email || !password || !confirmPassword) {
+                return Swal.fire({ icon: 'error', title: 'Oops...', text: 'All fields are required!' });
+            }
+
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!email.match(emailPattern)) {
+                return Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please enter a valid email address.' });
+            }
+
+            if (password.length < 8) {
+                return Swal.fire({ icon: 'error', title: 'Oops...', text: 'Password must be at least 8 characters long.' });
+            }
+
+            if (password !== confirmPassword) {
+                return Swal.fire({ icon: 'error', title: 'Oops...', text: 'Passwords do not match.' });
+            }
+
+            const userData = { email, password };
+
+            try {
+                const response = await axios.post("/zipkart/user/forgot-password/verify", userData);
+          
+
+                // Show success message
+                await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Redirected to verify OTP',
+                });
+
+                // Replace the current page content with the rendered HTML
+                document.open();
+                document.write(response.data);
+                document.close();
+
+            } catch (error) {
+                // Handle errors
+                if (error.response && error.response.data && error.response.data.message) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: error.response.data.message,
+                });
+                } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An unexpected error occurred.',
+                });
+                }
+            }
+        }
+
+        function validatePasswords() {
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const message = document.getElementById('passwordMatchMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const passwordStrengthRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!password.match(passwordStrengthRegex)) {
+                message.textContent = 'Password must be at least 8 characters long, include a number, and a special character!';
+                message.style.color = 'red';
+                message.style.display = 'block';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            if (password === confirmPassword) {
+                message.textContent = 'Passwords match!';
+                message.style.color = 'green';
+                message.style.display = 'block';
+                submitBtn.disabled = false;
+            } else {
+                message.textContent = 'Passwords do not match!';
+                message.style.color = 'red';
+                message.style.display = 'block';
+                submitBtn.disabled = true;
+            }
+        }
+
+        document.getElementById('showPasswordToggle').addEventListener('click', function () {
+            const passwordField = document.getElementById('newPassword');
+            const confirmPasswordField = document.getElementById('confirmPassword');
+            const showPasswordIcon = document.getElementById('showPasswordIcon');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                confirmPasswordField.type = 'text';
+                showPasswordIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                confirmPasswordField.type = 'password';
+                showPasswordIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    </script>
+
 </body>
 </html>

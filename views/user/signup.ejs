@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
   <head>
     <!-- Required meta tags -->
@@ -141,13 +141,17 @@ async function submitFun(){
               
           }
 
-          // Password Length Validation
           if (password.length < 8) {
-              // e.preventDefault();
-              
-              alert('Password must be at least 6 characters long.');
-              return;
-          }
+                // e.preventDefault();
+                return Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Password must be at least 6 characters long.'
+              });
+                
+                // alert('Password must be at least 6 characters long.');
+                // return;
+            }
 
           const userData = {
             firstName,
@@ -167,7 +171,7 @@ async function submitFun(){
       text: 'Redirected to verify OTP',
     });
 
-    // Replace the current page content with the rendered HTML
+    // Replace the current page content with the rendered HTML----------------------------------------------------------------------------------------------------------------------------
     document.open();
     document.write(response.data);
     document.close();

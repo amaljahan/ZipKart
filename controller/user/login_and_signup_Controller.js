@@ -80,10 +80,10 @@ const post_login = async(req,res)=>{
 
 // ========================creating otp numbers===============================
 async function createOtp(email){
-    const isExistOtpUser = await Otp.findOne({email})
+    const isExistOtpUser = await Otp.find({email})
     if(isExistOtpUser){
         console.log("existing otp email id",isExistOtpUser)
-        await Otp.deleteOne({ _id: isExistOtpUser._id });//===========================================================z
+        await Otp.deleteMany({ email });
         console.log("existing otp email id deleted",isExistOtpUser)
       }
     const otp = crypto.randomInt(1000,9999).toString();
@@ -102,7 +102,6 @@ async function createOtp(email){
 
 
 const generate_otp = async(req,res)=>{
-    console.log("AT GENERATE-OTP");
     const {firstName,lastName,email,password}=req.body
     console.log(req.body);
     
@@ -174,7 +173,7 @@ const verify_otp_and_register = async (req,res)=>{
         }
 
         const hashedPassword = await bcrypt.hash(password,10)
-        console.log(password,hashedPassword)
+        // console.log(password,hashedPassword)
         
         
         const newUser = new User({
@@ -220,18 +219,122 @@ const logout = async (req,res)=>{
 }
 
 
-const forgot_password = async(req,res)=>{
+const forgot_password_email_type_page = async(req,res)=>{
     const email = req.body
     console.log("body ....: " , req.body)
-try {
+    try {
 
-    res.render("user/changePassword/frgtPswdEmailVerify")
-    
-} catch (error) {
-    console.log("Error from forgot password: ",err);  
-    res.status(500).json({message:"server error"})
+        res.render("user/changePassword/frgtPswdEmailVerify")
+        
+    } catch (error) {
+        console.log("Error from forgot password: ",err);  
+        res.status(500).json({message:"server error"})
+    }
 }
+
+//otp verify and rendering otp page
+const forgot_password_email_verify_otp_generation = async(req,res)=>{
+    const {email,password} = req.   body
+    console.log("body ....: " , req.body)
+    try {
+        const isExistUser = await User.findOne({email})
+        
+        if(!isExistUser){
+            return res.status(400).json({success: false, message:"No user found on this Email!, try with another Email"})
+
+        }  
+
+        createOtp(email)
+        // res.status(201).json({ success: true, message: "Otp generated successfully", email });
+        res.render("user/changePassword/forgotpasswordOtp", { email,password });
+
+    } catch (error) {
+        console.log("Error from forgot_password_email_verify_otp_generation: ",err);  
+        res.status(500).json({message:"server error"})
+    }
 }
+
+
+// const rendering_otp_page = async(req,res)=>{
+//     const email = req.query.email
+//     console.log("body ....: " , req.query)
+//     try {
+        
+        
+//         res.render("user/changePassword/forgotpasswordOtp",{email})
+        
+//     } catch (error) {
+//         console.log("Error from rendering otp page: ",err);  
+//         res.status(500).json({message:"server error"})
+//     }
+// }
+
+
+const verify_otp_and_update_password = async(req,res)=>{
+    const {email, password,otp} = req.body
+    console.log("body ....: " , req.body)
+    try {
+        const isExistUser = await User.findOne({email})
+        
+        if(!isExistUser){
+            return res.status(400).json({success: false, message:"No user found on this Email!, try with another Email"})
+        } 
+
+        const OtpEmail = await Otp.findOne({email})
+        console.log("Otp email ....: " , OtpEmail)
+
+        if(!OtpEmail){
+            return res.status(400).json({success: false, message:"User not found"})
+        }
+        const otpMatch = await bcrypt.compare(otp,OtpEmail.otp)
+        console.log("Otp mathch ....: " , otpMatch)
+
+
+        if(!otpMatch){
+            // return res.render('user/signup',{message:"invalid otp "})
+            return res.status(400).json({message:" invalid otp "}) 
+        }
+        if(OtpEmail.otpExpiresAt < Date.now()){
+            return res.status(400).json({message:"Otp expired"})
+        }
+        const hashedPassword = await bcrypt.hash(password,10)
+        console.log("Password and its hashed password.",password,hashedPassword)
+        
+        isExistUser.password = hashedPassword
+        await isExistUser.save()
+
+        return res.status(200).json({success: true, message:"Password changed successfully."})
+
+        
+    } catch (error) {
+        console.log("Error from rendering otp page: ",err);  
+        res.status(500).json({message:"server error"})
+    }
+}
+
+
+const resend_otp_of_forgot = async(req,res)=>{
+    const {email} = req.body
+    try{
+        const isExistUser = await User.findOne({email})
+        
+        if(!isExistUser){
+            return res.status(400).json({success: false, message:"No user found on this Email!, try with another Email"})
+        }      
+        createOtp(email);
+        return res.status(200).json({message:"Resend Otp send successfully."})
+
+
+    }catch(err){
+        console.log('Error:',err);
+        res.status(500).json({message:"server error"})
+
+    }
+
+}
+
+
+
 
 
 
@@ -246,5 +349,8 @@ module.exports = {
     logout,
     // get_otp_page,
     resend_otp,
-    forgot_password,
+    forgot_password_email_type_page,
+    forgot_password_email_verify_otp_generation,
+    verify_otp_and_update_password,
+    resend_otp_of_forgot
 }

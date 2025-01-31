@@ -537,7 +537,7 @@
                                                     <div>
                                                         <p class="mb-2" style="font-size: 14px;"><%= new Date(review.createdAt).toLocaleDateString() %></p>
                                                         <div class="d-flex justify-content-between">
-                                                            <h5><%= review.user || 'Anonymous' %></h5>
+                                                            <h5><%= review.user.firstName  || 'Anonymous' %> <%= review.user.lastName || '' %></h5>
                                                             <div class="d-flex mb-3">
                                                                 <% for (let i = 1; i <= 5; i++) { %>
                                                                     <i class="fa fa-star <%= i <= review.star ? 'text-secondary' : '' %>"></i>
@@ -603,47 +603,113 @@
 
                             <!-- Include SweetAlert for notifications -->
 
-<form id="reviewForm" action="submit-review" method="POST">
-    <h4 class="mb-5 fw-bold">Leave a Review</h4>
-    <div class="row g-4">
-        <!-- Hidden field for Product ID -->
-        <input type="hidden" name="productId" value="<%= product._id %>" />
-        <input type="hidden" name="userId" value="<%= session.userId %>" />
+                            <form id="reviewForm">
+                                <h4 class="mb-5 fw-bold">Leave a Review</h4>
+                                <div class="row g-4">
+                                    <!-- Hidden field for Product ID -->
+                                    <input type="hidden" name="productId" value="<%= product._id %>" />
+                                    <input type="hidden" name="userId" value="<%= session.userId %>" />
+                            
+                                    <!-- Review Text -->
+                                    <div class="col-lg-12">
+                                        <div class="border-bottom rounded my-4">
+                                            <textarea name="review" id="reviewText" class="form-control border-0" cols="30" rows="8" 
+                                                      placeholder="Your Review *" spellcheck="false" required></textarea>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Star Rating -->
+                                    <div class="col-lg-12">
+                                        <div class="d-flex justify-content-between py-3">
+                                            <div class="d-flex align-items-center">
+                                                <p class="mb-0 me-3">Please rate:</p>
+                                                <div class="d-flex align-items-center" id="starContainer" style="font-size: 24px;">
+                                                    <!-- Hollow stars initially -->
+                                                    <i class="fa fa-star text-muted star" data-value="1"></i>
+                                                    <i class="fa fa-star text-muted star" data-value="2"></i>
+                                                    <i class="fa fa-star text-muted star" data-value="3"></i>
+                                                    <i class="fa fa-star text-muted star" data-value="4"></i>
+                                                    <i class="fa fa-star text-muted star" data-value="5"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Hidden Input for Star Rating -->
+                                    <input type="hidden" id="ratingInput" name="rating" required value="0">
+                            
+                                    <!-- Submit Button -->
+                                    <div class="col-lg-12 text-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-3">Post Comment</button>
+                                    </div>
+                                </div>
+                            </form>
 
-        <!-- Review Text -->
-        <div class="col-lg-12">
-            <div class="border-bottom rounded my-4">
-                <textarea name="review" id="reviewText" class="form-control border-0" cols="30" rows="8" 
-                          placeholder="Your Review *" spellcheck="false" required></textarea>
-            </div>
-        </div>
 
-        <!-- Star Rating -->
-        <div class="col-lg-12">
-            <div class="d-flex justify-content-between py-3">
-                <div class="d-flex align-items-center">
-                    <p class="mb-0 me-3">Please rate:</p>
-                    <div class="d-flex align-items-center" id="starContainer" style="font-size: 24px;">
-                        <!-- Hollow stars initially -->
-                        <i class="fa fa-star text-muted star" data-value="1"></i>
-                        <i class="fa fa-star text-muted star" data-value="2"></i>
-                        <i class="fa fa-star text-muted star" data-value="3"></i>
-                        <i class="fa fa-star text-muted star" data-value="4"></i>
-                        <i class="fa fa-star text-muted star" data-value="5"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Hidden Input for Star Rating -->
-        <input type="hidden" id="ratingInput" name="rating" required value="0">
+                            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('reviewForm');
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
 
-        <!-- Submit Button -->
-        <div class="col-lg-12 text-end">
-            <button type="submit" class="btn btn-primary rounded-pill px-4 py-3">Post Comment</button>
-        </div>
-    </div>
-</form>
+        // Handle star rating selection
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                ratingInput.value = value;
+
+                // Update star appearance
+                stars.forEach((s, index) => {
+                    if (index < value) {
+                        s.classList.remove('text-muted');
+                        s.classList.add('text-warning');
+                    } else {
+                        s.classList.remove('text-warning');
+                        s.classList.add('text-muted');
+                    }
+                });
+            });
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            axios.post('/submit-review', data)
+                .then(response => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Your review has been submitted successfully.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Optionally, reset the form
+                        form.reset();
+                        stars.forEach(star => {
+                            star.classList.remove('text-warning');
+                            star.classList.add('text-muted');
+                        });
+                        ratingInput.value = 0;
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
 
                         </div>
                     </div>

@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 
 // =============================================//get home====================================
 const get_home = async (req,res)=>{
-    const products = await Product.find({isListed:true}).populate('category')
+    const products = await Product.find({isListed:true}).sort({popularity: -1}).populate('category')
     try{        
         res.render('user/home',{products,session:req.session})
     }
@@ -189,39 +189,31 @@ const get_category_vised_products = async (req, res) => {
 // -----------------------------------------------//get single product detailed view----------------------------------------------------------------------
 
 
-const get_product_detailed = async(req,res)=>{
-    try{
-        console.log('first page!')
-        const productId = req.params.id;  
-        const [
-            product,
-            products,
-            reviews,
-            categoiesWithCount
-        ] = await Promise.all([
+const get_product_detailed = async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ success: false, message: "Invalid Product ID" });
+        }
+
+        const [product, products, reviews, categoriesWithCount] = await Promise.all([
             Product.findById(productId).populate('category'),
-            Product.find({isListed:true}).populate('category'),
-            Review.find({ product: productId }).sort({ createdAt: -1 }),
+            Product.find({ isListed: true }).limit(20).populate('category'),  
+            Review.find({ product: productId }).sort({ createdAt: -1 }).populate("user"),
             Product.aggregate([
-                {
-                    $match: { isListed: true },  // Filter out products that are listed
-                },
-                {
-                    $group: {
-                        _id: "$category", // Group by category ID
-                        productCount: { $sum: 1 } // Count products in each category
-                    }
-                },
+                { $match: { isListed: true } },
+                { $group: { _id: "$category", productCount: { $sum: 1 } } },
                 {
                     $lookup: {
-                        from: "categories", // collection name
+                        from: "categories",  
                         localField: "_id",
                         foreignField: "_id",
                         as: "categoryDetails"
                     }
                 },
                 {
-                    $unwind: "$categoryDetails" // Flatten the categoryDetails into array
+                    $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true }
                 },
                 {
                     $project: {
@@ -231,26 +223,28 @@ const get_product_detailed = async(req,res)=>{
                 }
             ])
         ]);
-        
-        
 
-        
         if (!product) {
-            return res.status(404).json('Product not found');
+            return res.status(404).json({ success: false, message: "Product not found" });
         }
-        
-        product.popularity = product.popularity + 1;
-        product.save();
 
-        // res.status(200).json({message : 'Data sended succefullyy.....!'})
-        res.render('user/product_Detailed_view',{product,products,categories:categoiesWithCount,reviews,session:req.session})
+        product.popularity += 1;
+        await product.save();
+
+        res.render('user/product_Detailed_view', {
+            product,
+            products,
+            categories: categoriesWithCount,
+            reviews,
+            session: req.session
+        });
+
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ success: false, message: "Server error" });
     }
-    catch(err){
-        console.log('Error: ',err);
-        res.status(500).json({ success: false, message:"server error"})
-        
-    }
-}
+};
+
 
 const demo = async (req,res)=>{
     const id = "6763b04045afc7f6ae83709b"
@@ -264,13 +258,13 @@ const demo = async (req,res)=>{
         const categoiesWithCount = await Product.aggregate([
             {
                 $group: {
-                    _id: "$category", // Group by category ID
-                    productCount: { $sum: 1 } // Count products in each category
+                    _id: "$category",  
+                    productCount: { $sum: 1 }  
                 }
             },
             {
                 $lookup: {
-                    from: "categories", //collection name
+                    from: "categories", 
                     localField: "_id",
                     foreignField: "_id",
                     as: "categoryDetails"
