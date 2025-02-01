@@ -259,8 +259,9 @@ const add_Product = async (req, res) => {
     });
 
     await newProduct.save();
+    return res.status(201).json({ success: true, message: 'New Product added successfully.'});
 
-    res.redirect('view-products'); 
+    // res.redirect('view-products'); 
     } catch (err) {
     res.status(500).json({ message: 'Error adding product', error: err.message });
   }

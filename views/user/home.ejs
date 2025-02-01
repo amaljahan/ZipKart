@@ -172,7 +172,7 @@
                             <% if (session.user) { %>
                             <a href="/zipkart/user/<%= session.userId %>/cart" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                                <!-- <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span> -->
                             </a>
 
                             <a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>" class="my-auto">
@@ -644,12 +644,17 @@
                             <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;"><%= product.category.name %></div>
                             <div class="p-4 pb-0 rounded-bottom">
                                 <h4><%= product.name %></h4>
-                                <p><%= product.description %></p>
+                                <p><%= product.description.length > 30 ? product.description.slice(0, 30) + "..." : product.description %></p>
                                 <% if (product.stock === 0) { %>
                                     <p style="color: red;">Out of Stock</p>
                                 <% } else if (product.stock < 50) { %>
                                     <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
-                                <% } %>
+                                    <% }else{ %>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                    <% } %>
                                 <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
 
                                 <div class="d-flex justify-content-between flex-lg-wrap">

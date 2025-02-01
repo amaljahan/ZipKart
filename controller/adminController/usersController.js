@@ -26,7 +26,8 @@ const view_users = async(req,res)=>{
             totalPages,
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1,
-            limit
+            limit,
+            skip,
         });
     }
     catch(err){

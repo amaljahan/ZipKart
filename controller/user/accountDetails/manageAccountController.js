@@ -41,7 +41,9 @@ const edit_user_details = async (req,res)=>{
           if(!user){
                return res.status(404).json({ error: "User not found" });
           }
-          req.session.user = user.first
+          console.log(user.firstName);
+          
+          req.session.user = user.firstName
           res.status(200).json({ success:"success", message: "User updated successfully" });
 
      try{

@@ -119,8 +119,8 @@
                                         </td>
                                         <td><%= product.productId.name %></td>    
                                         <td><%= product.quantity %></td>
-                                        <td>₹<%= product.price.toFixed(2) %></td>
-                                        <td>₹<%= (product.quantity * product.price).toFixed(2) %></td>
+                                        <td>₹<%= product.price.toFixed(2)/product.quantity %></td>
+                                        <td>₹<%=   product.price.toFixed(2) %></td>
                                         <td><%= product.status %></td>
                                     </tr>
                                     <% }) %>

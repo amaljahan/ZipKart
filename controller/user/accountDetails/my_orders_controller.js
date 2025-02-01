@@ -76,7 +76,7 @@ const cancelOrder = async (req,res)=>{
             return item.status != "Cancelled";
         })
 
-        if(StatusCancelledNot.length>1){
+        if(StatusCancelledNot.length>=1){
             order.status = order.status;
         }else{
             order.status = 'Cancelled';

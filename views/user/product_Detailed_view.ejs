@@ -135,7 +135,7 @@
                             <% if (session.user) { %>
                             <a href="/zipkart/user/<%= session.userId %>/cart" class="position-relative me-4 my-auto">
                                 <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                                <!-- <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span> -->
                             </a>
 
                                 <a href="/zipkart/user/user-profile/accountDetails/<%= session.userId %>" class="my-auto">
@@ -301,12 +301,8 @@
                                     <p style="color: red;">Out of Stock</p>
                                 <% } else if (product.stock < 50) { %>
                                     <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
-                                    <% }else{ %>
-                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        </p>
-                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        </p>
-                                    <% } %>
+                                <% } %>
+                                       
                                 
                                 </p>
                                 <!-- Star Rating (Assuming you have a rating field in your Product model) -->
@@ -316,7 +312,6 @@
                                     <% } %>
                                 </div>
                             
-                                <p><%= product.description.length > 30 ? product.description.slice(0, 30) + "..." : product.description %></p>
                             
                                 <div class="input-group quantity mb-5" style="width: 100px;" data-product-id="<%= product._id %>">
                                     <div class="input-group-btn">
@@ -487,7 +482,7 @@
                                                     <div>
                                                         <p class="mb-2" style="font-size: 14px;"><%= new Date(review.createdAt).toLocaleDateString() %></p>
                                                         <div class="d-flex justify-content-between">
-                                                            <h5><%= review.user.firstName  || 'Anonymous' %> <%= review.user.lastName || '' %></h5>
+                                                            <h5><%= review.user?.firstName  || 'Anonymous' %> <%= review.user?.lastName || '' %></h5>
                                                             <div class="d-flex mb-3">
                                                                 <% for (let i = 1; i <= 5; i++) { %>
                                                                     <i class="fa fa-star <%= i <= review.star ? 'text-secondary' : '' %>"></i>
@@ -732,13 +727,18 @@
                             <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;"><%= product.category.name %></div>
                             <div class="p-4 pb-0 rounded-bottom">
                                 <h4><%= product.name %></h4>
-                                <p><%= product.description %></p>
+                                <p><%= product.description.length > 30 ? product.description.slice(0, 30) + "..." : product.description %></p>
 
                                 <% if (product.stock === 0) { %>
                                     <p style="color: red;">Out of Stock</p>
                                 <% } else if (product.stock < 50) { %>
                                     <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
-                                <% } %>
+                                    <% }else{ %>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                    <% } %>
                                 <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
                                 
                                 <div class="d-flex justify-content-between flex-lg-wrap">
@@ -1052,7 +1052,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
     });
 </script>
 
-    <script src="/css/error500.js"></script>
+    <!-- <script src="/css/error500.js"></script> -->
+
+    <script>
+            $('.quantity button').on('click', function () {
+        var button = $(this);
+        var oldValue = button.parent().parent().find('input').val();
+        if (button.hasClass('btn-plus')) {
+            var newVal = parseFloat(oldValue) + 1;
+        } else {
+            if (oldValue > 0) {
+                var newVal = parseFloat(oldValue) - 1;
+            } else {
+                newVal = 0;
+            }
+        }
+        button.parent().parent().find('input').val(newVal);
+    });c
+    </script>
 
 </body>
 

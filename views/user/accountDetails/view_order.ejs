@@ -265,9 +265,9 @@
                             <img height="50" width="50" src="<%= product.productId.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
                         </td>
                         <td><%= product.productId.name %></td>
-                        <td>₹<%= product.price %></td>
+                        <td>₹<%= product.price / product.quantity %></td>
                         <td><%= product.quantity %></td>
-                        <td>₹<%= product.price * product.quantity %></td>
+                        <td>₹<%= product.price %></td>
                         <td>
                             <% if (product.status === "Cancelled" || order.status === "Cancelled") { %>
                                 <button type="button" class="btn btn-cancel btn-disabled" disabled>Cancelled</button>
