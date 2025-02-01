@@ -359,11 +359,16 @@
                                                     </div>
                                                     <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                                         <h4><%= product.name %></h4>
-                                                        <p><%= product.description %></p>
+                                                        <p><%= product.description.length > 30 ? product.description.slice(0, 30) + "..." : product.description %></p>
                                                         <% if (product.stock === 0) { %>
                                                             <p style="color: red;">Out of Stock</p>
                                                         <% } else if (product.stock < 50) { %>
                                                             <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
+                                                        <% }else{ %>
+                                                            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            </p>
+                                                            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            </p>
                                                         <% } %>
                                                         
                                                         <div class="d-flex justify-content-between flex-lg-wrap">

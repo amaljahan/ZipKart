@@ -69,6 +69,7 @@ const updateCart = async (req, res) => {
         
         if (productIndex > -1) {
             const newQuantity = cart.products[productIndex].quantity + count;
+console.log("new Quantity : ", newQuantity);
 
             if (newQuantity <= 0) {
                 cart.products.splice(productIndex, 1);
@@ -84,12 +85,9 @@ const updateCart = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Cannot decrease quantity of non-existent product" });
             }
         }
-
-
-
-        console.log( "product stock : ",product.stock, " cart product quantity : ",cart.products[productIndex].quantity);
         
-        if (productIndex >= 0 && product.stock < cart.products[productIndex].quantity) {
+        
+        if (productIndex >= 0 && product.stock < cart.products[productIndex]?.quantity) {
             return res.status(400).json({ success: false, message: "Out of stock" });
         }
         

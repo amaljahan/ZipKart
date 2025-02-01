@@ -9,7 +9,7 @@
         <meta content="" name="description">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
-        <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <!-- Google Web Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -259,88 +259,7 @@
                             
                         
                
-
-<!-- <script>document.addEventListener("DOMContentLoaded", () => {
-    const zoomableImage = document.querySelector(".zoomable-image");
-    const container = zoomableImage.parentElement;
-    let scale = 1; // Initial scale
-    let isDragging = false;
-    let startX = 0, startY = 0; // Starting mouse position for dragging
-    let translateX = 0, translateY = 0; // Image translation offsets
-    let currentX = 0, currentY = 0; // Track the drag movement
-
-    // Zoom functionality with wheel
-    zoomableImage.addEventListener("wheel", (event) => {
-        event.preventDefault();
-
-        const rect = container.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-
-        // Determine zoom direction and update scale
-        const zoomDirection = event.deltaY > 0 ? -0.1 : 0.1;
-        const newScale = Math.min(Math.max(1, scale + zoomDirection), 3); // Restrict scale between 1x and 3x
-
-        // Adjust translate values to zoom into the cursor position
-        translateX -= (mouseX - translateX) * (newScale - scale) / scale;
-        translateY -= (mouseY - translateY) * (newScale - scale) / scale;
-
-        scale = newScale;
-        updateTransform();
-    });
-
-    // Drag functionality
-    zoomableImage.addEventListener("mousedown", (event) => {
-        isDragging = true;
-        startX = event.clientX;
-        startY = event.clientY;
-        currentX = translateX;
-        currentY = translateY;
-        container.style.cursor = "grabbing";
-    });
-
-    document.addEventListener("mousemove", (event) => {
-        if (!isDragging) return;
-
-        const dx = event.clientX - startX;
-        const dy = event.clientY - startY;
-
-        translateX = currentX + dx;
-        translateY = currentY + dy;
-
-        updateTransform();
-    });
-
-    document.addEventListener("mouseup", () => {
-        isDragging = false;
-        container.style.cursor = "grab";
-    });
-
-    // Update image transform with zoom and drag
-    function updateTransform() {
-        const rect = container.getBoundingClientRect();
-
-        // Calculate boundaries to prevent overflow
-        const maxOffsetX = Math.max(0, (scale - 1) * rect.width / scale);
-        const maxOffsetY = Math.max(0, (scale - 1) * rect.height / scale);
-
-        translateX = Math.max(-maxOffsetX, Math.min(maxOffsetX, translateX));
-        translateY = Math.max(-maxOffsetY, Math.min(maxOffsetY, translateY));
-
-        // Apply transform for zoom and position
-        zoomableImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-    }
-
-    // Reset zoom and position on double click
-    zoomableImage.addEventListener("dblclick", () => {
-        scale = 1;
-        translateX = 0;
-        translateY = 0;
-        updateTransform();
-    });
-});
-</script> -->
-                            
+            
 <script>
             // JavaScript for image zoom
             document.querySelectorAll('.zoom-trigger').forEach(function (img) {
@@ -382,7 +301,12 @@
                                     <p style="color: red;">Out of Stock</p>
                                 <% } else if (product.stock < 50) { %>
                                     <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
-                                <% } %>
+                                    <% }else{ %>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </p>
+                                    <% } %>
                                 
                                 </p>
                                 <!-- Star Rating (Assuming you have a rating field in your Product model) -->
@@ -392,7 +316,7 @@
                                     <% } %>
                                 </div>
                             
-                                <p class="mb-4"><%= product.description %></p> <!-- Product Description -->
+                                <p><%= product.description.length > 30 ? product.description.slice(0, 30) + "..." : product.description %></p>
                             
                                 <div class="input-group quantity mb-5" style="width: 100px;" data-product-id="<%= product._id %>">
                                     <div class="input-group-btn">
@@ -425,41 +349,67 @@
                                             const productId = quantityContainer.getAttribute("data-product-id");
                                 
                                             console.log(quantityInput.value);
-                                            
-
-                                            
                                 
                                             // Handle Add to Cart
                                             const addToCartBtn = document.querySelector(".add-to-cart-btn");
                                             addToCartBtn.addEventListener("click", async () => {
                                                 const userId = addToCartBtn.getAttribute("data-user-id");
                                                 const count = parseInt(quantityInput.value, 10) || 1;
-                                               
-                                               if(!userId){
-                                                return alert("You must be logged in to perform this action.");
-
-                                               }
+                                
+                                                if (!userId) {
+                                                    return Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: 'You must be logged in to perform this action.',
+                                                    });
+                                                }
+                                
                                                 console.log(quantityInput.value);
-
-                                               
+                                
                                                 try {
                                                     const response = await axios.patch(`/zipkart/user/${userId}/cart/update-cart?productId=${productId}&count=${count}`);
+                                                    
                                                     if (response.status === 200) {
-                                                       await alert("Cart updated successfully!")
-                                                         window.location.reload()
-                                                        
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: 'Success',
+                                                            text: 'Cart updated successfully!',
+                                                        }).then(() => {
+                                                            window.location.reload();
+                                                        });
                                                     } else {
-                                                        throw new Error("Failed to update cart.");
+                                                        // Handle case where the server returns a non-200 status
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Error',
+                                                            text: response.data.message || "Failed to update cart.",
+                                                        });
                                                     }
                                                 } catch (error) {
                                                     console.error("Error updating cart:", error);
-                                                    alert("Something went wrong. Please try again.");
+                                                    
+                                                    // Check if error is from the response (e.g., backend validation errors)
+                                                    if (error.response && error.response.data && error.response.data.message) {
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Error',
+                                                            text: error.response.data.message, // Display backend error message
+                                                        });
+                                                    } else {
+                                                        // Generic error if no specific message is returned from the backend
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Something went wrong',
+                                                            text: error.message || 'Please try again.',
+                                                        });
+                                                    }
                                                 }
+
                                             });
                                         });
                                     });
                                 </script>
-
+                                
 
 
 
@@ -647,8 +597,6 @@
 
 
 
-                            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('reviewForm');
@@ -997,105 +945,113 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     </script>
 <!-- ================================================================================================   -->
- <script>
+<script>
     document.addEventListener('DOMContentLoaded', function () {
-    const stars = document.querySelectorAll('#starContainer .star');
-    const ratingInput = document.getElementById('ratingInput');
-    const reviewForm = document.getElementById('reviewForm');
-    const reviewText = document.getElementById('reviewText');
+        const stars = document.querySelectorAll('#starContainer .star');
+        const ratingInput = document.getElementById('ratingInput');
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewText = document.getElementById('reviewText');
 
-    stars.forEach((star, index) => {
-        star.addEventListener('mouseenter', () => {
-            fillStars(index + 1);
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseenter', () => {
+                fillStars(index + 1);
+            });
+
+            star.addEventListener('mouseleave', () => {
+                resetStars();
+            });
+
+            star.addEventListener('click', () => {
+                ratingInput.value = index + 1; // Set the rating value in hidden input
+            });
         });
 
-        star.addEventListener('mouseleave', () => {
-            resetStars();
-        });
+        // Function to fill stars up to the hovered or clicked star
+        function fillStars(count) {
+            stars.forEach((star, idx) => {
+                if (idx < count) {
+                    star.classList.add('text-primary');
+                    star.classList.remove('text-muted');
+                } else {
+                    star.classList.add('text-muted');
+                    star.classList.remove('text-primary');
+                }
+            });
+        }
 
-        star.addEventListener('click', () => {
-            ratingInput.value = index + 1; // Set the rating value in hidden input
-        });
-    });
+        // Function to reset stars based on the saved rating
+        function resetStars() {
+            const rating = parseInt(ratingInput.value) || 0;
+            fillStars(rating);
+        }
 
-    // Function to fill stars up to the hovered or clicked star
-    function fillStars(count) {
-        stars.forEach((star, idx) => {
-            if (idx < count) {
-                star.classList.add('text-primary');
-                star.classList.remove('text-muted');
-            } else {
-                star.classList.add('text-muted');
-                star.classList.remove('text-primary');
+        // Initialize the stars display based on current rating
+        resetStars();
+
+        // Form submission validation
+        reviewForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default submission
+
+            const rating = parseInt(ratingInput.value);
+            const review = reviewText.value.trim();
+
+            if (!rating) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please select a star rating.',
+                });
             }
+
+            if (!review) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please write a review.',
+                });
+            }
+
+            // Submit the form via fetch
+            fetch(reviewForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: reviewForm.querySelector('input[name="productId"]').value,
+                    review,
+                    rating,
+                }),
+            })
+            .then((response) => {
+                console.log(response); // Log response to check if it's valid JSON
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Your review has been submitted.',
+                    }).then(() => {
+                        reviewForm.reset();
+                        resetStars(); // Reset stars
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to submit the review.');
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Something went wrong',
+                    text: error.message || 'Please try again later.',
+                });
+            });
         });
-    }
-
-    // Function to reset stars based on the saved rating
-    function resetStars() {
-        const rating = parseInt(ratingInput.value) || 0;
-        fillStars(rating);
-    }
-
-    // Initialize the stars display based on current rating
-    resetStars();
-     // Form submission validation
-     reviewForm.addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent default submission
-
-        const rating = parseInt(ratingInput.value);
-        const review = reviewText.value.trim();
-
-        if (!rating) {
-            alert('Please select a star rating.')
-          
-            return;
-        }
-
-        if (!review) {
-            alert('Please write a review.')
-            
-            return;
-        }
-
-
-        // Submit the form via fetch
-        fetch(reviewForm.action, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        productId: reviewForm.querySelector('input[name="productId"]').value,
-        review,
-        rating,
-    }),
-    })
-    .then((response) => {
-        console.log(response); // Log response to check if it's valid JSON
-        return response.json();
-    })
-    .then((data) => {
-        if (data.success) {
-            alert("Your review has been submitted.")
-            
-            
-            reviewForm.reset();
-            resetStars(); // Reset stars
-        } else {
-            throw new Error(data.message || 'Failed to submit the review.');
-        }
-    })
-    .catch((error) => {
-        alert( error.message || 'Something went wrong. Please try again later.')
-       
     });
+</script>
 
-    });
-});
-
-
- </script>
     <script src="/css/error500.js"></script>
 
 </body>
