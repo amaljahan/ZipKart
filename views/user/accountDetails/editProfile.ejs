@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
+<%- include('../partials/header') %>
+
     <link rel="stylesheet" href="asd copy.css">
     <link rel="stylesheet" href="/public/css/user/address.css">
     <link rel="stylesheet" href="/css/user/address.css">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <header>
@@ -135,5 +124,33 @@
             }
         });
     </script>
+      <style>
+
+        .bg-primary {
+            background-color: #2874f0 !important
+        }
+
+        .bg-secondary {
+            background-color: #2874f0!important
+        }
+        .text-primary {
+            color: #71a5fb !important;
+        }
+
+        .text-secondary {
+            color: #0cc20a !important
+        }
+
+        .navbar .navbar-nav .nav-link:hover,
+        .navbar .navbar-nav .nav-link.active,
+        .fixed-top.bg-white .navbar .navbar-nav .nav-link:hover,
+        .fixed-top.bg-white .navbar .navbar-nav .nav-link.active {
+            color: #000000;
+        }
+
+
+    </style>
+    <%- include('../partials/footerLinks') %>
+
 </body>
 </html>

@@ -181,50 +181,129 @@
                     <div class="col-lg-12">
                         <div class="row g-4">
 
-                            <form action="products-categorised-view" method="get">
-                                <div class="row">
-                                    <!-- Search Input -->
-                                    <div class="col-xl-6">
-                                        <div class="input-group w-100 mx-auto">
-                                            <input 
-                                                type="search" 
-                                                id="search" 
-                                                name="search" 
-                                                class="form-control p-3" 
-                                                placeholder="keywords" 
-                                                aria-describedby="search-icon-1"
-                                                value="<%= searchQuery || '' %>">
-                                            <span id="search-icon-1" class="input-group-text p-3">
-                                                <i class="fa fa-search"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                            
-                                    <!-- Sort Dropdown -->
-                                    <div class="col-xl-6">
-                                        <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
-                                            <label for="sortBy">Sort By:</label>
-                                            <select id="sortBy" name="sort" class="border-0 form-select-sm bg-light me-3">
-                                                <option value="nothing" <%= sort === 'nothing' ? 'selected' : '' %>>Nothing</option>
-                                                <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option>
-                                                <option value="price" <%= sort === '-price' ? 'selected' : '' %>>Price: low to high</option>
-                                                <option value="-price" <%= sort === 'price' ? 'selected' : '' %>>Price: high to low</option>
-                                                <option value="average-ratings" <%= sort === 'average-ratings' ? 'selected' : '' %>>Average Ratings</option>
-                                                <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option>
-                                                <option value="new-arrivals" <%= sort === 'new-arrivals' ? 'selected' : '' %>>New-Arrivals</option>
-                                                <option value="aA-zZ" <%= sort === 'aA-zZ' ? 'selected' : '' %>>aA - zZ</option>
-                                                <option value="zZ-aA" <%= sort === 'zZ-aA' ? 'selected' : '' %>>zZ - aA</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                            
-                                    <input type="text" name="category" hidden value="<%= ctgry._id%>">
-                                    <!-- Submit Button -->
-                                    <div class="col-xl-12 text-center">
-                                        <button id="submitBut" type="submit" class="btn btn-primary">Apply Search & Sort</button>
+                            <div class="row">
+                                <!-- Search Input -->
+                                <div class="col-xl-6">
+                                    <div class="input-group w-100 mx-auto">
+                                        <input 
+                                            type="search" 
+                                            id="search" 
+                                            name="search" 
+                                            class="form-control p-3" 
+                                            placeholder="keywords" 
+                                            aria-describedby="search-icon-1"
+                                            value="<%= searchQuery || '' %>">
+                                        <span id="search-icon-1" class="input-group-text p-3">
+                                            <i class="fa fa-search"></i>
+                                        </span>
                                     </div>
                                 </div>
-                            </form>
+                            
+                                <!-- Sort Dropdown -->
+                                <div class="col-xl-6">
+                                    <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
+                                        <label for="sortBy">Sort By:</label>
+                                        <select id="sortBy" name="sort" class="border-0 form-select-sm bg-light me-3">
+                                            <option value="nothing" <%= sort === 'nothing' ? 'selected' : '' %>>Nothing</option>
+                                            <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Popularity</option>
+                                            <option value="price" <%= sort === '-price' ? 'selected' : '' %>>Price: low to high</option>
+                                            <option value="-price" <%= sort === 'price' ? 'selected' : '' %>>Price: high to low</option>
+                                            <option value="average-ratings" <%= sort === 'average-ratings' ? 'selected' : '' %>>Average Ratings</option>
+                                            <option value="featured" <%= sort === 'featured' ? 'selected' : '' %>>Featured</option>
+                                            <option value="new-arrivals" <%= sort === 'new-arrivals' ? 'selected' : '' %>>New-Arrivals</option>
+                                            <option value="aA-zZ" <%= sort === 'aA-zZ' ? 'selected' : '' %>>aA - zZ</option>
+                                            <option value="zZ-aA" <%= sort === 'zZ-aA' ? 'selected' : '' %>>zZ - aA</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <input type="text" name="category" hidden value="<%= ctgry._id%>">
+                            </div>
+
+
+<script>
+    // Debounce function to limit how often a function can be called
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Function to update URL with search params and trigger page refresh
+function updateURLWithParams(searchQuery, sortValue, categoryId) {
+    const url = new URL(window.location.href);
+    
+    // Update or add search parameters
+    if (searchQuery) {
+        url.searchParams.set('search', searchQuery);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (sortValue && sortValue !== 'nothing') {
+        url.searchParams.set('sort', sortValue);
+    } else {
+        url.searchParams.delete('sort');
+    }
+    
+    if (categoryId) {
+        url.searchParams.set('category', categoryId);
+    }
+    
+    // Update URL without reloading the page
+    window.history.pushState({}, '', url);
+    
+    // Fetch new results
+    window.location.href = url.toString();
+}
+
+// Get category ID from the hidden input
+const categoryId = document.querySelector('input[name="category"]').value;
+
+// Handle search with debouncing
+const handleSearch = debounce((event) => {
+    const searchQuery = event.target.value;
+    const sortValue = document.getElementById('sortBy').value;
+    updateURLWithParams(searchQuery, sortValue, categoryId);
+}, 500); // 500ms delay
+
+// Handle sort
+const handleSort = (event) => {
+    const sortValue = event.target.value;
+    const searchQuery = document.getElementById('search').value;
+    updateURLWithParams(searchQuery, sortValue, categoryId);
+};
+
+// Add event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Remove the form submit button
+    const submitButton = document.getElementById('submitBut');
+    if (submitButton) {
+        submitButton.remove();
+    }
+    
+    // Add event listeners
+    const searchInput = document.getElementById('search');
+    const sortSelect = document.getElementById('sortBy');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', handleSort);
+    }
+});
+</script>
+
+
+
                             
 
                             <div class="col-6"></div>

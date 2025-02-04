@@ -149,7 +149,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between">
                         <a href="/zipkart/admin/orders/view-orders" class="btn btn-secondary">Back to Orders</a>
-                        <%if(order.status !== "Delivered"){%>
+                        <%if(order.status !== "Delivered" && order.status !== "Cancelled"){%>
                             <button id="cancelOrder" class="btn btn-danger">Cancel Entire Order</button>
                         <%}%>
                     </div>

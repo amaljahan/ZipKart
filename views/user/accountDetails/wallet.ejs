@@ -1,0 +1,325 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/accountDetails.css">
+<link href="/css/css/bootstrap.min.css" rel="stylesheet">
+<link href="/css/css/style.css" rel="stylesheet">
+
+<style>
+    .bg-primary { background-color: #2874f0 !important }
+    .bg-secondary { background-color: #2874f0 !important }
+    .text-primary { color: #71a5fb !important }
+    .text-secondary { color: #0cc20a !important }
+    
+    .wallet-container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+  
+
+
+    .wallet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #2874f0;
+        color: white;
+        border-radius: 10px;
+    }
+
+    .balance-card {
+        text-align: center;
+    }
+
+    .balance-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .add-money-btn {
+        background: #fff;
+        color: #2874f0;
+        padding: 10px 25px;
+        border-radius: 5px;
+        border: none;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .add-money-btn:hover {
+        background: #f1f1f1;
+        transform: translateY(-2px);
+    }
+
+    .transaction-list {
+        margin-top: 20px;
+    }
+
+    .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s;
+    }
+
+    .transaction-item:hover {
+        background: #f8f9fa;
+    }
+
+    .transaction-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .transaction-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .credit { background: #0cc20a; }
+    .debit { background: #dc3545; }
+
+    .transaction-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .transaction-amount {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .transaction-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    .container,
+.container-fluid,
+.container-xxl,
+.container-xl,
+.container-lg,
+.container-md,
+.container-sm {
+  margin-top: 0 !important;
+}
+
+
+</style>
+
+<body>
+    <header>
+        <a href="/zipkart/user/home" class="navbar-brand"><h1 class="text-primary display-6">ZipKart</h1></a>
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+        </div>
+    </header>
+
+    <main>
+        <div class="account-actions" style="margin-top: 65px;">
+            <ul class="acnt-actions">
+                <li><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
+                <li><a href="/zipkart/user/accountDetails/my-orders"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
+                <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
+                <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
+                <li class="active"><a href="/zipkart/user/accountDetails/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="/zipkart/user/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <div class="profile-section">
+            <div class="container-fluid page-header py-5">
+                <h1 class="text-center text-white display-6">My Wallet</h1>
+                <ol class="breadcrumb justify-content-center mb-0">
+                    <li class="breadcrumb-item"><a href="/zipkart/user/home">Home</a></li>
+                    <li class="breadcrumb-item active text-white">Wallet</li>
+                </ol>
+            </div>
+
+            <div class="wallet-container">
+                <div class="wallet-header">
+                    <div class="balance-card">
+                        <p>Available Balance</p>
+                        <div class="balance-amount">₹5,000.00</div>
+                    </div>
+                    <button class="add-money-btn" onclick="showAddMoneyModal()">
+                        <i class="fas fa-plus"></i> Add Money
+                    </button>
+                </div>
+
+                <div class="transaction-list">
+                    <h3 class="mb-4">Recent Transactions</h3>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon credit">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span>Added to Wallet</span>
+                                <span class="transaction-date">Feb 3, 2025</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount text-success">+₹2,000</div>
+                    </div>
+
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon debit">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span>Order Payment #ORD123456</span>
+                                <span class="transaction-date">Feb 1, 2025</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount text-danger">-₹1,500</div>
+                    </div>
+
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon credit">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <span>Refund - Order #ORD123400</span>
+                                <span class="transaction-date">Jan 28, 2025</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount text-success">+₹800</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        async function showAddMoneyModal() {
+            Swal.fire({
+                title: 'Add Money to Wallet',
+                html: `
+                    <input type="number" id="amount" class="swal2-input" placeholder="Enter amount">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Add Money',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const amount = document.getElementById('amount').value;
+                    if (!amount || amount <= 0) {
+                        Swal.showValidationMessage('Please enter a valid amount');
+                    }
+                    return amount;
+                }
+            }).then(async (result) => {
+
+                if (result.isConfirmed) {
+                    try {  
+                    const amount = result.value;
+                    
+                    const response = await axios.post('/wallet/add-money', {  //adding money as an order through razorpay
+                            amount: parseFloat(amount) * 100  // Converting to paise [1rs == 100paise]
+                        });
+                        const keyId= orderData.keyId
+                    if (!response.data.success) {
+                        return Swal.fire('Error',response.data.message || 'Failed to create order');
+
+                        // return alert(response.data.message || 'Failed to create order');
+                    }
+                    const options = {
+                    key: keyId, 
+                    amount: response.data.amount,
+                    currency: 'INR',
+                    name: 'Fruitable',
+                    description: 'Add Money to Wallet',
+                    order_id: response.data.orderId,
+                    handler: async function (paymentDetails) {
+                       
+                        const verifyResponse = await axios.post('/wallet/add-money/verify-payment', {
+                            orderId: response.data.orderId,
+                            paymentId: paymentDetails.razorpay_payment_id,
+                            signature: paymentDetails.razorpay_signature,
+                            // amount: response.data.amount // Send amount to update balance
+                        });
+
+                        if (verifyResponse.data.success) {
+                              Swal.fire({
+                                  title: 'Success!',
+                                  text: `₹${amount} has been added to your wallet!`,
+                                  icon: 'success',
+                                  showConfirmButton: false,   // Hide the OK button
+                                  timer: 3000,                // Auto-close after 3 seconds
+                                  timerProgressBar: true,
+                              }).then(() => {
+                                  location.reload(); // Reload to show updated balance
+                              });
+                          } else {
+                              Swal.fire({
+                                  title: 'Error',
+                                  text: 'Payment verification failed',
+                                  icon: 'error',
+                                  showConfirmButton: false,   // Hide the OK button
+                                  timer: 3000,                // Auto-close after 3 seconds
+                                  timerProgressBar: true,
+                              });
+                          }
+                    },
+                    pprefill: {
+                        name: '<%= user.name %>',  
+                        email: '<%= user.email %>',  
+                        contact: ''  
+                    },
+                    theme: {
+                        color: '#1c4bcc'
+                    }
+                };
+
+                const razorpay = new Razorpay(options);
+                razorpay.open();
+
+
+                    Swal.fire({
+                        title: 'Processing Payment',
+                        text: 'Please wait...',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+    
+                 
+                      
+    
+                        // Assuming the response indicates success
+                        Swal.fire(
+                            'Success!',
+                            'Money added to wallet successfully!',
+                            'success'
+                        );
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+                    }
+                }
+            });
+        }
+    </script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+    <%- include('../partials/footerLinks') %>
+</body>
+</html>

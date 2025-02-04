@@ -1,18 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Addresses</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="styles.css"> -->
-   <link rel="stylesheet" href="/css/accountDetails.css">
-   <link rel="stylesheet" href="/public/css/accountDetails.css">
-    <link href="/css/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<%- include('../partials/header') %>
+
     <link rel="stylesheet" href="/css/accountDetails.css">
+    <link rel="stylesheet" href="/public/css/accountDetails.css">
 
         <!-- Template Stylesheet -->
         <link href="/css/css/style.css" rel="stylesheet">
@@ -57,7 +46,7 @@
                 <li><a href="#"><i class="fas fa-key"></i> Change Password</a></li>
                 <li class="active"><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
                 <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
-                <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="/zipkart/user/accountDetails/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
                 <li><a href="/zipkart/user/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul> 
         </div>
@@ -192,8 +181,35 @@
         });
     });
 </script>
+<style>
 
+    .bg-primary {
+        background-color: #2874f0 !important
+    }
+
+    .bg-secondary {
+        background-color: #2874f0!important
+    }
+    .text-primary {
+        color: #71a5fb !important;
+    }
+
+    .text-secondary {
+        color: #0cc20a !important
+    }
+
+    .navbar .navbar-nav .nav-link:hover,
+    .navbar .navbar-nav .nav-link.active,
+    .fixed-top.bg-white .navbar .navbar-nav .nav-link:hover,
+    .fixed-top.bg-white .navbar .navbar-nav .nav-link.active {
+        color: #000000;
+    }
+
+
+</style>
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <%- include('../partials/footerLinks') %>
+
 </body>
 </html>

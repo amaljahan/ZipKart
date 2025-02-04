@@ -19,8 +19,7 @@ const get_home = async (req,res)=>{
 
 const get_category_vised_products = async (req, res) => {
     const { sort = 'createdAt', search = '', page = 1, limit = 10, category } = req.query;
-    console.log("category id:", category);
-
+  
     try {
         let filter = { isListed: true };    
         if (search) {

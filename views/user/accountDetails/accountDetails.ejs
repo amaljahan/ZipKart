@@ -1,17 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Details</title>
-    <link rel="stylesheet" href="./asd.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-zR2Th8I/Qisw7C9+yArm49Lq74N15ADl4Q1reQ7BlRaCsL0LW4ZcA+M+zO+hHP8+39BZ+yOOB0YMDP9tIXnG7/y6o4qKfK+s/0x41j0S/NuW0lQVBqZg==" crossorigin="anonymous"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<%- include('../partials/header') %>
     <link rel="stylesheet" href="/css/accountDetails.css">
     <link rel="stylesheet" href="../../../public/css/accountDetails.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Add SweetAlert2 Library -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
 
 
    
@@ -29,6 +19,32 @@
    
     
 }
+        </style>
+          <style>
+
+            .bg-primary {
+                background-color: #2874f0 !important
+            }
+
+            .bg-secondary {
+                background-color: #2874f0!important
+            }
+            .text-primary {
+                color: #71a5fb !important;
+            }
+
+            .text-secondary {
+                color: #0cc20a !important
+            }
+
+            .navbar .navbar-nav .nav-link:hover,
+            .navbar .navbar-nav .nav-link.active,
+            .fixed-top.bg-white .navbar .navbar-nav .nav-link:hover,
+            .fixed-top.bg-white .navbar .navbar-nav .nav-link.active {
+                color: #000000;
+            }
+
+
         </style>
 </head>
 <body>
@@ -52,7 +68,7 @@
                 <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
                 <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
                 <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
-                <li><a href="#"><i class="fas fa-wallet"></i> Wallet</a></li>
+                <li><a href="/zipkart/user/accountDetails/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
                 <li><a href="/zipkart/user/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </div>
@@ -137,6 +153,9 @@
         });
     });
 </script>
+
+
+<%- include('../partials/footerLinks') %>
 
 </body>
 </html>
