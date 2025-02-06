@@ -30,16 +30,21 @@ const orderSchema = mongoose.Schema({
       enum: [
         'Ordered', 
         'Cancelled',
-        'Return Requested',
-        'Return Rejected',
-        'Product Returned',
-        "Pending"
+        'Delivered',
       ], 
       default: 'Ordered' 
     },
-    cancelReason: { type: String },
-    returnReason: { type: String },
-    returnStatus: { type: String },
+    cancelReason: { type: String },// nilavil ith njn cheythittilla 
+    returnReason: { type: String },//ithum 2 um cheyyanam
+    returnStatus: { 
+      type: String ,
+      enum: [
+        'Return Requested',
+        'Return Rejected',
+        'Return Approved',
+        'Product Returned',
+      ],
+    },
   }],
   subtotal:{type:Number,required:true},
   deliveryCharge: { type: Number, required: true },
@@ -48,7 +53,7 @@ const orderSchema = mongoose.Schema({
   status: {
     type: String,
     enum: [
-      // 'Pending',
+      'Pending',
       'Order placed',
       // 'Confirmed',
       'Shipped',

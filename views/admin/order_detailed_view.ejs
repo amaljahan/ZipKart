@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 
 
 <style>
@@ -94,7 +95,7 @@
                                 <h5>Order Info</h5>
                                 <p><strong>Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
                                 <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
-                                <p><strong>Status :</strong> <%= order.paymentStatus %></p>
+                                <p><strong>Payment Status :</strong> <%= order.paymentStatus %></p>
                             </div>
                         </div>
                         <hr>
@@ -108,7 +109,7 @@
                                         <th>Qty</th>
                                         <th>Price</th>
                                         <th>Subtotal</th>
-                                        <th>Status</th>
+                                        <th>Product Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -120,13 +121,106 @@
                                         <td><%= product.productId.name %></td>    
                                         <td><%= product.quantity %></td>
                                         <td>₹<%= product.price.toFixed(2)/product.quantity %></td>
-                                        <td>₹<%=   product.price.toFixed(2) %></td>
-                                        <td><%= product.status %></td>
+                                        <td>₹<%= product.price.toFixed(2) %></td>
+                                        <td>
+                                            <% if (order.status === "Delivered") { %>
+                                                <% if (product.returnStatus === "Return Requested") { %>
+                                                    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="handleReturn(this,'Return Approved', '<%= product.productId._id %>')">Accept</button>
+                                                    <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="handleReturn(this,'Return Rejected', '<%= product.productId._id %>')">Reject</button>
+                                                <% } else { %>
+                                                    <% let statusColor = '';
+                                                       let textColor = 'text-white';
+                                                       
+                                                       if (product.returnStatus === 'Return Rejected') {
+                                                           statusColor = 'bg-red-500';
+                                                       } else if (product.returnStatus === 'Return Approved') {
+                                                           statusColor = 'bg-blue-500';
+                                                       } else if (product.returnStatus === 'Product Returned') {
+                                                           statusColor = 'bg-green-500';
+                                                       } %>
+                                                    
+                                                    <% if (product.returnStatus) { %>
+                                                        <div class="<%= statusColor %> <%= textColor %> py-2 px-4 rounded text-center">
+                                                            <%= product.returnStatus %>
+                                                        </div>
+                                                    <% } else { %>
+                                                        <div class="text-gray-700 py-2 px-4 rounded text-center">
+                                                            <%= product.status %>
+                                                        </div>
+                                                    <% } %>
+                                                <% } %>
+                                            <% } else { %>
+                                                <div class="text-gray-700 py-2 px-4 rounded text-center">
+                                                    <%= product.status %>
+                                                </div>
+                                            <% } %>
+                                        </td>
                                     </tr>
                                     <% }) %>
                                 </tbody>
                             </table>
                         </div>
+
+
+                        <script>
+                            function handleReturn(button, status, productId) {
+                                 
+                                Swal.fire({
+                                    title: 'Are you sure?',
+                                    text: `Do you really want to ${status === "Return Approved" ? "approve" : "reject"} this return request?`,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Yes, Do it!'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        axios.patch('/zipkart/admin/orders/view-order/<%= order._id %>/handle-return', { productId, status })
+                                        .then(async (response) => {
+                                                if (response.data.success) {
+                                                    const parentTd = button.parentElement;
+                                                    const statusDiv = document.createElement('div');
+                                                    const statusColor = status === 'Return Approved' ? 'bg-blue-500' : 'bg-red-500';
+                                                    statusDiv.className = `${statusColor} text-white py-2 px-4 rounded text-center`;
+                                                    statusDiv.textContent = status;
+                            
+                                                    // Remove all buttons
+                                                    while (parentTd.firstChild) {
+                                                        parentTd.removeChild(parentTd.firstChild);
+                                                    }
+                                                    parentTd.appendChild(statusDiv);
+                            
+                                                    await Swal.fire(
+                                                        'Success!',
+                                                        `Return request has been ${status.toLowerCase()}.`,
+                                                        'success'
+                                                    );
+                            
+                                                    // Reload the page to reflect changes
+                                                    window.location.reload();
+                                                } else {
+                                                    return Swal.fire({
+                                                        title: 'Error',
+                                                        text: response.data.message || "Something went wrong!",
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                Swal.fire({
+                                                        title: 'Error',
+                                                        text: response.data.message || "Something went wrong!",
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                console.error(error);
+                                            });
+                                    }
+                                });
+                            }
+                            </script>
+                            
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <h5>Summary</h5>

@@ -14,7 +14,7 @@ const   view_checkout_page = async(req,res)=>{
         // const addresses = await Addresses.find({userId})
         // const cart = await Carts.findOne({ userId }).populate('products.productId');
                 if (!cart) {
-                    return res.status(404).render('user/cart/cart', { message: "Unable to process, Cart not found", cart: null,session: req.session });
+                    return res.render('user/cart/cart', { message: "Unable to process, Cart not found", cart:cart || null,session: req.session });
                 }
         res.render("user/cart/checkout",{session:req.session, cart: cart || null, addresses})
     }

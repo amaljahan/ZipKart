@@ -275,11 +275,11 @@
                                 <label class="form-check-label" for="cashOnDelivery-1">Cash On Delivery</label>
                             </div>
                             <div class="form-check my-2">
-                                <input type="radio" class="form-check-input" id="wallet-1" name="paymentMethod" value="wallet-1">
+                                <input type="radio" class="form-check-input" id="wallet-1" name="paymentMethod" value="Wallet">
                                 <label class="form-check-label" for="wallet-1">Wallet</label>
                             </div>
                             <div class="form-check my-2">
-                                <input type="radio" class="form-check-input" id="razorpay-1" name="paymentMethod" value="razorpay">
+                                <input type="radio" class="form-check-input" id="razorpay-1" name="paymentMethod" value="Razorpay">
                                 <label class="form-check-label" for="razorpay-1">Razorpay</label>
                             </div>
                         </div>
@@ -319,116 +319,198 @@
             </div>
         </div>
         
+<script>
+    const selectedAddressIdInputs = document.querySelectorAll('input[name="selectedAddressId"]');
+const couponCode = document.getElementById('couponCode');
+const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+const userId = document.getElementById('userId');
+const submitBtn = document.getElementById('submit-btn');
+const subtotal = parseFloat('<%= subtotal.toFixed(2) %>');
 
-        <script>
-            // Get form elements
-            const selectedAddressIdInputs = document.querySelectorAll('input[name="selectedAddressId"]');
-            const couponCode = document.getElementById('couponCode');
-            const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
-            const userId = document.getElementById('userId');
-            const submitBtn = document.getElementById('submit-btn');
-            const subtotal = parseFloat('<%= subtotal.toFixed(2) %>'); // Assuming subtotal is passed from the backend to EJS template
-        
-            // Calculate delivery charge based on subtotal
-            let deliveryCharge = subtotal < 500 ? 40 : 0;
-        
-            // Function to validate form fields
-            function validateForm() {
-                const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
-                const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked');
-                const userIdExists = !!userId.value.trim();
-        
-                // Enable button if all conditions are met
-                if (selectedPayment && selectedAddressId && userIdExists) {
-                    submitBtn.disabled = false;
-                } else {
-                    submitBtn.disabled = true;
-                }
-            }
-        
-            // Add event listeners for validation
-            paymentMethods.forEach(input => {
-                input.addEventListener('change', validateForm);
+let deliveryCharge = subtotal < 500 ? 40 : 0;
+
+function validateForm() {
+    const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+    const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked');
+    
+    submitBtn.disabled = !(selectedPayment && selectedAddressId);
+}
+
+paymentMethods.forEach(input => input.addEventListener('change', validateForm));
+selectedAddressIdInputs.forEach(input => input.addEventListener('change', validateForm));
+
+validateForm();
+
+submitBtn.addEventListener('click', () => {
+    const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+    const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked')?.value;
+
+    const formData = {
+        userId: userId.value,
+        selectedAddressId: selectedAddressId,
+        paymentMethod: selectedPayment,
+        couponCode: couponCode.value.trim() || null,
+        deliveryCharge: deliveryCharge,
+        totalPrice: subtotal + deliveryCharge,
+        subtotal,
+    };
+
+    if (!selectedPayment || !selectedAddressId) {
+        Swal.fire('Validation Error', 'Please make sure all required fields are filled.', 'error');
+        return;
+    }
+
+    if (formData.totalPrice === 0 || formData.subtotal === 0) {
+        Swal.fire({
+            title: 'Item Not Found',
+            text: 'There are no items in your cart. Please add items to proceed.',
+            icon: 'info',
+            confirmButtonText: 'Go to Shop',
+            confirmButtonColor: '#1c4bcc',
+            background: '#e2f0fd'
+        }).then(() => {
+            window.location.href = '/shop';
+        });
+        return;
+    }
+
+    if (formData.totalPrice > 1000 && formData.paymentMethod === 'COD') {
+        Swal.fire({
+            title: 'COD Unavailable',
+            text: 'Cash on Delivery is only available for orders below ₹1000. Please choose another payment method.',
+            icon: 'error',
+            confirmButtonText: 'Choose Payment Method',
+            confirmButtonColor: '#d33',
+            background: '#f8d7da'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to place this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, place order!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Placing your order...',
+                text: 'Please wait while we process your order.',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading(),
             });
-        
-            selectedAddressIdInputs.forEach(input => {
-                input.addEventListener('change', validateForm);
-            });
-        
-            // Trigger validation initially
-            validateForm();
-        
-            // Submit data via Axios
-            submitBtn.addEventListener('click', () => {
-                const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-                const selectedAddressIdId = document.querySelector('input[name="selectedAddressId"]:checked')?.value;
-        
-                if (!selectedPayment || !selectedAddressIdId || !userId.value.trim()) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Please make sure all required fields are filled.',
-                    });
-                    return;
-                }
-        
-                const formData = {
-                    userId: userId.value,
-                    selectedAddressId: selectedAddressIdId,
-                    paymentMethod: selectedPayment,
-                    couponCode: couponCode.value.trim() || null, // Optional
-                    deliveryCharge: deliveryCharge, // Add the delivery charge to the form data
-                    totalPrice: subtotal + deliveryCharge,
-                    subtotal,
-                };
-        
-                // Show loading alert
-                Swal.fire({
-                    title: 'Placing your order...',
-                    text: 'Please wait while we process your order.',
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                });
-        
-                // Send data to the backend
-                axios.post('/zipkart/user/order', formData)
-                .then(response => {
-                    if(response.data.success){
-                        console.log(response);
-                        
+
+            submitBtn.disabled = true;
+
+            axios.post('/zipkart/user/order', formData)
+                .then(async (response) => {
+                    if (response.data.razorpayOrderId) {
+                        const { razorpayOrderId, amount, currency, KeyId, orderId } = response.data;
+                        await initiateRazorpayPayment(razorpayOrderId, amount, currency, KeyId, orderId);
+                    } else if (response.data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Order Placed Successfully!',
                             text: 'Your order has been placed. Thank you for shopping with us!',
-                            showConfirmButton: false, 
-                            timer: 1000 
+                            showConfirmButton: false,
+                            timer: 1000
                         }).then(() => {
-                            // Optionally redirect the user
                             window.location.href = '/zipkart/user/order/success';
                         });
-                    }
-                    else if(response.data.success==false){
+                    } else {
                         Swal.fire({
-                            icon: 'false',
                             title: 'Error!',
                             text: response.data.message,
-                        })
+                            icon: 'error',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     }
                 })
-                    .catch(error => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Order Placement Failed',
-                            text: error.response?.data?.message || 'An error occurred while placing your order. Please try again.',
-                        });
-                    });
+                .catch(error => {
+                    Swal.fire(
+                        'Order Placement Failed',
+                        error.response?.data?.message || 'An error occurred while placing your order. Please try again.',
+                        'error'
+                    );
+                    console.error('Error placing order:', error);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                });
+        }
+    });
+});
+
+function initiateRazorpayPayment(razorpayOrderId, amount, currency, KeyId, orderId) {
+    const options = {
+        key: KeyId,
+        amount: amount * 100,
+        currency,
+        name: "ZipKart",
+        description: "Order Payment.",
+        order_id: razorpayOrderId,
+        orderId: orderId,
+        handler: async function (response) {
+            await verifyRazorpayPayment(response, orderId);
+        },
+        prefill: {
+            name: "<%= session.user %>",
+            contact: ""
+        },
+        theme: {
+            color: '#3399cc'
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed!',
+            html: `Reason: ${response.error.reason}<br>You can continue the order in your orders section and retry the payment.`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        }).then(() => {
+            location.reload();
+        });
+
+        console.error("Payment failure details:", response.error);
+    });
+
+    rzp1.open();
+}
+
+async function verifyRazorpayPayment(paymentData, orderId) {
+    try {
+        const response = await axios.post(`/zipkart/user/order/verify-payment/${orderId}`, paymentData);
+        if (response.data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Verified!',
+                text: 'Redirecting to order success page...',
+                showConfirmButton: false,
+                timer: 1000
+            }).then(() => {
+                window.location.href = '/zipkart/user/order/success';
             });
-        </script>
+        } else {
+            Swal.fire('Payment Verification Failed', 'Please try again.', 'error');
+        }
+    } catch (error) {
+        Swal.fire('Error Verifying Payment', 'Something went wrong. Please try again.', 'error');
+        console.error('Error verifying payment:', error);
+    }
+}
+</script>
         
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
         
         
         <!-- Checkout Page End -->

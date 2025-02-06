@@ -6,6 +6,7 @@
     <title>Order Details from user</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -271,11 +272,30 @@
                         <td>
                             <% if (product.status === "Cancelled" || order.status === "Cancelled") { %>
                                 <button type="button" class="btn btn-cancel btn-disabled" disabled>Cancelled</button>
+                            <% } else if (order.status === "Delivered") { %>
+                                <% if (product.returnStatus) { 
+                                    let statusColor = '';
+                                    let textColor = 'text-white';
+                                    
+                                    if (product.returnStatus === 'Return Requested') {
+                                        statusColor = 'bg-yellow-500';
+                                    } else if (product.returnStatus === 'Return Rejected') {
+                                        statusColor = 'bg-red-500';
+                                    } else if (product.returnStatus === 'Return Approved') {
+                                        statusColor = 'bg-blue-500';
+                                    } else if (product.returnStatus === 'Product Returned') {
+                                        statusColor = 'bg-green-500';
+                                    } %>
+                                    <div class="<%= statusColor %> <%= textColor %> py-2 px-4 rounded text-center">
+                                        <%= product.returnStatus %>
+                                    </div>
+                                <% } else { %>
+                                    <button type="button" onclick="productReturn('<%= product.productId._id %>', this)" class="btn btn-cancel">
+                                        Return
+                                    </button>
+                                <% } %>
                             <% } else { %>
-                                <button 
-                                    type="button" 
-                                    onclick="orderCancel('<%= product.productId._id %>', this)" 
-                                    class="btn btn-cancel">
+                                <button type="button" onclick="orderCancel('<%= product.productId._id %>', this)" class="btn btn-cancel">
                                     Cancel
                                 </button>
                             <% } %>
@@ -297,15 +317,20 @@
             if (result.isConfirmed) {
                 axios.patch('/zipkart/user/accountDetails/view-order/<%= order.orderId %>/order/cancel', { productId })
                     .then((response) => {
+                        
+                        button.innerText = 'Cancelled';
+                        button.classList.add('btn-disabled');
+                        button.disabled = true;
+
                         Swal.fire(
                             'Cancelled!',
                             'Your order has been cancelled.',
                             'success'
                         );
 
-                        button.innerText = 'Cancelled';
-                        button.classList.add('btn-disabled');
-                        button.disabled = true;
+                    })
+                    .then(()=>{
+                        window.location.reload()
                     })
                     .catch((error) => {
                         Swal.fire(
@@ -318,6 +343,44 @@
             }
         });
     }
+
+
+    function productReturn(productId, button) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to return this Product?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, Return it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            axios.patch('/zipkart/user/accountDetails/view-order/<%= order.orderId %>/order/return-product', { productId })
+                .then(async(response) => {
+                    // Replace the button with the status div
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'bg-yellow-500 text-white py-2 px-4 rounded text-center';
+                    statusDiv.textContent = 'Return Requested';
+                    button.parentNode.replaceChild(statusDiv, button);
+
+                    await Swal.fire(
+                        'Success!',
+                        'Your request for Return Product has been sent.',
+                        'success'
+                    );
+                })
+                .catch((error) => {
+                    Swal.fire(
+                        'Error',
+                        'Something went wrong. Please try again.',
+                        'error'
+                    );
+                    console.error(error);
+                });
+        }
+    });
+}
                 </script>
             </tbody>
         </table>

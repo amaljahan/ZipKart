@@ -268,19 +268,45 @@
               <td><%= order.address.name %></td>
               <td>₹<%= order.totalPrice %></td>
               <td><%= order.paymentMethod %></td>
-              <% if (order.status === "Cancelled") { %>
-                <td style="color: red;"><strong><%= order.status %></strong></td>
-              <% } else if (order.status === "Delivered") { %>
-                <td style="color: green;"><strong><%= order.status %></strong></td>
-              <% } else { %>
-                <td><strong><%= order.status %></strong></td>
-              <% } %>
+        
+              <td>
+                <!-- Check if the order status is 'Cancelled' -->
+                <% if (order.status === "Cancelled") { %>
+                  <span style="color: red;"><strong><%= order.status %></strong></span>
+                
+                <!-- Check if the order status is 'Delivered' -->
+                <% } else if (order.status === "Delivered") { %>
+                  <!-- Find if any product has a return status -->
+                  <% let returnRequested = order.products.find(p => p.returnStatus); %>
+                  
+                  <% if (returnRequested) { %>
+                    
+                    <!-- If a return status is found, display it with the appropriate color -->
+                    <% if (returnRequested.returnStatus === "Return Requested") { %>
+                      <span style="color: #c9c902; font-weight: bold;">Return Requested</span>
+                      <% } else if (returnRequested.returnStatus === "Return Approved") { %>
+                      <span style="color: green; font-weight: bold;">Return Approved</span>
+                    <% } else if (returnRequested.returnStatus === "Return Rejected") { %>
+                      <span style="color: red; font-weight: bold;">Return Rejected</span>
+                    <% } %>
+                  <% } else { %>
+                    <!-- If no return status exists, just show the order status -->
+                    <span style="color: green;"><strong><%= order.status %></strong></span>
+                  <% } %>
+                
+                <!-- For other order statuses (not Cancelled or Delivered) -->
+                <% } else { %>
+                  <strong><%= order.status %></strong>
+                <% } %>
+              </td>
+        
               <td>
                 <a style="text-decoration: none;" href="/zipkart/admin/orders/view-orders/<%= order._id %>" class="btn-view">View</a>
               </td>
             </tr>
           <% }) %>
         </tbody>
+        
 
       </table>
       <div class="pagination">

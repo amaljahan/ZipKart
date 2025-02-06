@@ -2,7 +2,17 @@ const Order = require('../../../model/user/order_model')
 const Addresses = require('../../../model/user/accountDetailsModels/addressModel')
 const Product  = require('../../../model/adminModel/product_model')
 const Cart  =  require('../../../model/user/cart_model')
+const Wallet = require('../../../model/user/wallet_model')
+const Razorpay= require('razorpay')
+const crypto = require('crypto')
 
+const KeyId=process.env.KEY_ID
+const SecretKey= process.env.SECRET_KEY
+
+const razorpayInstance = new Razorpay({
+    key_id: KeyId, 
+    key_secret: SecretKey 
+});
 
 function generateOrderId() {
     const timestamp = Date.now().toString(); // Current timestamp in milliseconds
@@ -46,16 +56,27 @@ const create_order = async (req,res)=>{
             return res.status(400).json({status:false, message:"Something went wrong please try again later."})
         }
 
-        const [cart, address] = await Promise.all([
+        const [cart, address, wallet] = await Promise.all([
             Cart.findOne({userId}).populate("products.productId"),
-            Addresses.findOne({userId})
+            Addresses.findById(selectedAddressId),
+            Wallet.findOne({ user: userId })
         ]) 
 
+        console.log("=========== aDdres s: ", address);
+        
+
         if(!cart || cart.products.length === 0){
-            return res.json({ success: false, message: "Your cart is empty." });
+            return res.status(404).json({ success: false, message: "Your cart is empty." });
         }
         if(!address){
-            return res.json({ success: false, message: "Address not found!" });
+            return res.status(404).json({ success: false, message: "Address not found!" });
+        }
+        if (!wallet) {
+            return res.status(404).json({ success: false, message: "Wallet not found" });
+        }
+
+        if(paymentMethod === "Wallet" && wallet.balance < totalPrice){
+            return res.status(400).json({success:false , message:"Insufficient wallet balance Check your Wallet" })
         }
 
         for(const item of cart.products){
@@ -78,11 +99,9 @@ const create_order = async (req,res)=>{
                 productId: product._id,
                 quantity: cartProduct.quantity,
                 price,
-                status: "Pending",
+                status: "Ordered",
             }
         })
-        console.log("====================================================",`${address.firstName} ${address.lastName} `);
-
 
         const order = new Order({
             orderId : generateOrderId(),
@@ -104,7 +123,7 @@ const create_order = async (req,res)=>{
             subtotal: subtotal.toFixed(2),
             deliveryCharge: deliveryCharge.toFixed(2),
             totalPrice: totalPrice.toFixed(2),
-            status: "Order placed",
+            status: paymentMethod === "razorpay"? "Pending" : "Order placed",
             paymentStatus: "Pending",
             orderDate: new Date()
 
@@ -115,7 +134,40 @@ const create_order = async (req,res)=>{
         ])
         req.session.orderId = order.orderId
 
-        return res.status(201).json({success:true})                                                                         
+        
+        if(paymentMethod === "Wallet"){
+            wallet.balance -= totalPrice;
+            wallet.transactions.push({
+                amount: totalPrice,
+                type: 'debit',
+                description : `Payment for order , OrderId : ${order.orderId}`,
+                date: new Date(),
+            })
+            await wallet.save();
+        }
+
+        if(paymentMethod === "Razorpay"){
+            const options = {
+                amount: totalPrice * 100,
+                currency: 'INR',
+                receipt: `order_rcpt_Id_r-pay-${Date.now()}`,
+                payment_capture:1,
+            }
+            
+            const razorpayOrder = await razorpayInstance.orders.create(options);        
+            return res.status(201).json({
+                success:true,
+                KeyId,
+                orderId:order._id,
+                razorpayOrderId: razorpayOrder.id,
+                amount: options.amount,
+                currency: options.currency,
+                message: "Razorpay order created successfully. Proceed to payment."
+            })                          
+        }             
+    
+    return res.status(201).json({ success: true, message: "Order placed successfully", order });
+
     }
     catch(err){
         console.log("Error viewing from Order page:", err);
@@ -123,7 +175,40 @@ const create_order = async (req,res)=>{
     }
 }
 
+
+const verify_payment_of_order = async (req,res)=>{
+    const orderId = req.params.orderId
+    const{razorpay_payment_id, razorpay_order_id,razorpay_signature} = req.body
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const hmac = crypto.createHmac('sha256', SecretKey);
+        hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+        const generated_signature = hmac.digest('hex');
+        if(generated_signature === razorpay_signature){
+            order.status = 'Order placed';
+            await order.save();
+            return res.status(200).json({ success: true, message: 'Payment verification successfully completed!.'});
+
+        }else {
+            return res.status(400).json({ success: false, message: 'Payment verification failed!.' });
+        }
+
+        
+    } catch (error) {
+        console.log("Error viewing verify_payment_of_order :", error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+
+
+
 module.exports = {
     create_order,
     view_order_success_page,
+    verify_payment_of_order,
 }

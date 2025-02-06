@@ -130,9 +130,8 @@
     <main>
         <div class="account-actions" style="margin-top: 65px;">
             <ul class="acnt-actions">
-                <li><a href="#"><i class="fas fa-cog"></i> Manage Account</a></li>
+                <li><a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>"><i class="fas fa-cog"></i> Manage Account</a></li>
                 <li><a href="/zipkart/user/accountDetails/my-orders"><i class="fas fa-box"></i> My Orders</a></li>
-                <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
                 <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
                 <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
                 <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
@@ -154,7 +153,7 @@
                 <div class="wallet-header">
                     <div class="balance-card">
                         <p>Available Balance</p>
-                        <div class="balance-amount">₹5,000.00</div>
+                        <div class="balance-amount">₹<%= wallet.balance %></div>
                     </div>
                     <button class="add-money-btn" onclick="showAddMoneyModal()">
                         <i class="fas fa-plus"></i> Add Money
@@ -164,44 +163,36 @@
                 <div class="transaction-list">
                     <h3 class="mb-4">Recent Transactions</h3>
                     
-                    <div class="transaction-item">
-                        <div class="transaction-info">
-                            <div class="transaction-icon credit">
-                                <i class="fas fa-arrow-down"></i>
+                    <% if (wallet && wallet.transactions && wallet.transactions.length > 0) { %>
+                        <% wallet.transactions.forEach(transaction => { %>
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon <%= transaction.type %>">
+                                        <% if (transaction.type === 'credit') { %>
+                                            <i class="fas fa-arrow-down"></i>
+                                        <% } else { %>
+                                            <i class="fas fa-arrow-up"></i>
+                                        <% } %>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <span><%= transaction.description %></span>
+                                        <span class="transaction-date">
+                                            <%= new Date(transaction.date).toLocaleDateString('en-US', { 
+                                                year: 'numeric', month: 'short', day: 'numeric' 
+                                            }) %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount <%= transaction.type === 'credit' ? 'text-success' : 'text-danger' %>">
+                                    <%= transaction.type === 'credit' ? `+₹${transaction.amount}` : `-₹${transaction.amount}` %>
+                                </div>
                             </div>
-                            <div class="transaction-details">
-                                <span>Added to Wallet</span>
-                                <span class="transaction-date">Feb 3, 2025</span>
-                            </div>
-                        </div>
-                        <div class="transaction-amount text-success">+₹2,000</div>
-                    </div>
-
-                    <div class="transaction-item">
-                        <div class="transaction-info">
-                            <div class="transaction-icon debit">
-                                <i class="fas fa-arrow-up"></i>
-                            </div>
-                            <div class="transaction-details">
-                                <span>Order Payment #ORD123456</span>
-                                <span class="transaction-date">Feb 1, 2025</span>
-                            </div>
-                        </div>
-                        <div class="transaction-amount text-danger">-₹1,500</div>
-                    </div>
-
-                    <div class="transaction-item">
-                        <div class="transaction-info">
-                            <div class="transaction-icon credit">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div class="transaction-details">
-                                <span>Refund - Order #ORD123400</span>
-                                <span class="transaction-date">Jan 28, 2025</span>
-                            </div>
-                        </div>
-                        <div class="transaction-amount text-success">+₹800</div>
-                    </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p>No transactions found.</p>
+                    <% } %>
+                    
+                    
                 </div>
             </div>
         </div>
@@ -229,10 +220,10 @@
                     try {  
                     const amount = result.value;
                     
-                    const response = await axios.post('/wallet/add-money', {  //adding money as an order through razorpay
+                    const response = await axios.post('/zipkart/user/accountDetails/wallet/add-money', {  //adding money as an order through razorpay
                             amount: parseFloat(amount) * 100  // Converting to paise [1rs == 100paise]
                         });
-                        const keyId= orderData.keyId
+                        const keyId= response.data.keyId
                     if (!response.data.success) {
                         return Swal.fire('Error',response.data.message || 'Failed to create order');
 
@@ -242,16 +233,16 @@
                     key: keyId, 
                     amount: response.data.amount,
                     currency: 'INR',
-                    name: 'Fruitable',
+                    name: 'ZipKart',
                     description: 'Add Money to Wallet',
                     order_id: response.data.orderId,
                     handler: async function (paymentDetails) {
                        
-                        const verifyResponse = await axios.post('/wallet/add-money/verify-payment', {
+                        const verifyResponse = await axios.post('/zipkart/user/accountDetails/wallet/add-money/verify-payment', {
                             orderId: response.data.orderId,
                             paymentId: paymentDetails.razorpay_payment_id,
                             signature: paymentDetails.razorpay_signature,
-                            // amount: response.data.amount // Send amount to update balance
+                            amount: response.data.amount // Send amount to update balance
                         });
 
                         if (verifyResponse.data.success) {
@@ -276,10 +267,9 @@
                               });
                           }
                     },
-                    pprefill: {
-                        name: '<%= user.name %>',  
-                        email: '<%= user.email %>',  
-                        contact: ''  
+                    prefill: {
+                        name: '<%= session.user %>', 
+                        contact: "" 
                     },
                     theme: {
                         color: '#1c4bcc'
@@ -290,25 +280,25 @@
                 razorpay.open();
 
 
-                    Swal.fire({
-                        title: 'Processing Payment',
-                        text: 'Please wait...',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    // Swal.fire({
+                    //     title: 'Processing Payment',
+                    //     text: 'Please wait...',
+                    //     timer: 2000,
+                    //     timerProgressBar: true,
+                    //     didOpen: () => {
+                    //         Swal.showLoading();
+                    //     }
+                    // });
     
                  
                       
     
-                        // Assuming the response indicates success
-                        Swal.fire(
-                            'Success!',
-                            'Money added to wallet successfully!',
-                            'success'
-                        );
+                    //     // Assuming the response indicates success
+                    //     Swal.fire(
+                    //         'Success!',
+                    //         'Money added to wallet successfully!',
+                    //         'success'
+                    //     );
                     } catch (error) {
                         console.error('Error:', error);
                         Swal.fire('Error', 'An error occurred. Please try again.', 'error');

@@ -140,7 +140,6 @@
                 <ul class="acnt-actions">
                     <li><a href="/zipkart/user/accountDetails/user-profile/<%= session.userId %>"><i class="fas fa-cog"></i> Manage Account</a></li>
                     <li class="active"><a href="/zipkart/user/accountDetails/my-orders"><i class="fas fa-box"></i> My Orders</a></li>
-                    <li><a href="#"><i class="fas fa-heart"></i> Wish List</a></li>
                     <li><a href="/zipkart/user/accountDetails/change-password"><i class="fas fa-key"></i> Change Password</a></li>
                     <li><a href="/zipkart/user/accountDetails/manage-addresses/all-addresses/<%= session.userId %>"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
                     <li><a href="#"><i class="fas fa-trash-alt"></i> Delete Account</a></li>
@@ -168,13 +167,28 @@
                                 <tr>
                                     <td><%= order.orderId %></td>
                                     <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
-                                    <% if (order.status === "Cancelled") { %>
-                                        <td style="color: red;"><strong><%= order.status %></strong></td>
-                                      <% } else if (order.status === "Delivered") { %>
-                                        <td style="color: green;"><strong><%= order.status %></strong></td>
-                                      <% } else { %>
-                                        <td><strong><%= order.status %></strong></td>
-                                      <% } %>                                    <td>₹<%= order.totalPrice %> for <%= order.products.length %> items</td>
+                                    <td>
+                                        <% if (order.status === "Cancelled") { %>
+                                            <span style="color: red;"><strong><%= order.status %></strong></span>
+                                        <% } else if (order.status === "Delivered") { %>
+                                            <% let returnRequested = order.products.find(p => p.returnStatus); %>
+                                            
+                                            <% if (returnRequested) { %>
+                                                <% if (returnRequested.returnStatus === "Return Requested") { %>
+                                                    <span style="color: #c9c902; font-weight: bold;">Return Requested</span>
+                                                <% } else if (returnRequested.returnStatus === "Return Approved") { %>
+                                                    <span style="color: green; font-weight: bold;">Return Approved</span>
+                                                <% } else if (returnRequested.returnStatus === "Return Rejected") { %>
+                                                    <span style="color: red; font-weight: bold;">Return Rejected</span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span style="color: green;"><strong><%= order.status %></strong></span>
+                                            <% } %>
+                                        <% } else { %>
+                                            <strong><%= order.status %></strong>
+                                        <% } %>
+                                    </td>
+                                    <td>₹<%= order.totalPrice %> for <%= order.products.length %> items</td>
                                     <td><a href="/zipkart/user/accountDetails/view-order/<%= order.orderId %>" class="view">View</a></td>
                                 </tr>
                             <% }); %>

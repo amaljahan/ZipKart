@@ -1,4 +1,6 @@
 const Orders = require('../../model/user/order_model')
+const Wallet = require('../../model/user/wallet_model')
+const Products = require('../../model/adminModel/product_model')
 
 
 const viewOrdersList = async (req, res) => {
@@ -65,10 +67,6 @@ const updateOrderStatus = async(req,res)=>{
     const orderId = req.params.orderId;
     const status = req.body.status
     const cancelAt = req.body.cancelAt
-    console.log(req.body);
-    console.log(cancelAt);
-    
-    
 
     try {
         if(!orderId){
@@ -80,12 +78,20 @@ const updateOrderStatus = async(req,res)=>{
         if(!order){
             return res.status(400).json({success:false,message:"No order found with this OrderId."})
         }
+        order.products.forEach(p=>{
+          p.status = "Delivered"
+        })
+        if(status === "Delivered"){
+            order.paymentStatus = "Success"
+        }
 
         order.status = status;
         if(cancelAt){
             order.cancelAt = cancelAt;
         }
         await order.save();
+        console.log("============oreder:",order);
+        
         res.status(200).json({success: true, message:`Status updated successfully to ${status}`})
 
         
@@ -95,8 +101,63 @@ const updateOrderStatus = async(req,res)=>{
     }
 }
 
+
+const return_approve_or_reject = async (req,res)=>{
+    const orderId = req.params.orderId
+    const {productId,status} = req.body
+    try {
+        if (!orderId) {
+            return res.status(400).json({
+                success: false,
+                message: "Something went wrong, cannot find orderId, Please try again"
+            });
+        }
+        
+        if (!productId) {
+            return res.status(400).json({
+                success: false,
+                message: "Something went wrong, cannot find productId, Please try again"
+            });
+        }
+        
+            const order = await Orders.findById(orderId)
+            if (!order) {
+                return res.status(404).json({ success: false, message: "Order not found" });
+            }
+            const item = order.products.find((item)=>{  
+                return item.productId.toString() === productId
+
+            })
+            const product = await Products.findById(item.productId);
+            
+            item.returnStatus = status;
+         if(status === "Return Approved"){
+            const wallet = await Wallet.findOne({user: order.userId})
+            const amount = item.quantity * item.price;
+            wallet.balance += amount;
+            wallet.transactions.push({
+            amount,
+            type: 'credit',
+            description:`Refunded for the product ${product.name}, ₹${amount}. `,
+            date: new Date(),
+            })
+            await wallet.save();
+
+         }
+
+         await order.save();
+         return res.json({ success: true, message: `Product ${status} successfully!` });
+
+        
+    } catch (error) {
+        console.log("Error of return_approve_or_reject: ",error); 
+        res.status(500).json({message:"server error"})  
+    }
+}
+
 module.exports = {
     viewOrdersList,
     orderDetailedView,
     updateOrderStatus,
+    return_approve_or_reject
 }
