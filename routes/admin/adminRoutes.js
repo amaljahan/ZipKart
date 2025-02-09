@@ -11,6 +11,7 @@ const category = require('./categoryRoutes')
 const dashboard = require('./dashboardRoutes')
 const products = require('./productsRoutes');
 const Orders = require('./orderRoutes')
+const Coupon = require('./couponsRoutes')
 const { isLogged, isAdmin } = require('../../middleware/admin/adminAuthMiddleware');
 
 
@@ -22,6 +23,7 @@ router.use('/categories',isAdmin,category)//category
 router.use('/',isAdmin,dashboard)//dashboard
 router.use('/products',isAdmin,products)//products
 router.use('/orders',isAdmin,Orders)//Orders
+router.use('/coupons',isAdmin,Coupon)//Orders
 router.post('/logout',isAdmin,adminLogout)//Logout
 
 

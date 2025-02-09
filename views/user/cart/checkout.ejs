@@ -261,9 +261,45 @@
                         <!-- Apply Coupon Section -->
                         <div class="border rounded p-4 my-4 bg-white shadow-sm">
                             <h5 class="text-secondary">Apply Coupon</h5>
-                            <div class="input-group">
-                                <input id="couponCode" type="text" class="form-control" placeholder="Enter Coupon Code" name="couponCode">
-                                <button class="btn btn-outline-primary" type="button"><i class="bi bi-ticket"></i> Apply</button>
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select class="form-select" id="couponSelect">
+                                        <option value="">Select a coupon</option>
+                                        <% coupons.forEach(coupon => { %>
+                                            <option value="<%= coupon.code %>"
+                                                data-discountType="<%= coupon.discountType %>"
+                                                data-discountValue="<%= coupon.discountValue %>"
+                                                data-maxDiscount="<%= coupon.maxDiscountLimit %>"
+                                                data-minPurchase="<%= coupon.minPurchaseAmount %>">
+                                                <%= coupon.code %> - <%= coupon.discountType === 'percentage' ? coupon.discountValue + '% off' : '₹' + coupon.discountValue %>
+                                                <% if (coupon.maxDiscountLimit) { %> (Max: ₹<%= coupon.maxDiscountLimit %>) <% } %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary w-100" type="button" onclick="applyCoupon()">
+                                        <i class="bi bi-ticket-perforated"></i> Apply
+                                    </button>
+                                </div>
+                                <div class="col-12">
+                                    <div class="input-group mt-2">
+                                        <input type="text" id="couponCode" class="form-control" placeholder="Or enter coupon code">
+                                        <button class="btn btn-outline-primary" type="button" onclick="applyManualCoupon()">
+                                            <i class="bi bi-ticket"></i> Apply Code
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-2">
+                                    <button id="removeCouponBtn" class="btn btn-danger w-100" type="button" onclick="removeCoupon()" style="display: none;">
+                                        <i class="bi bi-x-circle"></i> Remove Coupon
+                                    </button>
+                                </div>
+                                
+                                <div class="col-12 mt-2">
+                                    <div id="couponMessage" class="alert d-none"></div>
+                                </div>
                             </div>
                         </div>
         
@@ -287,24 +323,30 @@
                         <!-- Summary -->
                         <div class="border rounded p-4 bg-white shadow-sm">
                             <h5 class="text-secondary">Order Summary</h5>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal</span>
                                 <span>₹<%= subtotal.toFixed(2) %></span>
                             </div>
                         
-                            <!-- Conditional Delivery Charge -->
-                            <div class="d-flex justify-content-between">
+                            <!-- Delivery Charge -->
+                            <div class="d-flex justify-content-between mb-2">
                                 <span>Delivery Charge</span>
-                                <% let deliveryCharge = subtotal < 500 ? 40 : 0; %> <!-- Conditional delivery charge -->
+                                <% let deliveryCharge = subtotal < 500 ? 40 : 0; %>
                                 <span>₹<%= deliveryCharge.toFixed(2) %></span>
+                            </div>
+                        
+                            <!-- Discount Section -->
+                            <div class="d-flex justify-content-between mb-2 text-success" id="discountRow" style="display: none !important;">
+                                <span>Discount</span>
+                                <span id="discountAmount">-₹0.00</span>
                             </div>
                         
                             <hr>
                         
                             <!-- Total Calculation -->
                             <div class="d-flex justify-content-between font-weight-bold">
-                                <span>Total</span>
-                                <span>₹<%= (subtotal + deliveryCharge).toFixed(2) %></span>
+                                <span class="fw-bold">Total</span>
+                                <span class="fw-bold" id="finalTotal">₹<%= (subtotal + deliveryCharge).toFixed(2) %></span>
                             </div>
                         </div>
                         
@@ -318,41 +360,252 @@
                 <!-- </form> -->
             </div>
         </div>
-        
-<script>
-    const selectedAddressIdInputs = document.querySelectorAll('input[name="selectedAddressId"]');
-const couponCode = document.getElementById('couponCode');
-const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
-const userId = document.getElementById('userId');
-const submitBtn = document.getElementById('submit-btn');
-const subtotal = parseFloat('<%= subtotal.toFixed(2) %>');
 
+
+<script>
+let currentDiscount = 0;
+let activeCouponCode = null; // Track the currently active coupon code
+const subtotalAmount = "<%= subtotal %>";
+const subtotal = parseFloat('<%= subtotal.toFixed(2) %>');
+const deliveryChargeAmount = subtotalAmount < 500 ? 40 : 0;
 let deliveryCharge = subtotal < 500 ? 40 : 0;
 
+// DOM Elements
+const userId = document.getElementById('userId');
+const selectedAddressIdInputs = document.querySelectorAll('input[name="selectedAddressId"]');
+const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+const submitBtn = document.getElementById('submit-btn');
+const couponSelect = document.getElementById('couponSelect');
+const couponCodeInput = document.getElementById('couponCode');
+
+
+function removeCoupon() {
+    // Reset coupon selection and input
+    couponSelect.value = '';
+    couponCodeInput.value = '';
+    
+    // Reset discount and update summary
+    updateSummary(0, null);
+    
+    // Show removal message
+    showCouponMessage('Coupon removed successfully', true);
+    
+    // Reset current discount and active coupon
+    currentDiscount = 0;
+    activeCouponCode = null;
+}
+
+// Coupon related functions
+function calculateDiscount(couponCode, discountType, discountValue, maxDiscount, minPurchase) {
+    if (subtotalAmount < minPurchase) {
+        showCouponMessage(`Minimum purchase of ₹${minPurchase} required for this coupon`, false);
+        return 0;
+    }
+
+    let discount = 0;
+    if (discountType === 'percentage') {
+        discount = (subtotalAmount * discountValue) / 100;
+        if (maxDiscount) {
+            discount = Math.min(discount, maxDiscount);
+        }
+    } else {
+        discount = discountValue;
+    }
+
+    return discount;
+}
+
+function updateSummary(discount, appliedCouponCode) {
+    const discountRow = document.getElementById('discountRow');
+    const discountAmount = document.getElementById('discountAmount');
+    const finalTotal = document.getElementById('finalTotal');
+    const removeCouponBtn = document.getElementById('removeCouponBtn');
+    const total = parseFloat(subtotalAmount) + parseFloat(deliveryChargeAmount) - parseFloat(discount);
+
+    if (discount > 0) {
+        discountRow.style.display = 'flex';
+        discountAmount.textContent = `-₹${discount.toFixed(2)}`;
+        activeCouponCode = appliedCouponCode;
+        removeCouponBtn.style.display = 'block'; // Show remove button
+    } else {
+        discountRow.style.display = 'none';
+        activeCouponCode = null;
+        removeCouponBtn.style.display = 'none'; // Hide remove button
+    }
+
+    finalTotal.textContent = `₹${total.toFixed(2)}`;
+    currentDiscount = discount;
+}
+function showCouponMessage(message, isSuccess) {
+    const messageDiv = document.getElementById('couponMessage');
+    messageDiv.className = `alert alert-${isSuccess ? 'success' : 'danger'} d-block`;
+    messageDiv.textContent = message;
+    setTimeout(() => {
+        messageDiv.className = 'alert d-none';
+    }, 3000);
+}
+
+function applyCoupon() {
+    // Clear manual coupon input when using dropdown
+    couponCodeInput.value = '';
+    
+    const selectedOption = couponSelect.options[couponSelect.selectedIndex];
+
+    if (!couponSelect.value) {
+        showCouponMessage('Please select a coupon', false);
+        return;
+    }
+
+    const discountType = selectedOption.getAttribute('data-discountType');
+    const discountValue = parseFloat(selectedOption.getAttribute('data-discountValue'));
+    const maxDiscount = parseFloat(selectedOption.getAttribute('data-maxDiscount')) || Infinity;
+    const minPurchase = parseFloat(selectedOption.getAttribute('data-minPurchase'));
+
+    const discount = calculateDiscount(couponSelect.value, discountType, discountValue, maxDiscount, minPurchase);
+    if (discount > 0) {
+        updateSummary(discount, couponSelect.value);
+        showCouponMessage(`Coupon applied successfully! You saved ₹${discount.toFixed(2)}`, true);
+    } else {
+        updateSummary(0, null);
+        showCouponMessage('Invalid coupon code! This coupon is not eligibble for this amount.', false);
+    }
+}
+
+function applyManualCoupon() {
+    // Clear dropdown selection when using manual input
+    couponSelect.value = '';
+    
+    const couponCode = couponCodeInput.value.trim().toUpperCase();
+    
+    if (!couponCode) {
+        showCouponMessage('Please enter a coupon code', false);
+        return;
+    }
+
+    let foundOption = null;
+    for (let option of couponSelect.options) {
+        if (option.value === couponCode) {
+            foundOption = option;
+            break;
+        }
+    }
+
+    if (!foundOption) {
+        showCouponMessage('Invalid coupon code', false);
+        updateSummary(0, null);
+        return;
+    }
+
+    const discountType = foundOption.getAttribute('data-discountType');
+    const discountValue = parseFloat(foundOption.getAttribute('data-discountValue'));
+    const maxDiscount = parseFloat(foundOption.getAttribute('data-maxDiscount')) || Infinity;
+    const minPurchase = parseFloat(foundOption.getAttribute('data-minPurchase'));
+
+    const discount = calculateDiscount(couponCode, discountType, discountValue, maxDiscount, minPurchase);
+    if (discount > 0) {
+        updateSummary(discount, couponCode);
+        showCouponMessage(`Coupon applied successfully! You saved ₹${discount.toFixed(2)}`, true);
+    } else {
+        updateSummary(0, null);
+        showCouponMessage('Invalid coupon code', false);
+    }
+}
+
+// Form validation and submission
 function validateForm() {
     const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
     const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked');
     
-    submitBtn.disabled = !(selectedPayment && selectedAddressId);
+    if(selectedPayment && selectedAddressId) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('disabled');
+        submitBtn.title = '';
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('disabled');
+        submitBtn.title = 'Please select both delivery address and payment method';
+    }
 }
 
-paymentMethods.forEach(input => input.addEventListener('change', validateForm));
-selectedAddressIdInputs.forEach(input => input.addEventListener('change', validateForm));
 
-validateForm();
+
+// Payment processing functions
+function initiateRazorpayPayment(razorpayOrderId, amount, currency, KeyId, orderId) {
+    const options = {
+        key: KeyId,
+        amount: amount * 100,
+        currency,
+        name: "ZipKart",
+        description: "Order Payment.",
+        order_id: razorpayOrderId,
+        orderId: orderId,
+        handler: async function (response) {
+            await verifyRazorpayPayment(response, orderId);
+        },
+        prefill: {
+            name: "<%= session.user %>",
+            contact: ""
+        },
+        theme: {
+            color: '#3399cc'
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed!',
+            html: `Reason: ${response.error.reason}<br>You can continue the order in your orders section and retry the payment.`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        }).then(() => {
+            location.reload();
+        });
+
+        console.error("Payment failure details:", response.error);
+    });
+
+    rzp1.open();
+}
+
+async function verifyRazorpayPayment(paymentData, orderId) {
+    try {
+        const response = await axios.post(`/zipkart/user/order/verify-payment/${orderId}`, paymentData);
+        if (response.data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Verified!',
+                text: 'Redirecting to order success page...',
+                showConfirmButton: false,
+                timer: 1000
+            }).then(() => {
+                window.location.href = '/zipkart/user/order/success';
+            });
+        } else {
+            Swal.fire('Payment Verification Failed', 'Please try again.', 'error');
+        }
+    } catch (error) {
+        Swal.fire('Error Verifying Payment', 'Something went wrong. Please try again.', 'error');
+        console.error('Error verifying payment:', error);
+    }
+}
+
+// Event Listeners
 
 submitBtn.addEventListener('click', () => {
     const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
     const selectedAddressId = document.querySelector('input[name="selectedAddressId"]:checked')?.value;
-
+    
     const formData = {
         userId: userId.value,
         selectedAddressId: selectedAddressId,
         paymentMethod: selectedPayment,
-        couponCode: couponCode.value.trim() || null,
-        deliveryCharge: deliveryCharge,
-        totalPrice: subtotal + deliveryCharge,
+        couponCode: activeCouponCode, // Use the tracked active coupon code
+        deliveryCharge,
+        totalPrice: parseFloat(subtotal) + parseFloat(deliveryCharge) - currentDiscount,
         subtotal,
+        discount: currentDiscount // Include the discount amount if needed
     };
 
     if (!selectedPayment || !selectedAddressId) {
@@ -447,66 +700,31 @@ submitBtn.addEventListener('click', () => {
     });
 });
 
-function initiateRazorpayPayment(razorpayOrderId, amount, currency, KeyId, orderId) {
-    const options = {
-        key: KeyId,
-        amount: amount * 100,
-        currency,
-        name: "ZipKart",
-        description: "Order Payment.",
-        order_id: razorpayOrderId,
-        orderId: orderId,
-        handler: async function (response) {
-            await verifyRazorpayPayment(response, orderId);
-        },
-        prefill: {
-            name: "<%= session.user %>",
-            contact: ""
-        },
-        theme: {
-            color: '#3399cc'
-        }
-    };
 
-    const rzp1 = new Razorpay(options);
-    rzp1.on('payment.failed', function (response) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Payment Failed!',
-            html: `Reason: ${response.error.reason}<br>You can continue the order in your orders section and retry the payment.`,
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#d33'
-        }).then(() => {
-            location.reload();
-        });
 
-        console.error("Payment failure details:", response.error);
-    });
+// Initialize form validation
+document.addEventListener('DOMContentLoaded', validateForm);
+paymentMethods.forEach(input => input.addEventListener('change', validateForm));
+selectedAddressIdInputs.forEach(input => input.addEventListener('change', validateForm));
 
-    rzp1.open();
-}
-
-async function verifyRazorpayPayment(paymentData, orderId) {
-    try {
-        const response = await axios.post(`/zipkart/user/order/verify-payment/${orderId}`, paymentData);
-        if (response.data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Payment Verified!',
-                text: 'Redirecting to order success page...',
-                showConfirmButton: false,
-                timer: 1000
-            }).then(() => {
-                window.location.href = '/zipkart/user/order/success';
-            });
-        } else {
-            Swal.fire('Payment Verification Failed', 'Please try again.', 'error');
-        }
-    } catch (error) {
-        Swal.fire('Error Verifying Payment', 'Something went wrong. Please try again.', 'error');
-        console.error('Error verifying payment:', error);
+// Add listeners to clear other coupon input method when one is used
+couponSelect.addEventListener('change', () => {
+    if (couponSelect.value) {
+        couponCodeInput.value = '';
     }
-}
+});
+
+couponCodeInput.addEventListener('input', () => {
+    if (couponCodeInput.value) {
+        couponSelect.value = '';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize remove button state
+    const removeCouponBtn = document.getElementById('removeCouponBtn');
+    removeCouponBtn.style.display = currentDiscount > 0 ? 'block' : 'none';
+});
 </script>
         
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

@@ -307,6 +307,63 @@
             });
         }
     </script>
+    
+<!-- for logout  -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const logoutButton = document.querySelector('.logout');
+
+        logoutButton.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevent default navigation
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You will be logged out of the system.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Logout'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Perform the logout request
+                        const response = await axios.get('/zipkart/user/logout');
+                        console.log("Response:", response);
+
+                        if (response.data.success) {
+                            await Swal.fire({
+                                title: 'Success!',
+                                text: 'You have been logged out successfully.',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = response.data.url;
+                            });
+                        } else {
+                            await Swal.fire({
+                                title: 'Error!',
+                                text: response.data.message || 'An error occurred while logging out.',
+                                icon: 'error',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
+                    } catch (error) {
+                        console.log("Error:", error);
+                        await Swal.fire({
+                            title: 'Error!',
+                            text: 'Logout failed. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 

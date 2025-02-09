@@ -375,10 +375,9 @@ const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10)
                                         if (response.data.success) {
                                             Swal.fire({
                                                 icon: "success",
-                                                title: "Success",
+                                                title: "Added to Cart",
                                                 text: "Product added to cart successfully!",
                                             });
-                                            console.log(response.data.cart); // Optional
                                         } else {
                                             // Handle failure (success: false from backend)
                                             Swal.fire({

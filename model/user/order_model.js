@@ -25,6 +25,8 @@ const orderSchema = mongoose.Schema({
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Products', required: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
+    discountedPrice: { type: Number, default: 0 },
+
     status: { 
       type: String, 
       enum: [
@@ -46,6 +48,8 @@ const orderSchema = mongoose.Schema({
       ],
     },
   }],
+  couponCode:{type:String},
+  couponDiscount: { type: Number, default: 0 },
   subtotal:{type:Number,required:true},
   deliveryCharge: { type: Number, required: true },
   totalPrice: { type: Number, required: true },

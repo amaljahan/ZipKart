@@ -56,8 +56,8 @@ const orderDetailedView = async(req,res)=>{
 
          res.render('admin/order_detailed_view',{order})
     } catch (error) {
-        console.error(error);
-        res.status(500).json({message:'Error from order view'});
+        console.error('Error from order view',error);
+        res.status(500).json({message:"server error"});
     }
 }
 
@@ -133,7 +133,7 @@ const return_approve_or_reject = async (req,res)=>{
             item.returnStatus = status;
          if(status === "Return Approved"){
             const wallet = await Wallet.findOne({user: order.userId})
-            const amount = item.quantity * item.price;
+            const amount = item.discountedPrice;
             wallet.balance += amount;
             wallet.transactions.push({
             amount,

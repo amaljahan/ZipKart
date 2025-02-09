@@ -244,6 +244,7 @@
                 <p><strong>Status:</strong> <%= order.status %></p>
                 <p><strong>Sub Total:</strong> <%= order.subtotal %></p>
                 <p><strong>Delivery Charge:</strong> <%= order.deliveryCharge %></p>
+                <p><strong>Discount:</strong> -<%= order.couponDiscount ? order.couponDiscount : "0" %></p>
                 <p><strong>Total:</strong> ₹<%= order.totalPrice %> for <%= order.products.length %> item(s)</p>
             </div>
         </div>

@@ -1,71 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wallet</title>
-    <link rel="stylesheet" href="asd.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Orders Management</title>
+  <link rel="stylesheet" href="/css/admin/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      display: flex;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .sidebar {
+      background-color: #1f2937;
+      color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      width: 240px;
+      transition: width 0.3s ease;
+    }
+
+    .sidebar .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .sidebar .menu-item {
+      margin-bottom: 10px;
+    }
+
+    .sidebar .menu-item a {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar .menu-item.active a {
+      font-weight: bold;
+    }
+
+    .sidebar .menu-item i {
+      margin-right: 10px;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+      padding-bottom: 60px; /* Space for fixed pagination */
+      overflow-x: auto;
+    }
+    
+
+    /* Pagination Styles */
+    .pagination {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 10px 0;
+      background-color: #f8f9fa;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 500;
+    }
+
+    .pagination a {
+      padding: 8px 12px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      color: #333;
+      margin: 0 4px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+      background-color: #e9ecef;
+    }
+
+    .pagination a.active {
+      background-color: #1f2937;
+      color: white;
+      border-color: #1f2937;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding-bottom: 80px;
+      }
+
+      .pagination {
+        flex-wrap: wrap;
+        padding: 8px 0;
+      }
+
+      .pagination a {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        margin: 2px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .pagination a {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+    }
+
+    .header .title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .orders-table th,
+    .orders-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .orders-table th {
+      background-color: #1f2937;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .btn-view,
+    .btn-update {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-view {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 10px;
+        z-index: 1500;
+      }
+
+      .sidebar .logo {
+        margin-bottom: 0;
+      }
+
+      .sidebar .menu-item {
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .header .title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+
+      .orders-table th,
+      .orders-table td {
+        font-size: 0.9rem;
+        padding: 6px;
+      }
+
+      .orders-table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .btn-view {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header .title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
+
+      .orders-table th,
+      .orders-table td {
+        font-size: 0.8rem;
+        padding: 4px;
+      }
+
+      .btn-view {
+        font-size: 0.7rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        </header>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1><span class="brand">Zip</span>Kart</h1>
+    </div>
+    <nav class="menu">
+      <ul>
+        <li class="menu-item"><a href="/zipkart/admin/dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/users/view-users"><i class="fas fa-users"></i> <span>Users</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/categories/view-category"><i class="fas fa-list"></i> <span>Categories</span></a></li>
+        <li class="menu-item"><a href="/zipkart/admin/products/view-products"><i class="fas fa-box"></i> <span>Products</span></a></li>
+        <li class="menu-item active"><a href="/zipkart/admin/orders/view-orders"><i class="fas fa-shopping-cart"></i> <span>Orders</span></a></li>
+        <li class="menu-item"><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+      </ul>
+    </nav>
+  </aside>
 
-    <main>
-        <div class="wallet-card">
-            <div class="wallet-header">
-                <h2>Fruitables</h2>
-                <p>**** **** **** 1234</p>
-            </div>
-            <div class="wallet-balance">
-                $500.00
-            </div>
-            <div class="wallet-validity">
-                Valid Thru: 12/26
-            </div>
-            <div class="add-money">
-                <h3>Add Amount</h3>
-                <input type="text" placeholder="Enter amount">
-                <button>Add Amount</button>
-            </div>
-        </div>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="title">Orders Management</div>
+    </header>
 
-        <div class="transaction-history">
-            <h2>Transaction History</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>$200.00</td>
-                        <td>Credit</td>
-                        <td>2024-08-08</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>$50.00</td>
-                        <td>Debit</td>
-                        <td>2024-08-07</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>$250.00</td>
-                        <td>Bank Transfer</td>
-                        <td>2024-08-06</td>
-                    </tr>
-                </tbody>
-            </table>
-            <p class="total-balance">Total Balance: $793.52</p>
-        </div>
-    </main>
+    <!-- Orders List -->
+    <section class="orders-list">
+      <h2>All Orders</h2>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Order ID</th> 
+            <th>Order Placed</th>
+            <th>Customer</th>
+            <th>Total Price</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach((order, index) => { %>
+            <tr>
+              <td><%= skip + index + 1 %></td>
+              <td><%= order.orderId %></td>
+              <td><%= order.orderDate.toLocaleDateString('en-IN') %></td>
+              <td><%= order.address.name %></td>
+              <td>₹<%= order.totalPrice %></td>
+              <td><%= order.paymentMethod %></td>
+        
+              <td>
+                <!-- Check if the order status is 'Cancelled' -->
+                <% if (order.status === "Cancelled") { %>
+                  <span style="color: red;"><strong><%= order.status %></strong></span>
+                
+                <!-- Check if the order status is 'Delivered' -->
+                <% } else if (order.status === "Delivered") { %>
+                  <!-- Find if any product has a return status -->
+                  <% let returnRequested = order.products.find(p => p.returnStatus); %>
+                  
+                  <% if (returnRequested) { %>
+                    
+                    <!-- If a return status is found, display it with the appropriate color -->
+                    <% if (returnRequested.returnStatus === "Return Requested") { %>
+                      <span style="color: #c9c902; font-weight: bold;">Return Requested</span>
+                      <% } else if (returnRequested.returnStatus === "Return Approved") { %>
+                      <span style="color: green; font-weight: bold;">Return Approved</span>
+                    <% } else if (returnRequested.returnStatus === "Return Rejected") { %>
+                      <span style="color: red; font-weight: bold;">Return Rejected</span>
+                    <% } %>
+                  <% } else { %>
+                    <!-- If no return status exists, just show the order status -->
+                    <span style="color: green;"><strong><%= order.status %></strong></span>
+                  <% } %>
+                
+                <!-- For other order statuses (not Cancelled or Delivered) -->
+                <% } else { %>
+                  <strong><%= order.status %></strong>
+                <% } %>
+              </td>
+        
+              <td>
+                <a style="text-decoration: none;" href="/zipkart/admin/orders/view-orders/<%= order._id %>" class="btn-view">View</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+        
 
-    <footer>
-        </footer>
+      </table>
+      <div class="pagination">
+  <% if (hasPrevPage) { %>
+    <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>">&laquo;</a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>&limit=<%= limit %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+  <% } %>
+  
+  <% if (hasNextPage) { %>
+    <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>">&raquo;</a>
+  <% } %>
+</div>
+    </section>
+  </main>
 </body>
 </html>

@@ -46,7 +46,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% if(wishlist.products.length > 0) { %>
+                            <% if(wishlist && wishlist.products && wishlist.products.length > 0) { %>
                                 <% wishlist.products.forEach(item => { %>
                                     <tr>
                                         <td>
@@ -69,11 +69,11 @@
                                         </td>
                                         <td>
                                             <% if (item.product.stock > 0) { %>
-                                                <button class="btn btn-primary btn-sm me-2" onclick="addToCart('<%= item.product._id %>', '<%= item.product.category %>')">
+                                                <button class="btn btn-primary btn-sm me-2" onclick="addToCart( '<%= session.userId %>','<%= item.product._id %>',1)">
                                                     <i class="fa fa-shopping-cart"></i> Add to Cart
                                                 </button>
                                             <% } %>
-                                            <button class="btn btn-danger btn-sm" onclick="removeFromWishlist('<%= item.product._id %>', '<%= item._id %>')">
+                                            <button class="btn btn-danger btn-sm" onclick="removeFromWishlist('<%= session.userId %>','<%= item.product._id %>')">
                                                 <i class="fa fa-trash"></i> Remove
                                             </button>
                                         </td>
@@ -81,7 +81,7 @@
                                 <% }); %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">Your wishlist is empty</td>
+                                    <td colspan="6" class="text-center text-muted">Your wishlist is empty!. Please add some <i class="fa fa-heart  text-danger"></i> Products</td>
                                 </tr>
                             <% } %>
                         </tbody>
@@ -108,19 +108,26 @@
             });
 
             // Cart and wishlist functions remain the same
-            async function addToCart(userId, productId) {
+            async function addToCart(userId, productId, count) {
                 try {
-                    const response = await axios.post(`/zipkart/user/${userId}/cart/add-to-cart/${productId}`);
+                    const response = await axios.patch(`/zipkart/user/${userId}/wishlist/update-cart?productId=${productId}&count=${count}`);
                     
                     if (response.data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Added to Cart',
-                            text: response.data.message,
+                            text:  "Product added to cart successfully!",
                             timer: 1500,
                             showConfirmButton: false
                         }).then(() => {
                             window.location.reload();
+                        });
+                    } else {
+                        // Handle failure (success: false from backend)
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed",
+                            text: response.data.message || "Failed to update cart",
                         });
                     }
                 } catch (error) {
@@ -129,6 +136,28 @@
                         title: 'Error',
                         text: error.response?.data?.message || 'Failed to add item to cart'
                     });
+                    if (!userId) {
+                        // Handle session not found
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Not Logged In",
+                            text: "You must be logged in to perform this action.",
+                        });
+                    } else if (err.response) {
+                        // If there is a response from the server, handle it
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: err.response.data.message || "Something went wrong",
+                        });
+                    } else {
+                        // Handle network errors
+                        Swal.fire({
+                            icon: "error",
+                            title: "Network Error",
+                            text: "Please check your internet connection and try again.",
+                        });
+                    }
                 }
             }
 
@@ -145,7 +174,7 @@
                     });
 
                     if (result.isConfirmed) {
-                        const response = await axios.delete(`/zipkart/user/${userId}/wishlist/remove/${productId}`);
+                        const response = await axios.patch(`/zipkart/user/${userId}/wishlist/remove-product/${productId}`);
                         
                         if (response.data.success) {
                             Swal.fire({
@@ -158,15 +187,43 @@
                                 window.location.reload();
                             });
                         }
-                    }
+                    }else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.data.message,
+                            });
+                        }
                 } catch (error) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: error.response?.data?.message || 'Failed to remove item from wishlist'
                     });
-                }
+                    if (!userId) {
+                        // Handle session not found
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Not Logged In",
+                            text: "You must be logged in to perform this action.",
+                        });
+                    } else if (err.response) {
+                        // If there is a response from the server, handle it
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: err.response.data.message || "Something went wrong",
+                        });
+                    } else {
+                        // Handle network errors
+                        Swal.fire({
+                            icon: "error",
+                            title: "Network Error",
+                            text: "Please check your internet connection and try again.",
+                        });
+                    }
             }
+        }
         </script>
         <script src="/css/js/main.js"></script>
     </body>

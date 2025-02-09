@@ -183,9 +183,7 @@ const verify_otp_and_register = async (req,res)=>{
             password:hashedPassword,
             
         });
-        await newUser.save();
-        console.log("newUser",newUser)
-        
+        await newUser.save();        
         req.session.user = newUser.firstName
         req.session.userId = newUser._id
         res.redirect('home')

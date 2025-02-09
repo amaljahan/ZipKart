@@ -1,22 +1,25 @@
 const Carts = require('../../../model/user/cart_model')
 const Addresses = require('../../../model/user/accountDetailsModels/addressModel')
+const Coupons = require('../../../model/adminModel/coupon_moddel')
 
 
 
 const   view_checkout_page = async(req,res)=>{
     const userId = req.session.userId
     try{
-        const [addresses, cart] = await Promise.all([
+        const [addresses, cart,coupons] = await Promise.all([
             Addresses.find({ userId }),
-            Carts.findOne({ userId }).populate('products.productId')
+            Carts.findOne({ userId }).populate('products.productId'),
+            Coupons.find({isActive:true}).sort({createdAt:-1})
         ]);
-        
-        // const addresses = await Addresses.find({userId})
-        // const cart = await Carts.findOne({ userId }).populate('products.productId');
+       
                 if (!cart) {
-                    return res.render('user/cart/cart', { message: "Unable to process, Cart not found", cart:cart || null,session: req.session });
+                    return res.render('user/cart/cart', { message: "Unable to process, Cart not found", coupons : coupons || "", cart:cart || null,session: req.session });
                 }
-        res.render("user/cart/checkout",{session:req.session, cart: cart || null, addresses})
+
+                console.log("++++===========c ouopon:",coupons);
+                
+        res.render("user/cart/checkout",{session:req.session, cart: cart || null, addresses, coupons: coupons || []})
     }
     catch(err){
         console.log("Error viewing from checkout page:", err);

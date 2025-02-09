@@ -1,8 +1,10 @@
 const Order = require('../../../model/user/order_model')
 const Addresses = require('../../../model/user/accountDetailsModels/addressModel')
 const Product  = require('../../../model/adminModel/product_model')
+const Coupons  = require('../../../model/adminModel/coupon_moddel')
 const Cart  =  require('../../../model/user/cart_model')
 const Wallet = require('../../../model/user/wallet_model')
+const Users = require('../../../model/user_model')
 const Razorpay= require('razorpay')
 const crypto = require('crypto')
 
@@ -45,8 +47,9 @@ const view_order_success_page = async(req,res)=>{
 
 
 const create_order = async (req,res)=>{
-    const {selectedAddressId, couponCode, paymentMethod, userId, deliveryCharge, totalPrice, subtotal} = req.body;
-    console.log(req.body);
+    const {selectedAddressId, couponCode, paymentMethod, userId, deliveryCharge, totalPrice, subtotal, discount} = req.body;
+    //if there is discount the total is the final amount after reducing the discount .....FOR YOURE INFO    
+    console.log("=========req body",req.body);
     
     try{
         if(!selectedAddressId || !paymentMethod || !userId  ){
@@ -56,13 +59,16 @@ const create_order = async (req,res)=>{
             return res.status(400).json({status:false, message:"Something went wrong please try again later."})
         }
 
-        const [cart, address, wallet] = await Promise.all([
-            Cart.findOne({userId}).populate("products.productId"),
-            Addresses.findById(selectedAddressId),
-            Wallet.findOne({ user: userId })
-        ]) 
 
-        console.log("=========== aDdres s: ", address);
+
+        const [cart, address, wallet] = await Promise.all([
+            Cart.findOne({ userId }).populate("products.productId"),
+            Addresses.findById(selectedAddressId),
+            Wallet.findOne({ user: userId }),
+        ]);
+
+
+
         
 
         if(!cart || cart.products.length === 0){
@@ -90,16 +96,53 @@ const create_order = async (req,res)=>{
             await product.save();
         }
 
+
+
+
+        // cart.products.forEach(item => {
+        //     const itemTotal = item.price * item.quantity;
+        //     const discountShare = (price / cart.subtotal) * discount;
+        //     item.discountedPrice = price - discountShare;  // Store the exact discounted price
+        // });
+
+
+
+        if(couponCode){
+            const coupon = await Coupons.findOne({ code: couponCode })
+            if(!coupon){
+                return res.status(404).json({ success: false, message: "Your Coupon code is not found." });
+            }
+            const userUsageIndex = coupon.usersUsed.findIndex(entry => entry.userId.toString() === userId.toString());
+            
+            if (userUsageIndex !== -1) {
+                if (coupon.usersUsed[userUsageIndex].usedCount >= coupon.usageLimit) {
+                    return res.status(400).json({ success: false, message: "This coupon has reached its usage limit and cannot be used." });
+                } 
+                coupon.usersUsed[userUsageIndex].usedCount += 1;
+            } else {
+                coupon.usersUsed.push({ userId, usedCount: 1 });
+            }
+            await coupon?.save()            
+        } 
+
+
+
+
         const products = cart.products.map(cartProduct=>{
             const product = cartProduct.productId;
 
             const price = product.price * cartProduct.quantity;
-            
+            let discountedPrice = price;
+            if (couponCode && discount > 0 && subtotal > 0) {
+                const discountShare = (price /subtotal) * discount;
+                discountedPrice = Math.max(0, price - discountShare);//prevent from negative value
+            }
             return {
                 productId: product._id,
                 quantity: cartProduct.quantity,
                 price,
                 status: "Ordered",
+                discountedPrice: Number(discountedPrice.toFixed(2))
             }
         })
 
@@ -120,6 +163,8 @@ const create_order = async (req,res)=>{
             },
             products,
             paymentMethod,
+            couponCode: couponCode || null, 
+            couponDiscount: couponCode? discount.toFixed(2) : 0 ,
             subtotal: subtotal.toFixed(2),
             deliveryCharge: deliveryCharge.toFixed(2),
             totalPrice: totalPrice.toFixed(2),

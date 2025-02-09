@@ -75,8 +75,8 @@
                               <% if (!session.user) { %>
                                
             
-                                <a href="login" class="text-white">  
-                                    <button class="logout" style="background-color: yellow;color:black">Login</button>
+                                <a href="/zipkart/user/login" class="text-white">  
+                                    <button class="btn btn-md px-3 py-2 rounded" style="background-color: yellow;color:black">Login</button>
                                 </a>
                             <% } %> 
                             
@@ -88,8 +88,8 @@
 
 
 
-                            <button onclick="simulateLogin()" class="logout" style="background-color: rgb(0, 255, 123); color:black;">Simulate Login</button>
-                            <button onclick="currentPage()" class="logout" style="background-color: rgb(52, 107, 79); color:black;">Current Page</button>
+                            <button onclick="simulateLogin()" class="btn btn-md px-3 py-2 rounded" style="background-color: rgb(0, 255, 123); color:black;">Simulate Login</button>
+                            <button onclick="currentPage()" class="btn btn-md px-3 py-2 rounded" style="background-color: rgb(52, 107, 79); color:black;">Current Page</button>
                             
                             <script>
                                 function simulateLogin() {

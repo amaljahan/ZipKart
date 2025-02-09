@@ -100,9 +100,11 @@ console.log("new Quantity : ", newQuantity);
             product.stock = 0;
         }
         product.popularity = product.popularity + 4;
-
-        await cart.save();
-        await product.save();
+        
+        await Promise.all([
+            cart.save(), 
+            product.save()
+        ]);
         
         //  res.rdirect('user/cart/cart',{message: "Cart updated successfully",cart,session: req.session})
         return res.status(200).json({ success: true, message: "Cart updated successfully" ,url:`/zipkart/user/${userId}/cart`});

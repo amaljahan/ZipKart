@@ -1,5 +1,6 @@
 const Orders = require('../../../model/user/order_model')
 const Wallet = require('../../../model/user/wallet_model')
+const Coupons = require('../../../model/adminModel/coupon_moddel')
 const Product = require('../../../model/adminModel/product_model')
 
 
@@ -56,22 +57,24 @@ const cancelOrder = async (req,res)=>{
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-         const item = order.products.find((item)=>{             
-            return item.productId.toString() == productId
-
+         const product = order.products.find(item=>{
+            return item.productId.toString() === productId
          })
-         
-       
 
-         const product = await Product.findById({_id:item.productId})
-         if (!product) {
-             return res.status(404).json({ success: false, message: "Product not found" });
+         const cancelAmount = product.discountedPrice;
+
+
+        if (order.totalPrice <= 0) {//checking dividing by zero may cause 0 thats why this is using...
+            return res.status(400).json({ success: false, message: "Invalid total price" });
         }
-        const cancelledAmount = item.quantity * product.price;
-        product.stock += item.quantity
-        item.status = "Cancelled";
-        order.totalPrice -= cancelledAmount
-        order.subtotal -= cancelledAmount
+        
+
+
+
+        product.stock += product.quantity
+        product.status = "Cancelled";
+        order.totalPrice -= cancelAmount
+        order.subtotal -= cancelAmount
         order.deliveryCharge = order.subtotal < 500 ? 40 : 0;
 
         const StatusCancelledNot =  order.products.filter((item)=>{
@@ -84,7 +87,7 @@ const cancelOrder = async (req,res)=>{
             order.status = 'Cancelled';
             order.subtotal = 0
             order.totalPrice = 0
-            order.deliveryCharge = 0
+            order.deliveryCharge = 0 
         }
 
         if(order.paymentMethod !== "COD"){
@@ -92,9 +95,9 @@ const cancelOrder = async (req,res)=>{
             if(!wallet){
                 res.status(400).json({success:false, message: "Wallet not found."})
             }
-            wallet.balance += cancelledAmount;
+            wallet.balance += cancelAmount;
             wallet.transactions.push({
-                amount: cancelledAmount,
+                amount: cancelAmount,
                 type: 'credit',
                 description:`Refund from cancelled item ${product.name} from Order ${order.orderId}`,
                 date: new Date(),
@@ -102,11 +105,8 @@ const cancelOrder = async (req,res)=>{
             await wallet.save();
         }
             
-
             await Promise.all([product.save(), order.save()]);
-
             return res.json({ success: true, message: 'Item cancelled successfully!' });
-
 
     } catch (error) {
         console.log("Error of cancel order: ",error);

@@ -344,9 +344,9 @@
         // Function to remove a product from the cart
         let removeTimeout; // Timeout for debouncing remove action
         async function removeProduct(userId,productId) {
-            clearTimeout(removeTimeout); // Clear any existing timeout
+            // clearTimeout(removeTimeout); // Clear any existing timeout
     
-            removeTimeout = setTimeout(async () => {
+            // removeTimeout = setTimeout(async () => {
                 try {
                     const result = await Swal.fire({
                         title: 'Are you sure?',
@@ -396,7 +396,7 @@
                         });
                     }
                 }
-            }, DEBOUNCE_DELAY);
+            // }, DEBOUNCE_DELAY);
         }
     </script>
     <script src="/css/js/main.js"></script>
