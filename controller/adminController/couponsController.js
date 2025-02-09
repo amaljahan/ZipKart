@@ -15,7 +15,7 @@ const view_coupons = async(req, res)=>{
 const add_coupon = async(req, res)=>{
 
     const { code, description, discountValue, expiryDate, maxDiscountLimit, minPurchaseAmount, usageLimit } = req.body
-    console.log("at add coupon==========>",req.body);
+    console.log("at add coupon==========a>",req.body);
 
     try {
 

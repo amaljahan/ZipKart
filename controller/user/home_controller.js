@@ -1,5 +1,6 @@
 const Product = require('../../model/adminModel/product_model')
 const Category = require('../../model/adminModel/categoryModel')
+const Offers = require('../../model/adminModel/offerModel')
 const Review = require('../../model/reviews_model')
 const mongoose = require('mongoose')
 
@@ -21,6 +22,11 @@ const get_category_vised_products = async (req, res) => {
     const { sort = 'createdAt', search = '', page = 1, limit = 10, category } = req.query;
   
     try {
+
+    const offer = await Offers.find({isActive:true});
+
+
+
         let filter = { isListed: true };    
         if (search) {
             filter.name = { $regex: search, $options: "i" }; 

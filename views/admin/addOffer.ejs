@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Offer Management</title>
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    main {
+        width: 90%;
+        max-width: 600px;
+        margin: 30px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 { text-align: center; color: #333; }
+    .form-group { margin-bottom: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; }
+    input, select, textarea {
+        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px;
+    }
+    .error-message {
+        color: red; font-size: 14px; display: block; margin-top: 5px;
+    }
+    .form-buttons { display: flex; justify-content: space-between; }
+    button {
+        border: none; padding: 10px 15px; font-size: 16px; cursor: pointer;
+        border-radius: 5px; transition: 0.3s;
+    }
+    .save-btn { background: #28a745; color: white; }
+    .cancel-btn { background: #dc3545; color: white; text-decoration: none; }
+    .form-group div {
+        display: flex; align-items: center; gap: 8px; margin-bottom: 5px;
+    }
+    .form-group div input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+</style>
+<body>
+
+    <header>
+        <div class="user-actions">
+            <a href="#"><%=session.user %></a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Add New Offer</h1>
+        <form id="offer-form">
+            
+            <div class="form-group">
+                <label for="offerName">Offer Name*</label>
+                <input type="text" id="offerName" name="offerName" placeholder="Enter Offer Name">
+                <span class="error-message" id="offerNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description*</label>
+                <textarea id="description" name="description" placeholder="Enter Description"></textarea>
+                <span class="error-message" id="descriptionError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="discountType">Discount Type*</label>
+                <select id="discountType" name="discountType">
+                    <option value="">Select Type</option>
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed</option>
+                </select>
+                <span class="error-message" id="discountTypeError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="discountValue">Discount Value*</label>
+                <input type="number" id="discountValue" name="discountValue" placeholder="Enter Discount Value">
+                <span class="error-message" id="discountValueError"></span>
+            </div>
+            <div class="form-group">
+                <label for="discountValue">Max Discount Amount*</label>
+                <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" placeholder="Enter Maximum Discount amount">
+                <span class="error-message" id="maxDiscountAmountError"></span>
+            </div>
+            
+
+            <div class="form-group">
+                <label for="applicableType">Applicable Type*</label>
+                <select id="applicableType" name="applicableType">
+                    <option value="">Select Type</option>
+                    <option value="category">Category</option>
+                    <option value="product">Product</option>
+                </select>
+                <span class="error-message" id="applicableTypeError"></span>
+            </div>
+
+            <div class="form-group" id="categorySelection" style="display: none;">
+                <label>Select Categories</label>
+                <% if (categories && categories.length > 0) { %>
+                    <% categories.forEach(category => { %>
+                        <div>
+                            <input type="checkbox" name="selectedCategories" value="<%= category._id %>">
+                            <label><%= category.name %></label>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No categories available.</p>
+                <% } %>
+                <span class="error-message" id="categoryError"></span>
+            </div>
+
+            <div class="form-group" id="productSelection" style="display: none;">
+                <label>Select Products</label>
+                <% if (products && products.length > 0) { %>
+                    <% products.forEach(product => { %>
+                        <div>
+                            <input type="checkbox" name="selectedProducts" value="<%= product._id %>">
+                            <label><%= product.name %></label>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No products available.</p>
+                <% } %>
+                <span class="error-message" id="productError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Start Date*</label>
+                <input type="date" id="startDate" name="startDate">
+                <span class="error-message" id="startDateError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiryDate">End Date*</label>
+                <input type="date" id="expiryDate" name="expiryDate">
+                <span class="error-message" id="expiryDateError"></span>
+            </div>
+            <div class="form-group">
+                <label for="usageLimit">Usage Limit*</label>
+                <input type="number" id="usageLimit">
+                <span class="error-message" id="usageLimitError"></span>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Save Offer</button>
+                <a href="/zipkart/admin/offers/view-offers"><button type="button" class="cancel-btn">Cancel</button></a>
+            </div>
+
+        </form>
+    </main>
+
+<script>
+    document.getElementById('applicableType').addEventListener('change', function () {
+    let categorySection = document.getElementById('categorySelection');
+    let productSection = document.getElementById('productSelection');
+
+    if (this.value === 'category') {
+        categorySection.style.display = 'block';
+        productSection.style.display = 'none';
+    } else if (this.value === 'product') {
+        categorySection.style.display = 'none';
+        productSection.style.display = 'block';
+    } else {
+        categorySection.style.display = 'none';
+        productSection.style.display = 'none';
+    }
+});
+
+// Function to show an error message
+function showError(id, message) {
+    document.getElementById(id).innerText = message;
+}
+
+// Function to clear the error message
+function clearError(id) {
+    document.getElementById(id).innerText = "";
+}
+
+// Add event listeners to clear errors on input change
+document.getElementById('offerName').addEventListener('input', () => clearError("offerNameError"));
+document.getElementById('description').addEventListener('input', () => clearError("descriptionError"));
+document.getElementById('discountType').addEventListener('change', () => clearError("discountTypeError"));
+document.getElementById('discountValue').addEventListener('input', () => clearError("discountValueError"));
+document.getElementById('maxDiscountAmount').addEventListener('input', () => clearError("maxDiscountAmountError"));
+document.getElementById('applicableType').addEventListener('change', () => clearError("applicableTypeError"));
+document.getElementById('startDate').addEventListener('input', () => clearError("startDateError"));
+document.getElementById('expiryDate').addEventListener('input', () => clearError("expiryDateError"));
+document.getElementById('usageLimit').addEventListener('input', () => clearError("usageLimitError"));
+
+
+document.getElementById('offer-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    let isValid = true;
+
+    const offerName = document.getElementById('offerName').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const discountType = document.getElementById('discountType').value;
+    const discountValue = document.getElementById('discountValue').value;
+    const applicableType = document.getElementById('applicableType').value;
+    const maxDiscountAmount = document.getElementById('maxDiscountAmount').value;
+    const startDate = document.getElementById('startDate').value;
+    const expiryDate = document.getElementById('expiryDate').value;
+    const usageLimit = document.getElementById('usageLimit').value;
+
+    function getSelectedItems(containerId) {
+    return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`))
+        .map(checkbox => checkbox.value);
+}
+
+let applicableItems = [];
+if (applicableType === "category") {
+    applicableItems = getSelectedItems('categorySelection');
+} else if (applicableType === "product") {
+    applicableItems = getSelectedItems('productSelection');
+}
+
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (!offerName.match(/^[A-Za-z0-9\s@%&\-]{1,}$/)) {
+    showError("offerNameError", "Offer name should only contain letters, numbers, spaces, and special characters like @, %, &, -.");
+    isValid = false;
+}
+
+
+    if (!description.match(/^.{10,}$/)) {
+        showError("descriptionError", "Description must be at least 10 characters.");
+        isValid = false;
+    }
+
+    if (!discountType) {
+        showError("discountTypeError", "Select a Discount Type.");
+        isValid = false;
+    }
+
+    if (!discountValue || discountValue <= 0) {
+        showError("discountValueError", "Enter a valid Discount Value.");
+        isValid = false;
+    }
+
+    if (!maxDiscountAmount || maxDiscountAmount <= 0) {
+        showError("maxDiscountAmountValueError", "Enter a valid Maximum Discount amount.");
+        isValid = false;
+    }
+
+    if (!applicableType) {
+        showError("applicableTypeError", "Select Applicable Type.");
+        isValid = false;
+    }
+    if (applicableItems.length === 0) {
+    showError("categoryError", "Select at least one category or product.");
+    isValid = false;
+}
+
+    if (!startDate) {
+        showError("startDateError", "Start Date is required.");
+        isValid = false;
+    } else if (startDate < today) {
+        showError("startDateError", "Start Date cannot be in the past.");
+        isValid = false;
+    }
+
+    if (!expiryDate) {
+        showError("expiryDateError", "End Date is required.");
+        isValid = false;
+    } else if (expiryDate <= startDate) {
+        showError("expiryDateError", "End Date must be after Start Date and in the future date also.");
+        isValid = false;
+    }
+
+    if (!usageLimit || usageLimit <= 0) {
+        showError("usageLimitError", "Enter a valid usage limit.");
+        isValid = false;
+    }
+
+    console.log(isValid);
+    
+    if (isValid) {
+    try {   
+       
+        const response = await axios.post('/zipkart/admin/offers/view-offers/add-offer', {
+    offerName,
+    description,
+    discountType,
+    discountValue,
+    applicableType,
+    applicableItems, 
+    maxDiscountAmount,
+    startDate,
+    endDate: expiryDate,
+    usageLimit
+});
+
+        if (response.data.success) {
+            Swal.fire({ icon: 'success', title: 'Success', text: 'Offer added successfully!' })
+                .then(() => window.location.href = '/zipkart/admin/offers/view-offers');
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: response.data.message });
+        }
+    } catch (error) {
+        console.error('Axios Error:', error);
+
+        // Handle different error cases
+        if (error.response) {
+            // Backend responded with an error
+            Swal.fire({ icon: 'error', title: 'Error', text: error.response.data.message || 'Something went wrong!' });
+        } else if (error.request) {
+            // Request was made but no response received
+            Swal.fire({ icon: 'error', title: 'Network Error', text: 'No response from server. Please try again later.' });
+        } else {
+            // Other unexpected errors
+            Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.' });
+        }
+    }
+}
+
+});
+
+</script>
+
+</body>
+</html>

@@ -12,6 +12,7 @@ const dashboard = require('./dashboardRoutes')
 const products = require('./productsRoutes');
 const Orders = require('./orderRoutes')
 const Coupon = require('./couponsRoutes')
+const Offer = require('./offersRoutes')
 const { isLogged, isAdmin } = require('../../middleware/admin/adminAuthMiddleware');
 
 
@@ -24,6 +25,7 @@ router.use('/',isAdmin,dashboard)//dashboard
 router.use('/products',isAdmin,products)//products
 router.use('/orders',isAdmin,Orders)//Orders
 router.use('/coupons',isAdmin,Coupon)//Orders
+router.use('/offers',isAdmin,Offer)//Orders
 router.post('/logout',isAdmin,adminLogout)//Logout
 
 
