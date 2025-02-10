@@ -327,6 +327,18 @@ const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10)
                                                      style="top: 10px; left: 10px;">
                                                     <%= product.categoryName %>
                                                 </div>
+                                                
+                                                <% if (product.bestDiscount) { %>
+                                                    <div class="text-white bg-danger px-3 py-1 rounded position-absolute" 
+                                                         style="top: 10px; right: 10px;">
+                                                        <% if (product.bestDiscount.discountType === 'percentage') { %>
+                                                            <%= product.bestDiscount.discountValue %>% OFF
+                                                        <% } else { %>
+                                                            ₹<%= product.bestDiscount.discountValue %> OFF
+                                                        <% } %>
+                                                    </div>
+                                                <% } %>
+                        
                                                 <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                                     <h4><%= product.name %></h4>
                                                     <% if (product.stock === 0) { %>
@@ -337,24 +349,38 @@ const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10)
                                                         <p>&nbsp;</p>
                                                     <% } %>
                                                     
-                                                    <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
-                                                    <div class="d-flex justify-content-between flex-lg-wrap">
-                                                        <p class="text-dark fs-5 fw-bold mb-0">
-                                                            <%= product.price %> <span class="rupee-symbol">₹</span> / <%= product.unit %>
-                                                        </p>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <% if (product.bestDiscount) { %>
+                                                            <h5 class="text-danger text-decoration-line-through mb-0">
+                                                                <%= product.price %> ₹
+                                                            </h5>
+                                                            <h5 class="text-dark fs-5 fw-bold mb-0">
+                                                                <%= Math.round(product.discountedPrice) %> ₹ / <%= product.unit %>
+                                                            </h5>
+                                                        <% } else { %>
+                                                            <h5 class="text-dark fs-5 fw-bold mb-0">
+                                                                <%= product.price %> ₹ / <%= product.unit %>
+                                                            </h5>
+                                                        <% } %>
+                                                    </div>
+                        
+                                                    <% if (product.bestDiscount) { %>
+                                                        <small class="text-success">
+                                                            <%= product.bestDiscount.name %> - <%= product.bestDiscount.description %>
+                                                        </small>
+                                                    <% } %>
+                                                    
+                                                    <!-- Action Buttons -->
+                                                    <div class="d-flex gap-2 mt-3">
+                                                        <button class="btn border border-secondary rounded-pill px-3 text-dark"
+                                                                onclick="updateCart('<%= session.userId %>','<%= product._id %>', 1)">
+                                                            <i class="fa fa-shopping-bag me-1 text-warning"></i> Add to cart
+                                                        </button>
                                                         
-                                                        <!-- Action Buttons -->
-                                                        <div class="d-flex gap-2">
-                                                            <button class="btn border border-secondary rounded-pill px-3 text-dark"
-                                                                    onclick="updateCart('<%= session.userId %>','<%= product._id %>', 1)">
-                                                                <i class="fa fa-shopping-bag me-1 text-warning"></i> Add to cart
-                                                            </button>
-                                                            
-                                                            <button class="btn border border-secondary rounded-pill px-3 text-dark "
-                                                                    onclick="updateWishlist('<%= session.userId %>','<%= product._id %>')">
-                                                                <i class="fa fa-heart me-1 text-danger"></i> Add to Wishlist
-                                                            </button>
-                                                        </div>
+                                                        <button class="btn border border-secondary rounded-pill px-3 text-dark "
+                                                                onclick="updateWishlist('<%= session.userId %>','<%= product._id %>')">
+                                                            <i class="fa fa-heart me-1 text-danger"></i> Add to Wishlist
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -366,6 +392,7 @@ const getProducts = async (sortCriteria, searchQuery = '', page = 1, limit = 10)
                                     </div>
                                 <% } %>
                             </div>
+                        </div>
                             <script>
                                 const updateCart = async (userId, productId, count) => {
                                     try {

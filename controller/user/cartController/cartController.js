@@ -1,5 +1,6 @@
 const Carts = require('../../../model/user/cart_model') 
 const Product = require('../../../model/adminModel/product_model'); 
+const Offers = require('../../../model/adminModel/offerModel'); 
 
 
 
@@ -25,6 +26,207 @@ const view_cart = async(req,res)=>{
     }
 }
 
+// Controller
+
+// const view_cart = async(req,res)=>{
+//     const userId = req.params.id;
+    
+//     try {
+//         // 1. Fetch cart with populated products
+//         let cart = await Carts.findOne({ userId }).populate({
+//             path: 'products.productId',
+//             select: 'name price unit images categoryId'
+//         });
+        
+//         console.log("Initial Cart Data:", JSON.stringify(cart, null, 2));
+
+//         if (!cart) {
+//             cart = new Carts({
+//                 userId,
+//                 products: [],
+//             });       
+//         }
+
+//         // 2. Fetch active offers
+//         const currentDate = new Date();
+//         const activeOffers = await Offers.find({
+//             isActive: true,
+//             startDate: { $lte: currentDate },
+//             endDate: { $gte: currentDate }
+//         }).populate('applicableItems');
+
+//         console.log("Active Offers:", JSON.stringify(activeOffers, null, 2));
+
+//         // 3. Process cart products with offers
+//         if (cart.products && cart.products.length > 0) {
+//             cart.products = await Promise.all(cart.products.map(async (item) => {
+//                 const product = item.productId;
+                
+//                 // Ensure product price exists and is a number
+//                 const productPrice = Number(product.price) || 0;
+//                 const quantity = Number(item.quantity) || 0;
+
+//                 let bestDiscount = 0;
+//                 let appliedOffer = null;
+
+//                 // Check for valid activeOffers
+//                 if (activeOffers && activeOffers.length > 0) {
+//                     // Product-specific offers
+//                     const productOffers = activeOffers.filter(offer => 
+//                         offer.applicableType === 'product' && 
+//                         offer.applicableItems.some(p => p._id.toString() === product._id.toString())
+//                     );
+
+//                     // Category-specific offers
+//                     const categoryOffers = activeOffers.filter(offer => 
+//                         offer.applicableType === 'category' && 
+//                         product.categoryId && 
+//                         offer.applicableItems.some(c => c._id.toString() === product.categoryId.toString())  // Ensure both are strings
+//                     );
+                    
+// console.log("========categoryoffer:",categoryOffers);
+
+// const applicableOffers = [...productOffers, ...categoryOffers];
+
+// console.log("========applicableOffers:",applicableOffers);
+//                     // Calculate best discount
+//                     applicableOffers.forEach(offer => {
+//                         let discountAmount = 0;
+                        
+//                         if (offer.discountType === 'percentage') {
+//                             discountAmount = (productPrice * (Number(offer.discountValue) || 0)) / 100;
+//                             if (offer.maxDiscountAmount) {
+//                                 discountAmount = Math.min(discountAmount, Number(offer.maxDiscountAmount));
+//                             }
+//                         } else { // fixed discount
+//                             discountAmount = Number(offer.discountValue) || 0;
+//                         }
+
+//                         if (discountAmount > bestDiscount) {
+//                             bestDiscount = discountAmount;
+//                             appliedOffer = offer;
+//                         }
+//                     });
+//                 }
+
+//                 // Calculate final prices
+//                 const basePrice = productPrice * quantity;
+//                 const totalDiscount = bestDiscount * quantity;
+//                 const finalPrice = basePrice - totalDiscount;
+
+//                 console.log(`Product ${product.name} calculations:`, {
+//                     // basePrice,
+//                     // bestDiscount,
+//                     // totalDiscount,
+//                     // finalPrice,
+//                     appliedOffer: appliedOffer ? appliedOffer.name : 'None'
+//                 });
+
+//                 return {
+//                     ...item.toObject(),
+//                     appliedOffer,
+//                     discountAmount: bestDiscount,
+//                     basePrice,
+//                     finalPrice
+//                 };
+//             }));
+//         }
+
+//         // Log final cart data
+//         console.log("Final processed cart data:", JSON.stringify(cart, null, 2));
+
+//         res.render('user/cart/cart', { 
+//             cart: cart || null,
+//             session: req.session 
+//         });
+//     }
+//     catch(err){
+//         console.error("Error in view_cart:", err);
+//         res.status(500).render('user/cart/cart', { message: "Server error", cart: null });
+//     }
+// }
+// const view_cart = async(req,res)=>{
+//     const userId = req.params.id;
+    
+//     try {
+//         let cart = await Carts.findOne({ userId }).populate({
+//             path: 'products.productId',
+//             select: 'name price unit images categoryId'
+//         });
+        
+//         if (!cart) {
+//             cart = new Carts({
+//                 userId,
+//                 products: [],
+//             });       
+//         }
+
+//         // Fetch all active offers
+//         const currentDate = new Date();
+//         const activeOffers = await Offers.find({
+//             isActive: true,
+//             startDate: { $lte: currentDate },
+//             endDate: { $gte: currentDate }
+//         }).populate('applicableItems');
+
+//         // Calculate prices with offers for each product
+//         if (cart.products) {
+//             cart.products = await Promise.all(cart.products.map(async (item) => {
+//                 const product = item.productId;
+//                 let bestDiscount = 0;
+//                 let appliedOffer = null;
+
+//                 // Check product-specific offers
+//                 const productOffers = activeOffers.filter(offer => 
+//                     offer.applicableType === 'product' && 
+//                     offer.applicableItems.some(p => p._id.equals(product._id))
+//                 );
+
+//                 // Check category-specific offers
+//                 const categoryOffers = activeOffers.filter(offer => 
+//                     offer.applicableType === 'category' && 
+//                     offer.applicableItems.some(c => c._id.equals(product.categoryId))
+//                 );
+
+//                 // Combine all applicable offers
+//                 const applicableOffers = [...productOffers, ...categoryOffers];
+
+//                 // Find best discount
+//                 applicableOffers.forEach(offer => {
+//                     let discountAmount;
+//                     if (offer.discountType === 'percentage') {
+//                         discountAmount = (product.price * offer.discountValue) / 100;
+//                         if (offer.maxDiscountAmount) {
+//                             discountAmount = Math.min(discountAmount, offer.maxDiscountAmount);
+//                         }
+//                     } else { // fixed discount
+//                         discountAmount = offer.discountValue;
+//                     }
+
+//                     if (discountAmount > bestDiscount) {
+//                         bestDiscount = discountAmount;
+//                         appliedOffer = offer;
+//                     }
+//                 });
+
+//                 return {
+//                     ...item.toObject(),
+//                     appliedOffer,
+//                     discountAmount: bestDiscount
+//                 };
+//             }));
+//         }
+
+//         res.render('user/cart/cart', { 
+//             cart: cart || null,
+//             session: req.session 
+//         });
+//     }
+//     catch(err){
+//         console.error("Error: ", err);
+//         res.status(500).render('user/cart/cart', { message: "Server error", cart: null });
+//     }
+// }
 
 
 const updateCart = async (req, res) => {
@@ -54,8 +256,8 @@ const updateCart = async (req, res) => {
 
         if (!cart) {
 
-            cart = new Carts({
-                userId,
+            cart = new Carts
+                userId,({
                 products: [],
             });
         }

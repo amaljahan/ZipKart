@@ -46,7 +46,7 @@ const add_offer = async (req, res) => {
             offerName, description, discountType, discountValue,
             applicableType, applicableItems, maxDiscountAmount,
             startDate, endDate
-        } = req.body;
+        } = req. body;
 
         console.log("at add offer==========a>", req.body);
 

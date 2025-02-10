@@ -104,129 +104,94 @@
                                 </div>
                             </div>
                             
-                            <style>
-                            .image-container {
-                                position: relative; /* Set relative positioning for child elements */
-                                overflow: hidden;
-                                width: 100%;
-                                height: 100%;
-                                cursor: grab;
-                            }
-                            
-                            .zoom-trigger {
-                                position: absolute;
-                                top: 0;
-                                left: 0;
-                                width: 100%;
-                                height: auto; /* Maintain aspect ratio */
-                                transition: transform 0.2s ease-in-out;
-                                cursor: grab;
-                                will-change: transform, top, left;
-                            }
-                            
-                            .btn-arrow {
-                                position: absolute;
-                                top: 50%; /* Vertically center */
-                                transform: translateY(-50%);
-                                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-                                color: white;
-                                border: none;
-                                padding: 10px 15px;
-                                z-index: 20; /* Ensure buttons are above the image */
-                                cursor: pointer;
-                            }
-                            
-                            .left-arrow {
-                                left: 10px; /* Position on the left */
-                            }
-                            
-                            .right-arrow {
-                                right: 10px; /* Position on the right */
-                            }
-                            
-                            #selectionBox {
-                                position: absolute;
-                                border: 2px dashed #007bff;
-                                display: none;
-                                pointer-events: none;
-                                z-index: 10; /* Above the image but below buttons */
-                            }
-                            </style>
-                            
-                        
-               
-            
-<script>
-            // JavaScript for image zoom
-            document.querySelectorAll('.zoom-trigger').forEach(function (img) {
-            img.addEventListener('mouseover', function () {
-                imageZoom(this); // Pass 'this' (current image) to imageZoom function
-            });
-        });
-    
-        function imageZoom(img) {
-            img.addEventListener('mousemove', function (e) {
-                var rect = img.getBoundingClientRect();
-                var x = e.clientX - rect.left; // X position within the image
-                var y = e.clientY - rect.top; // Y position within the image
-    
-                var percentX = (x / img.offsetWidth) * 50;
-                var percentY = (y / img.offsetHeight) * 50;
-    
-                img.style.transformOrigin = percentX + '% ' + percentY + '%';
-                img.style.transform = 'scale(2)';
-            });
-    
-            img.addEventListener('mouseleave', function () {
-                img.style.transform = 'scale(1)';
-            });
-        }
 
-</script>
                             
 
                             <!-- -------------------------start-------------------------------------------------------------- -->
-                            <div class="col-lg-6"><td>
-                                <img height="50" width="50" src="<%= product.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
-                            </td>
-                                <h4 class="fw-bold mb-3"><%= product.name %></h4> <!-- Product Name -->
-                                <p class="mb-3">Category: <%= product.category.name %></p> <!-- Category Name -->
-                                <h5 class="text-danger text-decoration-line-through">100 ₹</h5>
-                                <h5 class="fw-bold mb-3"><%= product.price %> ₹</h5> <!-- Product Price in Rupees -->
-                                <% if (product.stock === 0) { %>
-                                    <p style="color: red;">Out of Stock</p>
-                                <% } else if (product.stock < 50) { %>
-                                    <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
-                                <% } %>
-                                       
-                                
-                                </p>
-                                <!-- Star Rating (Assuming you have a rating field in your Product model) -->
-                                <div class="d-flex mb-4">
-                                    <% for (let i = 0; i < 5; i++) { %>
-                                        <i class="fa fa-star <%= i < reviews.rating ? 'text-secondary' : '' %>"></i>
-                                    <% } %>
-                                </div>
-                            
-                            
-                                <div class="input-group quantity mb-5" style="width: 100px;" data-product-id="<%= product._id %>">
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <input type="text" class="form-control form-control-sm text-center border-0 quantity-input" value="1">
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <a href="javascript:void(0);" 
-                                   class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary add-to-cart-btn" 
-                                   data-user-id="<%= session.userId %>">
-                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-                                </a>
+                            <% 
+    let applicableOffer = null;
+    let discountAmount = 0;
+    let offerPrice = product.price;
+
+    if (offers.length > 0) {
+        for (let offer of offers) {
+            if (offer.applicableType === "product" && offer.applicableItems.includes(product._id.toString())) {
+                applicableOffer = offer;
+                break; // If the product-specific offer is found, use it first.
+            }
+            if (!applicableOffer && offer.applicableType === "category" && offer.applicableItems.includes(product.category._id.toString())) {
+                applicableOffer = offer; // Use category offer if no product-specific offer exists.
+            }
+        }
+
+        if (applicableOffer) {
+            if (applicableOffer.discountType === "percentage") {
+                discountAmount = (product.price * applicableOffer.discountValue) / 100;
+            } else {
+                discountAmount = applicableOffer.discountValue;
+            }
+
+            if (applicableOffer.maxDiscountAmount) {
+                discountAmount = Math.min(discountAmount, applicableOffer.maxDiscountAmount);
+            }
+
+            offerPrice = product.price - discountAmount;
+        }
+    }
+%>
+
+<div class="col-lg-6">
+    <td>
+        <img height="50" width="50" src="<%= product.images[0].thumbnailUrl %>" class="product-image img-thumbnail" alt="Product">
+    </td>
+    <h4 class="fw-bold mb-3"><%= product.name %></h4> <!-- Product Name -->
+    <p class="mb-3">Category: <%= product.category.name %></p> <!-- Category Name -->
+
+    <!-- Show original price with a strikethrough if there's an offer -->
+    <% if (applicableOffer) { %>
+        <h5 class="text-danger text-decoration-line-through"><%= product.price %> ₹</h5>
+        <h5 class="fw-bold mb-3 text-success">Offer Price: <%= offerPrice.toFixed(2) %> ₹</h5>
+        <p class="text-info">Offer: <%= applicableOffer.name %> - <%= applicableOffer.discountValue %> <% if (applicableOffer.discountType === 'percentage') { %>%<% } else { %>₹<% } %> Off</p>
+    <% } else { %>
+        <h5 class="fw-bold mb-3"><%= product.price %> ₹</h5>
+    <% } %>
+
+    <% if (product.stock === 0) { %>
+        <p style="color: red;">Out of Stock</p>
+    <% } else if (product.stock < 50) { %>
+        <p style="color: red;">The Stock is going to finish, Hurry Up!</p>
+    <% } %>
+
+    <!-- Star Rating -->
+    <div class="d-flex mb-4">
+        <% for (let i = 0; i < 5; i++) { %>
+            <i class="fa fa-star <%= i < reviews.rating ? 'text-secondary' : '' %>"></i>
+        <% } %>
+    </div>
+
+    <!-- Quantity Selector -->
+    <div class="input-group quantity mb-5" style="width: 100px;" data-product-id="<%= product._id %>">
+        <div class="input-group-btn">
+            <button class="btn btn-sm btn-minus rounded-circle bg-light border">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+        <input type="text" class="form-control form-control-sm text-center border-0 quantity-input" value="1">
+        <div class="input-group-btn">
+            <button class="btn btn-sm btn-plus rounded-circle bg-light border">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <a href="javascript:void(0);" 
+       class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary add-to-cart-btn" 
+       data-user-id="<%= session.userId %>">
+        <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+    </a>
+</div>
+
 
 
 
@@ -966,7 +931,85 @@ window.addEventListener('DOMContentLoaded', (event) => {
         button.parent().parent().find('input').val(newVal);
     });c
     </script>
-
+                            <style>
+                                .image-container {
+                                    position: relative; /* Set relative positioning for child elements */
+                                    overflow: hidden;
+                                    width: 100%;
+                                    height: 100%;
+                                    cursor: grab;
+                                }
+                                
+                                .zoom-trigger {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: auto; /* Maintain aspect ratio */
+                                    transition: transform 0.2s ease-in-out;
+                                    cursor: grab;
+                                    will-change: transform, top, left;
+                                }
+                                
+                                .btn-arrow {
+                                    position: absolute;
+                                    top: 50%; /* Vertically center */
+                                    transform: translateY(-50%);
+                                    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 15px;
+                                    z-index: 20; /* Ensure buttons are above the image */
+                                    cursor: pointer;
+                                }
+                                
+                                .left-arrow {
+                                    left: 10px; /* Position on the left */
+                                }
+                                
+                                .right-arrow {
+                                    right: 10px; /* Position on the right */
+                                }
+                                
+                                #selectionBox {
+                                    position: absolute;
+                                    border: 2px dashed #007bff;
+                                    display: none;
+                                    pointer-events: none;
+                                    z-index: 10; /* Above the image but below buttons */
+                                }
+                                </style>
+                                
+                            
+                   
+                
+    <script>
+                // JavaScript for image zoom
+                document.querySelectorAll('.zoom-trigger').forEach(function (img) {
+                img.addEventListener('mouseover', function () {
+                    imageZoom(this); // Pass 'this' (current image) to imageZoom function
+                });
+            });
+        
+            function imageZoom(img) {
+                img.addEventListener('mousemove', function (e) {
+                    var rect = img.getBoundingClientRect();
+                    var x = e.clientX - rect.left; // X position within the image
+                    var y = e.clientY - rect.top; // Y position within the image
+        
+                    var percentX = (x / img.offsetWidth) * 50;
+                    var percentY = (y / img.offsetHeight) * 50;
+        
+                    img.style.transformOrigin = percentX + '% ' + percentY + '%';
+                    img.style.transform = 'scale(2)';
+                });
+        
+                img.addEventListener('mouseleave', function () {
+                    img.style.transform = 'scale(1)';
+                });
+            }
+    
+    </script>
 </body>
 
 </html>
