@@ -230,11 +230,12 @@ const view_cart = async(req,res)=>{
 
 
 const updateCart = async (req, res) => {
-    const userId = req.params.id; 
+    const userId = req.params.id;  
     let { productId, count } = req.query; 
     count = Number(count)
     console.log(req.query);
     console.log(req.params);
+    console.log(userId);
 
     try {
       
@@ -256,12 +257,13 @@ const updateCart = async (req, res) => {
 
         if (!cart) {
 
-            cart = new Carts
-                userId,({
+            cart = new Carts({
+                userId,
                 products: [],
             });
         }
-        
+        console.log(cart);
+
          const productIndex = cart.products.findIndex((item) => {      
             return item.productId._id.toString() === productId;
         });
@@ -283,6 +285,8 @@ console.log("new Quantity : ", newQuantity);
         } else {
             if (count > 0) {
                 cart.products.push({ productId, quantity: count });
+                console.log(cart);
+                
             } else {
                 return res.status(400).json({ success: false, message: "Cannot decrease quantity of non-existent product" });
             }

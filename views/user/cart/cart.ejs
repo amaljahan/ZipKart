@@ -79,25 +79,13 @@
                                 <th scope="col">Name</th>
                                 <th scope="col">Price</th>
                                 <th scope="col">Quantity</th>
-                                <th scope="col">Offer Applied</th>
                                 <th scope="col">Total</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% if (cart && cart.products && cart.products.length > 0) { %>
-                                <% 
-                                    let subtotal = 0;
-                                    let totalDiscount = 0;
-                                %>
                                 <% cart.products.forEach(product => { %>
-                                    <% 
-                                        const basePrice = product.productId.price * product.quantity;
-                                        const discountAmount = product.discountAmount * product.quantity;
-                                        const finalPrice = basePrice - discountAmount;
-                                        subtotal += finalPrice;
-                                        totalDiscount += discountAmount;
-                                    %>
                                     <tr>
                                         <td>
                                             <img src="<%= product.productId.images && product.productId.images[0] ? product.productId.images[0].thumbnailUrl : 'default-image.png' %>" 
@@ -119,24 +107,7 @@
                                                 </button>
                                             </div>
                                         </td>
-                                        <td>
-                                            <% if (product.appliedOffer) { %>
-                                                <div>
-                                                    <p class="mb-0 text-danger fw-bold"><%= product.appliedOffer.name %></p>
-                                                    <small class="text-muted">
-                                                        <% if (product.appliedOffer.discountType === 'percentage') { %>
-                                                            <%= product.appliedOffer.discountValue %>% off
-                                                        <% } else { %>
-                                                            ₹<%= product.appliedOffer.discountValue %> off
-                                                        <% } %>
-                                                    </small>
-                                                    <p class="mb-0 text-danger">-₹<%= discountAmount.toFixed(2) %></p>
-                                                </div>
-                                            <% } else { %>
-                                                <p class="mb-0 text-muted">No offers available</p>
-                                            <% } %>
-                                        </td>
-                                        <td><p class="mb-0 fw-bold">₹<%= finalPrice.toFixed(2) %></p></td>
+                                        <td><p class="mb-0 fw-bold">₹<%= (product.productId.price * product.quantity).toFixed(2) %></p></td>
                                         <td>
                                             <button class="btn btn-danger btn-sm rounded-circle shadow-sm" onclick="removeProduct('<%= session.userId %>', '<%= product.productId._id %>')">
                                                 <i class="fa fa-times"></i>
@@ -144,22 +115,13 @@
                                         </td>
                                     </tr>
                                 <% }) %>
-                                <!-- Summary rows -->
-                                <tr class="bg-light">
-                                    <td colspan="4" class="text-end fw-bold">Total Savings:</td>
-                                    <td class="text-danger fw-bold">-₹<%= totalDiscount.toFixed(2) %></td>
-                                    <td colspan="2"></td>
-                                </tr>
-                                <tr class="bg-light">
-                                    <td colspan="4" class="text-end fw-bold">Subtotal:</td>
-                                    <td colspan="3" class="fw-bold">₹<%= subtotal.toFixed(2) %></td>
-                                </tr>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted">Your cart is empty</td>
+                                    <td colspan="6" class="text-center text-muted">Your cart is empty</td>
                                 </tr>
                             <% } %>
                         </tbody>
+                        
                     </table>
                 </div>
         

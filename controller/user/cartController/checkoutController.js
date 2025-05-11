@@ -24,9 +24,9 @@ const   view_checkout_page = async(req,res)=>{
     catch(err){
         console.log("Error viewing from checkout page:", err);
         return res.status(500).json({ success: false, message: "Server error" });
-    }
+    } 
 } 
-
+  
 
 
 module.exports = {

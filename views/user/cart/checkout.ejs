@@ -428,7 +428,9 @@ function updateSummary(discount, appliedCouponCode) {
         activeCouponCode = appliedCouponCode;
         removeCouponBtn.style.display = 'block'; // Show remove button
     } else {
-        discountRow.style.display = 'none';
+        discountRow.style.display = 'none ';
+        discountAmount.textContent = `-₹${discount.toFixed(2)}`;
+
         activeCouponCode = null;
         removeCouponBtn.style.display = 'none'; // Hide remove button
     }
